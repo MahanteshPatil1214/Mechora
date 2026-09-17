@@ -1,0 +1,20 @@
+{
+  "_comment": "Prototype SIF-potential assessment rules. Decision support only; NOT accident prediction. These are prototype thresholds subject to OIL-data calibration.",
+  "classes": {
+    "high": {"label": "High SIF Potential", "description": "High hazardous energy + failed/absent/not-verified barrier + serious exposure indicators."},
+    "medium": {"label": "Medium SIF Potential", "description": "Moderate energy or partially effective barrier."},
+    "low": {"label": "Low SIF Potential", "description": "Verified barrier / benign exposure / no failure indicators."},
+    "needs_review": {"label": "Needs HSE Review", "description": "Insufficient or conflicting evidence to classify."}
+  },
+  "logic": {
+    "_comment": "combined_score = energy_rank + exposure_rank. barrier_penalty adds 2 per failure-type state.",
+    "barrier_penalty_states": ["not_verified", "failed", "absent"],
+    "barrier_penalty_partial_states": ["partially_effective"],
+    "barrier_penalty": 2,
+    "partial_penalty": 1,
+    "high_threshold": 9,
+    "medium_threshold": 6
+  },
+  "high_energy_codes": ["pressurized_gas", "electrical_energy", "flammable_atmosphere"],
+  "high_exposure_codes": ["fire_or_explosion", "uncontrolled_gas_release", "electrical_shock_risk", "confined_space_atmosphere"]
+}

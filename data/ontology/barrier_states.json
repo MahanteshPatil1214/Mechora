@@ -1,0 +1,11 @@
+{
+  "_comment": "Distinct barrier states. Normalization must NEVER merge verified with not_verified or any other state. These six states are the closed set (PRD section 7C).",
+  "barrier_states": [
+    {"code": "verified", "label": "Verified", "description": "Barrier confirmed present and effective."},
+    {"code": "not_verified", "label": "Not Verified", "description": "Barrier not confirmed/checked before work progressed."},
+    {"code": "failed", "label": "Failed", "description": "Barrier was present but failed during the event."},
+    {"code": "partially_effective", "label": "Partially Effective", "description": "Barrier present but only partly effective."},
+    {"code": "absent", "label": "Absent", "description": "Barrier not present / not in place / removed."},
+    {"code": "unknown", "label": "Unknown", "description": "State could not be determined from the narrative."}
+  ]
+}

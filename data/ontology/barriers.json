@@ -1,0 +1,193 @@
+{
+  "_comment": "Canonical required barriers. barrier + barrier_state carry 30% of structural similarity.",
+  "barriers": [
+    {
+      "code": "energy_isolation",
+      "label": "Energy Isolation",
+      "synonyms": [
+        "energy isolation",
+        "isolation",
+        "lockout",
+        "lotc",
+        "loto",
+        "lock out tag out",
+        "zero energy",
+        "zero-energy",
+        "isolation verification",
+        "proving isolation",
+        "depressurisation",
+        "depressurization",
+        "pressure isolation",
+        "isolated the",
+        "isolate the",
+        "venting",
+        "blow down",
+        "blowdown",
+        "leak test",
+        "isolation of",
+        "energy isolation verification",
+        "isolation check"
+      ]
+    },
+    {
+      "code": "work_permit",
+      "label": "Work Permit / Authorization",
+      "synonyms": [
+        "work permit",
+        "permit to work",
+        "ptw",
+        "job authorization",
+        "authorization",
+        "authorisation",
+        "work authorization",
+        "permit issued",
+        "valid permit",
+        "hot work permit",
+        "work approval"
+      ]
+    },
+    {
+      "code": "confined_space_procedure",
+      "label": "Confined Space Procedure",
+      "synonyms": [
+        "confined space procedure",
+        "confined space permit",
+        "atmosphere testing",
+        "forced ventilation",
+        "gas monitoring",
+        "entry permit",
+        "confined space controls",
+        "atmosphere test",
+        "entry controls",
+        "standby attendant",
+        "confined space entry",
+        "entered the confined space",
+        "entering the confined space",
+        "atmospheric test",
+        "gas detector",
+        "gas monitor",
+        "atmospheric testing",
+        "pump pit",
+        "pit entry",
+        "entered the pit",
+        "entry into the pit"
+      ]
+    },
+    {
+      "code": "fall_protection",
+      "label": "Fall Protection",
+      "synonyms": [
+        "fall protection",
+        "guardrail",
+        "safety harness",
+        "fall arrest",
+        "safety line",
+        "lifeline",
+        "scaffold guard",
+        "handrail",
+        "guard rail",
+        "personal fall arrest",
+        "anchorage"
+      ]
+    },
+    {
+      "code": "hot_work_controls",
+      "label": "Hot Work Controls",
+      "synonyms": [
+        "hot work controls",
+        "fire watch",
+        "fire watcher",
+        "gas testing for hot work",
+        "gas testing",
+        "gas test",
+        "flammable gas test",
+        "fire blanket",
+        "hot work permit",
+        "combustible gas test",
+        "spark guard"
+      ]
+    },
+    {
+      "code": "chemical_handling_controls",
+      "label": "Chemical Handling Controls",
+      "synonyms": [
+        "chemical handling controls",
+        "chemical ppe",
+        "ventilation",
+        "containment",
+        "spill kit",
+        "protective clothing",
+        "chemical gloves",
+        "respirator",
+        "scrubber",
+        "odor",
+        "exhaust system"
+      ]
+    },
+    {
+      "code": "machinery_guarding",
+      "label": "Machinery Guarding",
+      "synonyms": [
+        "machine guard",
+        "machinery guard",
+        "guarding",
+        "interlock",
+        "guard installed",
+        "safety guard",
+        "protective guard",
+        "cover plate",
+        "belt guard",
+        "overload relay",
+        "earth leakage relay",
+        "circuit breaker",
+        "trip switch",
+        "panel guard"
+      ]
+    },
+    {
+      "code": "lifting_controls",
+      "label": "Lifting Controls",
+      "synonyms": [
+        "lifting controls",
+        "lift plan",
+        "rigging plan",
+        "exclusion zone",
+        "crane inspection",
+        "load path",
+        "tag line",
+        "lifting gear inspection",
+        "safe working load",
+        "swl",
+        "lifting plan"
+      ]
+    },
+    {
+      "code": "housekeeping",
+      "label": "Housekeeping / Walkways",
+      "synonyms": [
+        "housekeeping",
+        "walkway",
+        "spill cleanup",
+        "obstruction",
+        "clear pathway",
+        "access path",
+        "floor marking",
+        "trip hazard"
+      ]
+    },
+    {
+      "code": "competent_supervision",
+      "label": "Competent Supervision",
+      "synonyms": [
+        "competent supervision",
+        "supervision",
+        "competent person",
+        "authorized person",
+        "authorised person",
+        "designated supervisor",
+        "trained operator",
+        "competent worker"
+      ]
+    }
+  ]
+}

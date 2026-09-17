@@ -1,0 +1,53 @@
+{
+  "_comment": "Precursor family name templates keyed by (barrier, barrier_state). Falls back to Meaningless templates by default.",
+  "templates": {
+    "energy_isolation": {
+      "not_verified": "Energy Isolation Verification Failure",
+      "failed": "Energy Isolation Failure",
+      "absent": "Energy Isolation Not Provided",
+      "partially_effective": "Energy Isolation Partially Effective",
+      "verified": "Energy Isolation Verified",
+      "unknown": "Energy Isolation Review Needed"
+    },
+    "work_permit": {
+      "not_verified": "Work Permit Verification Failure",
+      "absent": "Work Permit Not Issued",
+      "failed": "Work Permit Controls Failure",
+      "unknown": "Work Authorization Review Needed"
+    },
+    "confined_space_procedure": {
+      "not_verified": "Confined Space Atmosphere Verification Failure",
+      "absent": "Confined Space Controls Not Provided",
+      "failed": "Confined Space Controls Failure",
+      "partially_effective": "Confined Space Controls Partially Effective",
+      "unknown": "Confined Space Review Needed"
+    },
+    "fall_protection": {
+      "not_verified": "Fall Protection Verification Failure",
+      "absent": "Fall Protection Not Provided",
+      "failed": "Fall Protection Failure",
+      "partially_effective": "Fall Protection Partially Effective",
+      "unknown": "Fall Protection Review Needed"
+    },
+    "hot_work_controls": {
+      "not_verified": "Hot Work Controls Verification Failure",
+      "absent": "Hot Work Controls Not Provided",
+      "failed": "Hot Work Controls Failure",
+      "unknown": "Hot Work Review Needed"
+    },
+    "machinery_guarding": {
+      "not_verified": "Machine Guarding Verification Failure",
+      "absent": "Machine Guarding Not Provided",
+      "failed": "Machine Guarding Failure",
+      "bypassed": "Machine Guarding Bypassed",
+      "unknown": "Machine Guarding Review Needed"
+    },
+    "lifting_controls": {
+      "not_verified": "Lifting Controls Verification Failure",
+      "absent": "Lifting Controls Not Provided",
+      "failed": "Lifting Controls Failure",
+      "unknown": "Lifting Controls Review Needed"
+    }
+  },
+  "default": "Barrier Review Needed"
+}

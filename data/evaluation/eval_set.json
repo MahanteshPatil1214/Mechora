@@ -1,0 +1,4099 @@
+{
+  "kind": "evaluation",
+  "version": "1.0",
+  "note": "Synthetic representative data for MECHORA prototype. Not OIL private data; not trained on OIL data.",
+  "record_count": 216,
+  "records": [
+    {
+      "report_id": "EVAL-001",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During flange maintenance work, no one confirmed zero energy before the job began; gas was heard leaking from the flange at the pipeline section. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-002",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During pipeline maintenance, work started before zero pressure was verified; gas was heard leaking from the flange at the pipeline section. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-003",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During flange maintenance work, isolation verification was skipped; gas was heard leaking from the flange at the pipeline section. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-004",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During flange maintenance work, work began before depressurization was confirmed; a small gas release was observed at the pipeline section. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-005",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During flange maintenance work, work was carried out although zero-energy verification had not been done; gas was heard leaking from the flange at the pipeline section. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-006",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During pipeline maintenance, the crew opened the system without verifying isolation; gas was heard leaking from the flange at the pipeline section. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-007",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During pipeline maintenance, work proceeded without confirming that zero pressure was established; gas was heard leaking from the flange at the pipeline section. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-008",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During flange maintenance work, the team commenced work having failed to confirm zero pressure; gas was heard leaking from the flange at the pipeline section. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-009",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During pipeline maintenance, zero pressure was never verified before work began; a small gas release was observed at the pipeline section. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-010",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During flange maintenance work, the job started while pressure had not yet been confirmed as zero; a small gas release was observed at the pipeline section. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-011",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During compressor servicing, work proceeded without confirming that zero pressure was established; a hydrocarbon release occurred briefly in the compressor room. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-012",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "While overhauling the compressor, isolation verification was skipped; a small gas release was observed in the compressor room. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-013",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During compressor servicing, the crew opened the system without verifying isolation; gas was heard leaking from the flange in the compressor room. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-014",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During compressor maintenance, work began before depressurization was confirmed; a small gas release was observed in the compressor room. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-015",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During compressor servicing, work was carried out although zero-energy verification had not been done; gas was heard leaking from the flange in the compressor room. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-016",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "While overhauling the compressor, the job started while pressure had not yet been confirmed as zero; gas was heard leaking from the flange in the compressor room. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-017",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "While overhauling the compressor, work started before zero pressure was verified; gas was heard leaking from the flange in the compressor room. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-018",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During compressor servicing, zero pressure was never verified before work began; a hydrocarbon release occurred briefly in the compressor room. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-019",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "While overhauling the compressor, the team commenced work having failed to confirm zero pressure; a small gas release was observed in the compressor room. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-020",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During compressor maintenance, no one confirmed zero energy before the job began; a small gas release was observed in the compressor room. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-021",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During valve repair work, work began before depressurization was confirmed; a hydrocarbon release occurred briefly at the process area. No injury was reported.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-022",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "While replacing a control valve, zero pressure was never verified before work began; gas was heard leaking from the flange at the process area. No injury was reported.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-023",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During valve replacement, the job started while pressure had not yet been confirmed as zero; gas was heard leaking from the flange at the process area. No injury was reported.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-024",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "While replacing a control valve, no one confirmed zero energy before the job began; a hydrocarbon release occurred briefly at the process area. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-025",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During valve replacement, work was carried out although zero-energy verification had not been done; a small gas release was observed at the process area. No injury was reported.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-026",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During valve replacement, the team commenced work having failed to confirm zero pressure; a hydrocarbon release occurred briefly at the process area. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-027",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During valve repair work, work proceeded without confirming that zero pressure was established; a small gas release was observed at the process area. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-028",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During valve replacement, work started before zero pressure was verified; gas was heard leaking from the flange at the process area. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-029",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "While replacing a control valve, the crew opened the system without verifying isolation; a small gas release was observed at the process area. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-030",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During valve replacement, isolation verification was skipped; a small gas release was observed at the process area. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-031",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "While servicing the transfer pump, work started before zero pressure was verified; a hydrocarbon release occurred briefly at the pump station. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-032",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During pump maintenance, no one confirmed zero energy before the job began; gas was heard leaking from the flange at the pump station. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-033",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During pump overhaul work, the team commenced work having failed to confirm zero pressure; gas was heard leaking from the flange at the pump station. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-034",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During pump overhaul work, isolation verification was skipped; gas was heard leaking from the flange at the pump station. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-035",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "While servicing the transfer pump, work proceeded without confirming that zero pressure was established; a hydrocarbon release occurred briefly at the pump station. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-036",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During pump maintenance, work was carried out although zero-energy verification had not been done; gas was heard leaking from the flange at the pump station. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-037",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During pump overhaul work, work began before depressurization was confirmed; gas was heard leaking from the flange at the pump station. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-038",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During pump maintenance, the job started while pressure had not yet been confirmed as zero; a hydrocarbon release occurred briefly at the pump station. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-039",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "While servicing the transfer pump, zero pressure was never verified before work began; a hydrocarbon release occurred briefly at the pump station. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-040",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During pump overhaul work, the crew opened the system without verifying isolation; gas was heard leaking from the flange at the pump station. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-041",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "While cleaning the storage tank, no one confirmed zero energy before the job began; a hydrocarbon release occurred briefly in the tank farm. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-042",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During tank maintenance, work proceeded without confirming that zero pressure was established; a small gas release was observed in the tank farm. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-043",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During tank maintenance, work started before zero pressure was verified; a hydrocarbon release occurred briefly in the tank farm. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-044",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "While cleaning the storage tank, the job started while pressure had not yet been confirmed as zero; gas was heard leaking from the flange in the tank farm. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-045",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "While cleaning the storage tank, the team commenced work having failed to confirm zero pressure; gas was heard leaking from the flange in the tank farm. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-046",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During tank inspection work, work was carried out although zero-energy verification had not been done; a small gas release was observed in the tank farm. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-047",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "While cleaning the storage tank, isolation verification was skipped; a small gas release was observed in the tank farm. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-048",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "While cleaning the storage tank, zero pressure was never verified before work began; a hydrocarbon release occurred briefly in the tank farm. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-049",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During tank inspection work, the crew opened the system without verifying isolation; a small gas release was observed in the tank farm. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-050",
+      "category": "same_mechanism_diff_wording",
+      "narrative": "During tank inspection work, work began before depressurization was confirmed; a small gas release was observed in the tank farm. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-701",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During pipeline maintenance, work started before zero energy was confirmed; a hydrocarbon release occurred briefly at the pipeline section. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-702",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While repairing a pipeline flange, the crew opened the system without confirming pressure was absent; a hydrocarbon release occurred briefly at the pipeline section. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-703",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While repairing a pipeline flange, work commenced before energy isolation verification was complete; a hydrocarbon release occurred briefly at the pipeline section. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-704",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While repairing a pipeline flange, isolation of the line was not verified; gas was heard leaking from the flange at the pipeline section. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-705",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While repairing a pipeline flange, no isolation check was done before the job began; gas was heard leaking from the flange at the pipeline section. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-706",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During flange maintenance work, the system was opened despite pressure not being confirmed as zero; a hydrocarbon release occurred briefly at the pipeline section. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-707",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While repairing a pipeline flange, work began without a completed zero-energy check; gas was heard leaking from the flange at the pipeline section. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-708",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While repairing a pipeline flange, the flange was opened although depressurization was not verified; a small gas release was observed at the pipeline section. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-709",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During flange maintenance work, isolation was not established before maintenance began; a hydrocarbon release occurred briefly at the pipeline section. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-710",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During pipeline maintenance, work progressed before pressure verification was completed; a hydrocarbon release occurred briefly at the pipeline section. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-711",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While overhauling the compressor, work started before zero energy was confirmed; a small gas release was observed in the compressor room. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-712",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During compressor maintenance, the crew opened the system without confirming pressure was absent; a small gas release was observed in the compressor room. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-713",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While overhauling the compressor, work commenced before energy isolation verification was complete; a hydrocarbon release occurred briefly in the compressor room. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-714",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During compressor maintenance, isolation of the line was not verified; a small gas release was observed in the compressor room. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-715",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While overhauling the compressor, no isolation check was done before the job began; a hydrocarbon release occurred briefly in the compressor room. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-716",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While overhauling the compressor, the system was opened despite pressure not being confirmed as zero; a hydrocarbon release occurred briefly in the compressor room. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-717",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While overhauling the compressor, work began without a completed zero-energy check; a small gas release was observed in the compressor room. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-718",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During compressor maintenance, the flange was opened although depressurization was not verified; gas was heard leaking from the flange in the compressor room. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-719",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During compressor maintenance, isolation was not established before maintenance began; gas was heard leaking from the flange in the compressor room. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-720",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During compressor maintenance, work progressed before pressure verification was completed; a hydrocarbon release occurred briefly in the compressor room. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-721",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During valve replacement, work started before zero energy was confirmed; a small gas release was observed at the process area. No injury was reported.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-722",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While replacing a control valve, the crew opened the system without confirming pressure was absent; a small gas release was observed at the process area. No injury was reported.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-723",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During valve repair work, work commenced before energy isolation verification was complete; gas was heard leaking from the flange at the process area. No injury was reported.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-724",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During valve replacement, isolation of the line was not verified; gas was heard leaking from the flange at the process area. No injury was reported.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-725",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While replacing a control valve, no isolation check was done before the job began; gas was heard leaking from the flange at the process area. No injury was reported.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-726",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During valve replacement, the system was opened despite pressure not being confirmed as zero; gas was heard leaking from the flange at the process area. No injury was reported.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-727",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During valve repair work, work began without a completed zero-energy check; gas was heard leaking from the flange at the process area. No injury was reported.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-728",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During valve replacement, the flange was opened although depressurization was not verified; gas was heard leaking from the flange at the process area. No injury was reported.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-729",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While replacing a control valve, isolation was not established before maintenance began; a small gas release was observed at the process area. No injury was reported.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-730",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During valve replacement, work progressed before pressure verification was completed; a hydrocarbon release occurred briefly at the process area. No injury was reported.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-731",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While servicing the transfer pump, work started before zero energy was confirmed; a hydrocarbon release occurred briefly at the pump station. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-732",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During pump overhaul work, the crew opened the system without confirming pressure was absent; a small gas release was observed at the pump station. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-733",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During pump overhaul work, work commenced before energy isolation verification was complete; gas was heard leaking from the flange at the pump station. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-734",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While servicing the transfer pump, isolation of the line was not verified; a small gas release was observed at the pump station. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-735",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During pump overhaul work, no isolation check was done before the job began; gas was heard leaking from the flange at the pump station. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-736",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During pump overhaul work, the system was opened despite pressure not being confirmed as zero; gas was heard leaking from the flange at the pump station. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-737",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During pump overhaul work, work began without a completed zero-energy check; a hydrocarbon release occurred briefly at the pump station. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-738",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While servicing the transfer pump, the flange was opened although depressurization was not verified; a small gas release was observed at the pump station. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-739",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During pump overhaul work, isolation was not established before maintenance began; gas was heard leaking from the flange at the pump station. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-740",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While servicing the transfer pump, work progressed before pressure verification was completed; a hydrocarbon release occurred briefly at the pump station. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-741",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During tank maintenance, work started before zero energy was confirmed; gas was heard leaking from the flange in the tank farm. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-742",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During tank inspection work, the crew opened the system without confirming pressure was absent; gas was heard leaking from the flange in the tank farm. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-743",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During tank inspection work, work commenced before energy isolation verification was complete; gas was heard leaking from the flange in the tank farm. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-744",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During tank maintenance, isolation of the line was not verified; a hydrocarbon release occurred briefly in the tank farm. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-745",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While cleaning the storage tank, no isolation check was done before the job began; a small gas release was observed in the tank farm. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-746",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During tank maintenance, the system was opened despite pressure not being confirmed as zero; gas was heard leaking from the flange in the tank farm. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-747",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While cleaning the storage tank, work began without a completed zero-energy check; gas was heard leaking from the flange in the tank farm. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-748",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During tank maintenance, the flange was opened although depressurization was not verified; a small gas release was observed in the tank farm. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-749",
+      "category": "diff_activity_same_precursor",
+      "narrative": "During tank maintenance, isolation was not established before maintenance began; a small gas release was observed in the tank farm. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-750",
+      "category": "diff_activity_same_precursor",
+      "narrative": "While cleaning the storage tank, work progressed before pressure verification was completed; a small gas release was observed in the tank farm. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-901",
+      "category": "negation",
+      "narrative": "Isolation was NOT verified before work commenced.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "injury",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-902",
+      "category": "negation",
+      "narrative": "Isolation was verified before work commenced.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-903",
+      "category": "negation",
+      "narrative": "Zero pressure was not confirmed.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-904",
+      "category": "negation",
+      "narrative": "Zero pressure was confirmed.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-905",
+      "category": "negation",
+      "narrative": "The line was not proven depressurized.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-906",
+      "category": "negation",
+      "narrative": "The line was proven depressurized.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-907",
+      "category": "negation",
+      "narrative": "Lockout was not checked by the supervisor.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "injury",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-908",
+      "category": "negation",
+      "narrative": "Lockout was checked by the supervisor.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-909",
+      "category": "negation",
+      "narrative": "Energy isolation was not verified before the job.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "injury",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-910",
+      "category": "negation",
+      "narrative": "Energy isolation was verified before the job.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-911",
+      "category": "negation",
+      "narrative": "The permit was not issued.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "work_permit",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "injury",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [
+          "work_authorization"
+        ],
+        "family_tag": "work_permit::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-912",
+      "category": "negation",
+      "narrative": "The permit was issued and valid.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "work_permit",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "work_authorization"
+        ],
+        "family_tag": "work_permit::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-913",
+      "category": "negation",
+      "narrative": "Zero pressure had not been confirmed.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-914",
+      "category": "negation",
+      "narrative": "Zero pressure had been confirmed.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-915",
+      "category": "negation",
+      "narrative": "Depressurization was not verified.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-916",
+      "category": "negation",
+      "narrative": "Depressurization was verified.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-917",
+      "category": "negation",
+      "narrative": "The gas test was NOT completed before entry.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "flammable_atmosphere",
+        "barrier": "hot_work_controls",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "hot_work",
+          "gas_testing"
+        ],
+        "family_tag": "hot_work_controls::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-918",
+      "category": "negation",
+      "narrative": "The gas test was completed before entry.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "flammable_atmosphere",
+        "barrier": "hot_work_controls",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "hot_work",
+          "gas_testing"
+        ],
+        "family_tag": "hot_work_controls::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-919",
+      "category": "negation",
+      "narrative": "Gas testing was not carried out before work.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "flammable_atmosphere",
+        "barrier": "hot_work_controls",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "hot_work",
+          "gas_testing"
+        ],
+        "family_tag": "hot_work_controls::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-920",
+      "category": "negation",
+      "narrative": "Gas testing was carried out before work.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "flammable_atmosphere",
+        "barrier": "hot_work_controls",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "hot_work",
+          "gas_testing"
+        ],
+        "family_tag": "hot_work_controls::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-921",
+      "category": "negation",
+      "narrative": "The atmosphere was not tested.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "confined_space_procedure",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "injury",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [
+          "confined_space_entry",
+          "gas_testing"
+        ],
+        "family_tag": "confined_space_procedure::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-922",
+      "category": "negation",
+      "narrative": "The atmosphere was tested and found safe.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "confined_space_procedure",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "confined_space_entry",
+          "gas_testing"
+        ],
+        "family_tag": "confined_space_procedure::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-923",
+      "category": "negation",
+      "narrative": "The circuit was not confirmed de-energized.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "electrical_energy",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-924",
+      "category": "negation",
+      "narrative": "The circuit was confirmed de-energized.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "electrical_energy",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-925",
+      "category": "negation",
+      "narrative": "Isolation checks were not performed before work.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "injury",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-926",
+      "category": "negation",
+      "narrative": "Isolation checks were performed before work.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-927",
+      "category": "negation",
+      "narrative": "Work permit verification was not completed.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "work_permit",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "injury",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [
+          "work_authorization"
+        ],
+        "family_tag": "work_permit::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-928",
+      "category": "negation",
+      "narrative": "Work permit verification was completed.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "work_permit",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "work_authorization"
+        ],
+        "family_tag": "work_permit::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-929",
+      "category": "negation",
+      "narrative": "The technician did not confirm zero pressure before opening the flange.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-930",
+      "category": "negation",
+      "narrative": "The technician confirmed zero pressure before opening the flange.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-931",
+      "category": "negation",
+      "narrative": "Isolation of the system was not verified.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "injury",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-932",
+      "category": "negation",
+      "narrative": "Isolation of the system was verified.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-933",
+      "category": "negation",
+      "narrative": "The lockout was not confirmed at the panel.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "injury",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-934",
+      "category": "negation",
+      "narrative": "The lockout was confirmed at the panel.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-935",
+      "category": "negation",
+      "narrative": "Zero energy verification was not carried out.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "injury",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-936",
+      "category": "negation",
+      "narrative": "Zero energy verification was carried out.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-937",
+      "category": "negation",
+      "narrative": "The vent was not verified clear.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "injury",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-938",
+      "category": "negation",
+      "narrative": "The vent was opened and verified clear.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-939",
+      "category": "negation",
+      "narrative": "The crew did not check that pressure was released.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-940",
+      "category": "negation",
+      "narrative": "The crew checked that pressure was released.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "pre_job",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-500",
+      "category": "hard_negative",
+      "narrative": "During During flange maintenance work, isolation was verified before work. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-501",
+      "category": "hard_negative",
+      "narrative": "During While overhauling the compressor, zero pressure was confirmed. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-502",
+      "category": "hard_negative",
+      "narrative": "During During valve repair work, depressurization was confirmed. No injury was reported.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-503",
+      "category": "hard_negative",
+      "narrative": "During During pump overhaul work, energy isolation verification was completed. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-504",
+      "category": "hard_negative",
+      "narrative": "During While repairing a pipeline flange, the permit was valid and in place. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "unknown",
+        "barrier": "work_permit",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "work_authorization"
+        ],
+        "family_tag": "work_permit::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-505",
+      "category": "hard_negative",
+      "narrative": "During During compressor maintenance, gas testing was completed and safe. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "flammable_atmosphere",
+        "barrier": "hot_work_controls",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "hot_work",
+          "gas_testing"
+        ],
+        "family_tag": "hot_work_controls::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-506",
+      "category": "hard_negative",
+      "narrative": "During During valve replacement, the atmosphere was tested and safe. No injury was reported.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "unknown",
+        "barrier": "confined_space_procedure",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "confined_space_entry",
+          "gas_testing"
+        ],
+        "family_tag": "confined_space_procedure::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-507",
+      "category": "hard_negative",
+      "narrative": "During During pump overhaul work, the machine guard was present, fitted and checked before work. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "unknown",
+        "barrier": "machinery_guarding",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "bypassing_safety_controls",
+          "line_of_fire"
+        ],
+        "family_tag": "machinery_guarding::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-508",
+      "category": "hard_negative",
+      "narrative": "During During flange maintenance work, fall protection was verified before work. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "unknown",
+        "barrier": "fall_protection",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "working_at_height"
+        ],
+        "family_tag": "fall_protection::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-509",
+      "category": "hard_negative",
+      "narrative": "During While overhauling the compressor, lockout was completed and checked. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-600",
+      "category": "hard_negative",
+      "narrative": "During During compressor servicing, work started after zero pressure was verified; the system remained closed during the work. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-601",
+      "category": "hard_negative",
+      "narrative": "During During valve repair work, zero energy was confirmed before the job; the system remained closed during the work. No injury was reported.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-602",
+      "category": "hard_negative",
+      "narrative": "During During pump overhaul work, isolation verification was completed; the system remained closed during the work. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-603",
+      "category": "hard_negative",
+      "narrative": "During During flange maintenance work, work began after depressurization was confirmed; the system remained closed during the work. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-604",
+      "category": "hard_negative",
+      "narrative": "During While cleaning the storage tank, the crew proceeded only after isolation checks were completed; the system remained closed during the work. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-605",
+      "category": "hard_negative",
+      "narrative": "During During compressor servicing, zero pressure was fully verified; the system remained closed during the work. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-650",
+      "category": "hard_negative",
+      "narrative": "During pump maintenance the motor was found stopped; it had tripped on its overload relay and was reset after checking. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "moving_equipment",
+        "barrier": "machinery_guarding",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "injury",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "bypassing_safety_controls",
+          "line_of_fire"
+        ],
+        "family_tag": "machinery_guarding::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-651",
+      "category": "hard_negative",
+      "narrative": "During electrical maintenance an earth leakage relay failed and tripped the circuit; an engineer reset it. No injury was reported.",
+      "ground_truth": {
+        "activity": "electrical_maintenance",
+        "task_phase": "maintenance",
+        "energy": "electrical_energy",
+        "barrier": "machinery_guarding",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "bypassing_safety_controls",
+          "line_of_fire"
+        ],
+        "family_tag": "machinery_guarding::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-652",
+      "category": "hard_negative",
+      "narrative": "During hot work a fire watch was present and a portable extinguisher was confirmed available. No injury was reported.",
+      "ground_truth": {
+        "activity": "hot_work",
+        "task_phase": "maintenance",
+        "energy": "flammable_atmosphere",
+        "barrier": "hot_work_controls",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "hot_work",
+          "gas_testing"
+        ],
+        "family_tag": "hot_work_controls::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-653",
+      "category": "hard_negative",
+      "narrative": "During confined space entry the vessel atmosphere was tested and ventilation was running. No injury was reported.",
+      "ground_truth": {
+        "activity": "confined_space_entry",
+        "task_phase": "maintenance",
+        "energy": "unknown",
+        "barrier": "confined_space_procedure",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "confined_space_entry",
+          "gas_testing"
+        ],
+        "family_tag": "confined_space_procedure::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-654",
+      "category": "hard_negative",
+      "narrative": "During pipeline maintenance, the pressure was released and confirmed zero; the flange was opened and the line remained clear. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-655",
+      "category": "hard_negative",
+      "narrative": "During pump maintenance, the pump was isolated and locked out before the casing was opened. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "unknown",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-656",
+      "category": "hard_negative",
+      "narrative": "During valve replacement, the line was depressurized and vented before the valve was changed. No injury was reported.",
+      "ground_truth": {
+        "activity": "valve_replacement",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-657",
+      "category": "hard_negative",
+      "narrative": "During confined space entry, the vessel was purged and the atmosphere tested safe before entry. No injury was reported.",
+      "ground_truth": {
+        "activity": "confined_space_entry",
+        "task_phase": "maintenance",
+        "energy": "unknown",
+        "barrier": "confined_space_procedure",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "confined_space_entry",
+          "gas_testing"
+        ],
+        "family_tag": "confined_space_procedure::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-658",
+      "category": "hard_negative",
+      "narrative": "During work at height, the platform had a guardrail and the harness was anchored and checked. No injury was reported.",
+      "ground_truth": {
+        "activity": "working_at_height",
+        "task_phase": "maintenance",
+        "energy": "gravity",
+        "barrier": "fall_protection",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "injury",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "working_at_height"
+        ],
+        "family_tag": "fall_protection::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-659",
+      "category": "hard_negative",
+      "narrative": "During the crane lift, the lift plan was approved and the load path cleared before the lift. No injury was reported.",
+      "ground_truth": {
+        "activity": "lifting_operations",
+        "task_phase": "maintenance",
+        "energy": "unknown",
+        "barrier": "lifting_controls",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "safe_mechanical_lifting"
+        ],
+        "family_tag": "lifting_controls::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-660",
+      "category": "hard_negative",
+      "narrative": "During electrical maintenance, the circuit was de-energized and proved dead before work began. No injury was reported.",
+      "ground_truth": {
+        "activity": "electrical_maintenance",
+        "task_phase": "maintenance",
+        "energy": "electrical_energy",
+        "barrier": "energy_isolation",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-661",
+      "category": "hard_negative",
+      "narrative": "During hot work, the flammable gas test was completed and a fire watch was posted. No injury was reported.",
+      "ground_truth": {
+        "activity": "hot_work",
+        "task_phase": "maintenance",
+        "energy": "flammable_atmosphere",
+        "barrier": "hot_work_controls",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "hot_work",
+          "gas_testing"
+        ],
+        "family_tag": "hot_work_controls::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-662",
+      "category": "hard_negative",
+      "narrative": "During tank cleaning, the tank was ventilated and the atmosphere tested before entry. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "unknown",
+        "barrier": "confined_space_procedure",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "confined_space_entry",
+          "gas_testing"
+        ],
+        "family_tag": "confined_space_procedure::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-663",
+      "category": "hard_negative",
+      "narrative": "During pipeline repair, the work permit was valid and signed by the supervisor. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "unknown",
+        "barrier": "work_permit",
+        "barrier_state": "verified",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "low",
+        "life_saving_rules": [
+          "work_authorization"
+        ],
+        "family_tag": "work_permit::verified"
+      }
+    },
+    {
+      "report_id": "EVAL-400",
+      "category": "multi_hazard",
+      "narrative": "During hot work in a storage tank, flammable vapour was present and chemical residue remained, but gas testing was not completed before the job began; a flash fire flashed briefly. No injury was reported.",
+      "ground_truth": {
+        "activity": "hot_work",
+        "task_phase": "maintenance",
+        "energy": "flammable_atmosphere",
+        "barrier": "hot_work_controls",
+        "barrier_state": "not_verified",
+        "exposure": "fire_or_explosion",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "hot_work",
+          "gas_testing"
+        ],
+        "family_tag": "hot_work_controls::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-401",
+      "category": "multi_hazard",
+      "narrative": "During confined space entry, an oxygen-deficient confined atmosphere was suspected and toxic fumes were reported, but ventilation checks were not verified before entry; the entrant felt dizzy. A worker sustained a minor cut.",
+      "ground_truth": {
+        "activity": "confined_space_entry",
+        "task_phase": "maintenance",
+        "energy": "chemical_exposure",
+        "barrier": "confined_space_procedure",
+        "barrier_state": "not_verified",
+        "exposure": "confined_space_atmosphere",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "confined_space_entry",
+          "gas_testing"
+        ],
+        "family_tag": "confined_space_procedure::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-402",
+      "category": "multi_hazard",
+      "narrative": "During pipeline maintenance, pressurized gas and flammable atmosphere were present; energy isolation was not verified and a gas release occurred. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "flammable_atmosphere",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-403",
+      "category": "multi_hazard",
+      "narrative": "During electrical maintenance, an energized circuit and stored mechanical energy in a spring actuator were present; isolation was not confirmed before work and an arc flash was observed. No injury was reported.",
+      "ground_truth": {
+        "activity": "electrical_maintenance",
+        "task_phase": "maintenance",
+        "energy": "electrical_energy",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "electrical_shock_risk",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-404",
+      "category": "multi_hazard",
+      "narrative": "During pump maintenance, rotating equipment and pressurized fluid were present; the machine guard was missing and a fluid release occurred. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "machinery_guarding",
+        "barrier_state": "absent",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "bypassing_safety_controls",
+          "line_of_fire"
+        ],
+        "family_tag": "machinery_guarding::absent"
+      }
+    },
+    {
+      "report_id": "EVAL-405",
+      "category": "multi_hazard",
+      "narrative": "During lifting operations, a suspended load was being moved over workers; the exclusion zone was not established. No injury was reported.",
+      "ground_truth": {
+        "activity": "lifting_operations",
+        "task_phase": "maintenance",
+        "energy": "gravity",
+        "barrier": "lifting_controls",
+        "barrier_state": "not_verified",
+        "exposure": "object_drop_struck_by",
+        "potential_consequence": "injury",
+        "sif_potential": "medium",
+        "life_saving_rules": [
+          "safe_mechanical_lifting"
+        ],
+        "family_tag": "lifting_controls::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-406",
+      "category": "multi_hazard",
+      "narrative": "During tank maintenance, chemical vapour and an oxygen-deficient atmosphere were present; forced ventilation failed during the job and vapour inhalation occurred. A worker reported a mild headache. No injury was reported.",
+      "ground_truth": {
+        "activity": "tank_maintenance",
+        "task_phase": "maintenance",
+        "energy": "chemical_exposure",
+        "barrier": "confined_space_procedure",
+        "barrier_state": "failed",
+        "exposure": "chemical_contact",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "confined_space_entry",
+          "gas_testing"
+        ],
+        "family_tag": "confined_space_procedure::failed"
+      }
+    },
+    {
+      "report_id": "EVAL-407",
+      "category": "multi_hazard",
+      "narrative": "During hot work near a vent stack, flammable gas was present; the combustible gas test was partially effective and a small flash occurred. No injury was reported.",
+      "ground_truth": {
+        "activity": "hot_work",
+        "task_phase": "maintenance",
+        "energy": "flammable_atmosphere",
+        "barrier": "hot_work_controls",
+        "barrier_state": "partially_effective",
+        "exposure": "fire_or_explosion",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "hot_work",
+          "gas_testing"
+        ],
+        "family_tag": "hot_work_controls::partially_effective"
+      }
+    },
+    {
+      "report_id": "EVAL-408",
+      "category": "multi_hazard",
+      "narrative": "During pump maintenance near a gas compressor, pressurized gas and rotating machinery were present; the pump guard was missing and a belt was caught briefly. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "machinery_guarding",
+        "barrier_state": "absent",
+        "exposure": "caught_in_machinery",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "bypassing_safety_controls",
+          "line_of_fire"
+        ],
+        "family_tag": "machinery_guarding::absent"
+      }
+    },
+    {
+      "report_id": "EVAL-409",
+      "category": "multi_hazard",
+      "narrative": "During electrical maintenance in a gas facility, an energized panel and flammable vapour were present; the panel guard was removed and an arc flash occurred. No injury was reported.",
+      "ground_truth": {
+        "activity": "electrical_maintenance",
+        "task_phase": "maintenance",
+        "energy": "flammable_atmosphere",
+        "barrier": "machinery_guarding",
+        "barrier_state": "absent",
+        "exposure": "electrical_shock_risk",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "bypassing_safety_controls",
+          "line_of_fire"
+        ],
+        "family_tag": "machinery_guarding::absent"
+      }
+    },
+    {
+      "report_id": "EVAL-410",
+      "category": "multi_hazard",
+      "narrative": "During confined space entry, chemical vapour and an oxygen-deficient atmosphere were present; the forced-air ventilation was not running before entry. No injury was reported.",
+      "ground_truth": {
+        "activity": "confined_space_entry",
+        "task_phase": "maintenance",
+        "energy": "chemical_exposure",
+        "barrier": "confined_space_procedure",
+        "barrier_state": "not_verified",
+        "exposure": "confined_space_atmosphere",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "confined_space_entry",
+          "gas_testing"
+        ],
+        "family_tag": "confined_space_procedure::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-411",
+      "category": "multi_hazard",
+      "narrative": "During hot work on a storage tank, thermal energy from the weld and flammable vapour were present; the gas test was incomplete and a flash occurred. No injury was reported.",
+      "ground_truth": {
+        "activity": "hot_work",
+        "task_phase": "maintenance",
+        "energy": "flammable_atmosphere",
+        "barrier": "hot_work_controls",
+        "barrier_state": "partially_effective",
+        "exposure": "fire_or_explosion",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "hot_work",
+          "gas_testing"
+        ],
+        "family_tag": "hot_work_controls::partially_effective"
+      }
+    },
+    {
+      "report_id": "EVAL-412",
+      "category": "multi_hazard",
+      "narrative": "During lifting near a process unit, a suspended load and pressurized gas lines were present; the lifting plan was skipped and the load swung close to the line. No injury was reported.",
+      "ground_truth": {
+        "activity": "lifting_operations",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "lifting_controls",
+        "barrier_state": "not_verified",
+        "exposure": "object_drop_struck_by",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "safe_mechanical_lifting"
+        ],
+        "family_tag": "lifting_controls::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-413",
+      "category": "multi_hazard",
+      "narrative": "During pipeline repair underground, pressurized gas was present; energy isolation was not verified and a gas release occurred during excavation. No injury was reported.",
+      "ground_truth": {
+        "activity": "pipeline_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-414",
+      "category": "multi_hazard",
+      "narrative": "During confined space entry on a platform, flammable gas and moving equipment were present; the entry atmosphere checks were not done and gas was inhaled. No injury was reported.",
+      "ground_truth": {
+        "activity": "confined_space_entry",
+        "task_phase": "maintenance",
+        "energy": "flammable_atmosphere",
+        "barrier": "confined_space_procedure",
+        "barrier_state": "not_verified",
+        "exposure": "chemical_contact",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "confined_space_entry",
+          "gas_testing"
+        ],
+        "family_tag": "confined_space_procedure::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-415",
+      "category": "multi_hazard",
+      "narrative": "During compressor maintenance, pressurized gas and chemical hazards were present; isolation was partially effective and a hydrocarbon release occurred. No injury was reported.",
+      "ground_truth": {
+        "activity": "compressor_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "partially_effective",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::partially_effective"
+      }
+    },
+    {
+      "report_id": "EVAL-416",
+      "category": "multi_hazard",
+      "narrative": "During welding on a gas line, flammable gas was present; gas testing was not completed and a small flash occurred above the scaffold. No injury was reported.",
+      "ground_truth": {
+        "activity": "hot_work",
+        "task_phase": "maintenance",
+        "energy": "flammable_atmosphere",
+        "barrier": "hot_work_controls",
+        "barrier_state": "not_verified",
+        "exposure": "fire_or_explosion",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "hot_work",
+          "gas_testing"
+        ],
+        "family_tag": "hot_work_controls::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-417",
+      "category": "multi_hazard",
+      "narrative": "During pump overhaul, stored mechanical energy in a spring and pressurized fluid were present; isolation lockout was not performed and a fluid release occurred. No injury was reported.",
+      "ground_truth": {
+        "activity": "pump_maintenance",
+        "task_phase": "maintenance",
+        "energy": "pressurized_gas",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "uncontrolled_gas_release",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-418",
+      "category": "multi_hazard",
+      "narrative": "During electrical work on an offshore platform, live conductors and pressurized gas were present; isolation was not verified before the panel was opened and an arc flash occurred. No injury was reported.",
+      "ground_truth": {
+        "activity": "electrical_maintenance",
+        "task_phase": "maintenance",
+        "energy": "electrical_energy",
+        "barrier": "energy_isolation",
+        "barrier_state": "not_verified",
+        "exposure": "electrical_shock_risk",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "energy_isolation"
+        ],
+        "family_tag": "energy_isolation::not_verified"
+      }
+    },
+    {
+      "report_id": "EVAL-419",
+      "category": "multi_hazard",
+      "narrative": "During hot work in an enclosed area, flammable gas and toxic fumes were present; the fire watch was absent and a flash fire occurred. No injury was reported.",
+      "ground_truth": {
+        "activity": "hot_work",
+        "task_phase": "maintenance",
+        "energy": "flammable_atmosphere",
+        "barrier": "hot_work_controls",
+        "barrier_state": "absent",
+        "exposure": "fire_or_explosion",
+        "potential_consequence": "serious_injury_or_fatality",
+        "sif_potential": "high",
+        "life_saving_rules": [
+          "hot_work",
+          "gas_testing"
+        ],
+        "family_tag": "hot_work_controls::absent"
+      }
+    },
+    {
+      "report_id": "EVAL-300",
+      "category": "ambiguous",
+      "narrative": "During a routine team meeting a safety observation about the compressor area was noted for review.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED"
+      }
+    },
+    {
+      "report_id": "EVAL-301",
+      "category": "ambiguous",
+      "narrative": "A worker was seen walking near the pump station.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED",
+        "location": "pump_station"
+      }
+    },
+    {
+      "report_id": "EVAL-302",
+      "category": "ambiguous",
+      "narrative": "The condition in the workshop requires further review.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED",
+        "location": "workshop"
+      }
+    },
+    {
+      "report_id": "EVAL-303",
+      "category": "ambiguous",
+      "narrative": "A report was submitted regarding the tank farm environment.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED",
+        "location": "tank_farm"
+      }
+    },
+    {
+      "report_id": "EVAL-304",
+      "category": "ambiguous",
+      "narrative": "The team discussed safety during the toolbox talk.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED"
+      }
+    },
+    {
+      "report_id": "EVAL-305",
+      "category": "ambiguous",
+      "narrative": "An observation form was forwarded to the safety officer.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED"
+      }
+    },
+    {
+      "report_id": "EVAL-306",
+      "category": "ambiguous",
+      "narrative": "The area appeared normal during the round.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED"
+      }
+    },
+    {
+      "report_id": "EVAL-307",
+      "category": "ambiguous",
+      "narrative": "The contractor raised a concern about the process area.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED",
+        "location": "process_area"
+      }
+    },
+    {
+      "report_id": "EVAL-308",
+      "category": "ambiguous",
+      "narrative": "Details of the observation are incomplete and need clarification.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED"
+      }
+    },
+    {
+      "report_id": "EVAL-309",
+      "category": "ambiguous",
+      "narrative": "A safety representative visited the substation and recorded a note.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED",
+        "location": "substation"
+      }
+    },
+    {
+      "report_id": "EVAL-310",
+      "category": "ambiguous",
+      "narrative": "The near-miss register entry for this facility is pending review.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED"
+      }
+    },
+    {
+      "report_id": "EVAL-311",
+      "category": "ambiguous",
+      "narrative": "An unidentified issue was raised at the morning meeting.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED"
+      }
+    },
+    {
+      "report_id": "EVAL-312",
+      "category": "ambiguous",
+      "narrative": "The worker mentioned something about conditions at height.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "gravity",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "injury",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [
+          "working_at_height"
+        ],
+        "family_tag": "UNASSIGNED"
+      }
+    },
+    {
+      "report_id": "EVAL-313",
+      "category": "ambiguous",
+      "narrative": "A general observation about housekeeping was recorded.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "housekeeping",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [
+          "line_of_fire"
+        ],
+        "family_tag": "UNASSIGNED"
+      }
+    },
+    {
+      "report_id": "EVAL-314",
+      "category": "ambiguous",
+      "narrative": "The shift handover noted an unresolved concern.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED"
+      }
+    },
+    {
+      "report_id": "EVAL-315",
+      "category": "ambiguous",
+      "narrative": "The safety inspection checklist was partially filled for the yard.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED"
+      }
+    },
+    {
+      "report_id": "EVAL-316",
+      "category": "ambiguous",
+      "narrative": "A comment regarding equipment was logged without further detail.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED"
+      }
+    },
+    {
+      "report_id": "EVAL-317",
+      "category": "ambiguous",
+      "narrative": "The observer noted activity in the well site area.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED",
+        "location": "well_site"
+      }
+    },
+    {
+      "report_id": "EVAL-318",
+      "category": "ambiguous",
+      "narrative": "A suggestion was made to revisit the work procedure.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED"
+      }
+    },
+    {
+      "report_id": "EVAL-319",
+      "category": "ambiguous",
+      "narrative": "The supervisor asked for a review of recent observations.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED"
+      }
+    },
+    {
+      "report_id": "EVAL-320",
+      "category": "ambiguous",
+      "narrative": "An entry about the offshore platform was added to the log.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED",
+        "location": "offshore_platform"
+      }
+    },
+    {
+      "report_id": "EVAL-321",
+      "category": "ambiguous",
+      "narrative": "An observation about the yard area was logged for the shift.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED"
+      }
+    },
+    {
+      "report_id": "EVAL-322",
+      "category": "ambiguous",
+      "narrative": "A worker reported a strange noise near the compressor.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED"
+      }
+    },
+    {
+      "report_id": "EVAL-323",
+      "category": "ambiguous",
+      "narrative": "A handheld device alarmed during the walkthrough.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED"
+      }
+    },
+    {
+      "report_id": "EVAL-324",
+      "category": "ambiguous",
+      "narrative": "An item was observed lying on the floor near the pump.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED"
+      }
+    },
+    {
+      "report_id": "EVAL-325",
+      "category": "ambiguous",
+      "narrative": "Some equipment was returned to the store in good condition.",
+      "ground_truth": {
+        "activity": "unknown",
+        "task_phase": "unknown",
+        "energy": "unknown",
+        "barrier": "unknown",
+        "barrier_state": "unknown",
+        "exposure": "unknown",
+        "potential_consequence": "unknown",
+        "sif_potential": "needs_review",
+        "life_saving_rules": [],
+        "family_tag": "UNASSIGNED"
+      }
+    }
+  ]
+}

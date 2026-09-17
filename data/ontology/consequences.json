@@ -1,0 +1,16 @@
+{
+  "_comment": "Canonical actual & potential consequence codes.",
+  "consequences": [
+    {"code": "none_identified", "label": "No consequence identified", "synonyms": ["no injury", "no harm", "nothing happened", "no damage", "no effect"]},
+    {"code": "minor_injury", "label": "Minor injury", "synonyms": ["minor injury", "first aid", "slight injury", "minor cut", "minor burn", "bruise"]},
+    {"code": "injury", "label": "Injury", "synonyms": ["injury", "hurt", "wounded", "medical treatment"]},
+    {"code": "serious_injury", "label": "Serious injury", "synonyms": ["serious injury", "major injury", "severe injury", "hospitalized", "hospitalisation", "lost time injury"]},
+    {"code": "fatality", "label": "Fatality", "synonyms": ["fatality", "death", "fatal", "killed"]},
+    {"code": "serious_injury_or_fatality", "label": "Serious injury or fatality", "synonyms": ["life threatening", "potential fatality", "could have been fatal", "serious injury or fatality", "sif", "could have resulted in death"]},
+    {"code": "asset_damage", "label": "Asset damage", "synonyms": ["asset damage", "equipment damage", "machine damage", "component damage", "damaged the", "was damaged", "wrecked"]},
+    {"code": "environmental_release", "label": "Environmental release", "synonyms": ["environmental release", "spill to ground", "spill to water", "contamination", "product to environment", "soil contamination"]},
+    {"code": "fire", "label": "Fire", "synonyms": ["fire event", "caught fire", "ignition occurred", "blast"]},
+    {"code": "explosion", "label": "Explosion", "synonyms": ["explosion occurred", "detonation", "vessel rupture"]},
+    {"code": "unknown", "label": "Unknown", "synonyms": []}
+  ]
+}

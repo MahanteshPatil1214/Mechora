@@ -1,0 +1,157 @@
+{
+  "_comment": "Canonical activities. synonyms are matched case-insensitively (substring) during normalization. Same mechanism across different activities is expected (activity weight is lowest).",
+  "activities": [
+    {
+      "code": "pipeline_maintenance",
+      "label": "Pipeline Maintenance",
+      "synonyms": [
+        "pipeline maintenance",
+        "pipeline repair",
+        "pipeline work",
+        "flange work",
+        "flange maintenance",
+        "line maintenance",
+        "pipeline inspection",
+        "flange replacement",
+        "pipeline pigging",
+        "repairing a pipeline flange"
+      ]
+    },
+    {
+      "code": "compressor_maintenance",
+      "label": "Compressor Maintenance",
+      "synonyms": [
+        "compressor maintenance",
+        "compressor overhaul",
+        "compressor repair",
+        "compressor service",
+        "compressor work",
+        "turbine maintenance",
+        "compressor inspection",
+        "overhauling the compressor",
+        "compressor servicing"
+      ]
+    },
+    {
+      "code": "valve_replacement",
+      "label": "Valve Replacement",
+      "synonyms": [
+        "valve replacement",
+        "valve repair",
+        "valve maintenance",
+        "valve change",
+        "replacing valve",
+        "valve overhaul",
+        "valve maintenance",
+        "replacing a control valve",
+        "replacing the control valve"
+      ]
+    },
+    {
+      "code": "pump_maintenance",
+      "label": "Pump Maintenance",
+      "synonyms": [
+        "pump maintenance",
+        "pump repair",
+        "pump overhaul",
+        "pump service",
+        "pump work",
+        "pump replacement",
+        "servicing the transfer pump"
+      ]
+    },
+    {
+      "code": "tank_maintenance",
+      "label": "Tank Maintenance",
+      "synonyms": [
+        "tank maintenance",
+        "tank cleaning",
+        "tank inspection",
+        "tank repair",
+        "tank entry",
+        "storage tank work",
+        "tank farm work",
+        "cleaning the storage tank",
+        "cleaning the tank"
+      ]
+    },
+    {
+      "code": "electrical_maintenance",
+      "label": "Electrical Maintenance",
+      "synonyms": [
+        "electrical maintenance",
+        "electrical work",
+        "electrical repair",
+        "panel work",
+        "breaker maintenance",
+        "switchgear maintenance",
+        "motor maintenance",
+        "wiring work",
+        "electrical job",
+        "cable work"
+      ]
+    },
+    {
+      "code": "hot_work",
+      "label": "Hot Work",
+      "synonyms": [
+        "hot work",
+        "welding",
+        "cutting operation",
+        "grinding",
+        "gas cutting",
+        "arc welding",
+        "brazing",
+        "spark generating work"
+      ]
+    },
+    {
+      "code": "confined_space_entry",
+      "label": "Confined Space Entry",
+      "synonyms": [
+        "confined space entry",
+        "tank entry",
+        "entering the vessel",
+        "entry into vessel",
+        "confined space work",
+        "ventilating the vessel",
+        "vessel entry",
+        "boiler entry"
+      ]
+    },
+    {
+      "code": "working_at_height",
+      "label": "Working at Height",
+      "synonyms": [
+        "working at height",
+        "work at height",
+        "roof work",
+        "scaffold work",
+        "scaffolding work",
+        "tower work",
+        "ladder work",
+        "platform work",
+        "tank top work",
+        "elevated work"
+      ]
+    },
+    {
+      "code": "lifting_operations",
+      "label": "Lifting Operations",
+      "synonyms": [
+        "lifting operation",
+        "crane lift",
+        "crane operation",
+        "rigging",
+        "hoisting",
+        "lifting job",
+        "lifting work",
+        "heavy lift",
+        "load lifting",
+        "crane work",
+        "lifting near",
+        "lifting over"
+      ]
+    }
+  ]
+}

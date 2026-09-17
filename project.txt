@@ -1,0 +1,1483 @@
+# MECHORA
+
+## Mechanism-based Operational Risk Awareness
+
+### Structural Precursor Intelligence for High-Hazard Operations
+
+**Problem Statement:** SIH26165
+**Organization:** Oil India Limited (OIL)
+**Hackathon:** Smart India Hackathon 2026
+**Document:** Product Requirements Document (PRD)
+**Version:** 1.0
+**Status:** MVP Development
+**Primary Users:** HSE / HSSE Teams, Safety Analysts, Site Safety Managers
+
+---
+
+# 1. Product Vision
+
+MECHORA is an AI-assisted safety intelligence platform that transforms unstructured safety observations into structured safety events and identifies recurring **precursor mechanisms and barrier failures** across apparently different incidents.
+
+The central product principle is:
+
+> **We don't cluster stories. We cluster safety mechanisms.**
+
+Instead of treating every safety observation as an isolated report, MECHORA identifies the underlying combination of:
+
+**Activity → Hazard/Energy → Required Barrier → Barrier State → Exposure → Potential Consequence**
+
+This enables HSE teams to discover recurring precursor mechanisms that may remain hidden when reports are reviewed individually.
+
+---
+
+# 2. Problem Definition
+
+Large organizations generate significant volumes of:
+
+* Unsafe Act (UA) observations
+* Unsafe Condition (UC) observations
+* Near-miss reports
+* Incident reports
+* Safety observations
+
+These reports frequently contain valuable information in free-text form.
+
+However, manual or periodic review creates several challenges:
+
+1. Large volumes make continuous analysis difficult.
+2. Low-severity observations may receive less attention despite potentially serious exposure mechanisms.
+3. Similar safety mechanisms may appear under completely different wording.
+4. Different equipment or activities may hide the fact that the same critical barrier is repeatedly failing.
+5. Existing NLP approaches may identify textual similarity without adequately identifying the underlying safety mechanism.
+6. HSE teams need explainable evidence rather than opaque AI classifications.
+
+The product therefore focuses on moving from:
+
+**Individual Report Intelligence**
+
+to:
+
+**Recurring Precursor Intelligence.**
+
+---
+
+# 3. Product Objective
+
+MECHORA must provide an AI-assisted pipeline that can:
+
+### Objective 1 — Understand
+
+Extract structured safety information from free-text observations.
+
+### Objective 2 — Structure
+
+Convert each narrative into a canonical Safety Event representation.
+
+### Objective 3 — Assess
+
+Identify SIF-potential indicators and relevant IOGP Life-Saving Rules.
+
+### Objective 4 — Discover
+
+Identify recurring precursor mechanisms across reports.
+
+### Objective 5 — Explain
+
+Show the evidence supporting each extracted safety attribute and precursor relationship.
+
+### Objective 6 — Prioritize Attention
+
+Surface recurring precursor patterns that deserve HSE review.
+
+MECHORA is a **decision-support system**, not an autonomous safety decision-maker.
+
+---
+
+# 4. Target Users
+
+## 4.1 Primary User — HSE Analyst
+
+Needs to:
+
+* review large numbers of observations
+* identify recurring patterns
+* investigate potential SIF precursors
+* understand barrier failures
+* identify affected activities and locations
+* validate AI-generated findings
+
+## 4.2 HSE / Safety Manager
+
+Needs to:
+
+* understand recurring precursor families
+* identify concentration across sites/activities
+* monitor barrier-related patterns
+* prioritize areas for investigation
+* view supporting evidence
+
+## 4.3 Safety Investigator / Subject Matter Expert
+
+Needs to:
+
+* inspect individual observations
+* verify extracted information
+* understand why reports were grouped
+* validate precursor relationships
+
+---
+
+# 5. Product Scope
+
+## MVP IN SCOPE
+
+### A. Safety Observation Input
+
+Support:
+
+* manual text entry
+* single observation analysis
+* batch upload through CSV/JSON
+
+Example:
+
+> During compressor maintenance, work started before zero pressure was verified. A small gas release occurred. No injury was reported.
+
+---
+
+### B. AI Safety Event Extraction
+
+Extract:
+
+* Activity
+* Task phase
+* Hazard
+* Hazardous energy
+* Unsafe action
+* Unsafe condition
+* Required barrier
+* Barrier state
+* Exposure
+* Actual consequence
+* Potential consequence
+* Location
+* Life-Saving Rule
+* Evidence spans
+* Confidence
+
+---
+
+### C. Negation & Barrier-State Detection
+
+The system must distinguish:
+
+> "Isolation was verified."
+
+from:
+
+> "Isolation was not verified."
+
+It must also distinguish:
+
+* verified
+* failed
+* partially effective
+* absent
+* not verified
+* unknown
+
+This is a critical MVP capability.
+
+---
+
+### D. Precursor Signature Generation
+
+Each observation must be converted into a compact structural representation.
+
+Example:
+
+```text
+Activity:
+Compressor Maintenance
+
+Energy:
+Pressurized Gas
+
+Barrier:
+Energy Isolation
+
+Barrier State:
+Not Verified
+
+Exposure:
+Uncontrolled Gas Release
+
+Task Phase:
+Maintenance
+
+Precursor Signature:
+PRESSURE + ENERGY ISOLATION +
+VERIFICATION FAILURE + EXPOSURE
+```
+
+---
+
+### E. Structural Precursor Engine
+
+The system must compare safety events using structural attributes.
+
+Primary comparison dimensions:
+
+| Dimension               | Prototype Weight |
+| ----------------------- | ---------------: |
+| Barrier + Barrier State |              30% |
+| Hazard / Energy         |              25% |
+| Exposure                |              20% |
+| Task Phase              |              15% |
+| Activity                |              10% |
+
+These are **prototype parameters**, not official OIL risk weights.
+
+The engine must identify when reports with different wording or equipment represent the same underlying precursor mechanism.
+
+---
+
+### F. Precursor Family Creation
+
+Related observations should be grouped into precursor families.
+
+Example:
+
+```text
+PRECURSOR FAMILY #01
+
+Energy Isolation Verification Failure
+
+Reports:
+47
+
+Activities:
+Pipeline Maintenance
+Compressor Maintenance
+Valve Replacement
+
+Common Hazard:
+Pressurized Gas
+
+Common Barrier:
+Energy Isolation
+
+Common Failure:
+Isolation / zero-energy verification not established
+```
+
+---
+
+### G. SIF Potential Assessment
+
+The system should classify observations into a prototype SIF-potential assessment.
+
+The MVP must make clear that:
+
+* AI output is not ground truth.
+* Classification requires validation.
+* Production thresholds must be calibrated using OIL data and HSE expertise.
+
+---
+
+### H. Life-Saving Rule Mapping
+
+Map observations to relevant IOGP Life-Saving Rules.
+
+Example:
+
+```text
+Hazard:
+Pressurized Energy
+
+Barrier:
+Energy Isolation
+
+Life-Saving Rule:
+Energy Isolation
+```
+
+The system should retain the evidence supporting the mapping.
+
+---
+
+### I. HSE Intelligence Dashboard
+
+Minimum dashboard components:
+
+#### Overview
+
+* Total observations
+* SIF-potential observations
+* Precursor families
+* Recurring barrier failures
+
+#### Observation Analysis
+
+* Original report
+* Structured safety event
+* Evidence
+* SIF assessment
+* Life-Saving Rule
+* Precursor family
+
+#### Precursor Families
+
+* Family name
+* Number of observations
+* Activities
+* Locations
+* Hazard/energy
+* Barrier
+* Barrier state
+
+#### Precursor Detail
+
+* Supporting observations
+* Common mechanism
+* Evidence
+* Distribution by activity/location
+* HSE attention signal
+
+---
+
+# 6. Core User Journey
+
+```text
+User submits safety observation
+            ↓
+AI/NLP extraction
+            ↓
+Structured Safety Event
+            ↓
+Evidence + Negation validation
+            ↓
+Precursor Signature
+            ↓
+SIF Potential Assessment
+            ↓
+Life-Saving Rule Mapping
+            ↓
+Structural Precursor Matching
+            ↓
+Precursor Family
+            ↓
+HSE Intelligence
+```
+
+---
+
+# 7. Functional Requirements
+
+## FR-01 — Observation Submission
+
+The system shall allow a user to submit a free-text safety observation.
+
+### Input
+
+```text
+Narrative
+```
+
+### Output
+
+A unique observation record.
+
+---
+
+# FR-02 — Structured Extraction
+
+The system shall extract structured safety attributes from the narrative.
+
+The extraction response must conform to a predefined JSON schema.
+
+The system must reject or flag malformed AI output.
+
+---
+
+# FR-03 — Evidence Linking
+
+Every important extracted safety attribute should, where possible, retain evidence from the original narrative.
+
+Example:
+
+```json
+{
+  "attribute": "barrier_state",
+  "value": "not_verified",
+  "evidence": "before confirming zero pressure"
+}
+```
+
+---
+
+# FR-04 — Negation Handling
+
+The system must detect safety-critical negation.
+
+Examples:
+
+```text
+Isolation verified
+```
+
+≠
+
+```text
+Isolation NOT verified
+```
+
+---
+
+# FR-05 — Canonical Normalization
+
+Different terminology should map to common concepts.
+
+Examples:
+
+```text
+zero pressure confirmed
+depressurized
+pressure released
+zero-energy state verified
+```
+
+may map to relevant canonical concepts.
+
+Normalization must not remove meaningful distinctions.
+
+---
+
+# FR-06 — Precursor Signature
+
+The system shall generate a normalized structural signature for every observation.
+
+---
+
+# FR-07 — Structural Similarity
+
+The system shall calculate similarity between safety events using structural dimensions.
+
+Text embeddings may be used as a supporting signal but must not be the sole basis for precursor grouping.
+
+---
+
+# FR-08 — Precursor Family
+
+The system shall group structurally similar observations into precursor families.
+
+Each family should have:
+
+* unique ID
+* generated name
+* common hazard/energy
+* common barrier
+* common barrier failure
+* common exposure
+* affected activities
+* affected locations
+* supporting observations
+
+---
+
+# FR-09 — SIF Assessment
+
+The system shall provide:
+
+* SIF-potential assessment
+* confidence
+* supporting evidence
+* reason/explanation
+
+The product must not claim certainty.
+
+---
+
+# FR-10 — Life-Saving Rule Mapping
+
+The system shall identify relevant Life-Saving Rule(s) where sufficient evidence exists.
+
+If confidence is insufficient:
+
+```text
+Needs HSE Review
+```
+
+rather than forcing a classification.
+
+---
+
+# FR-11 — HSE Attention Signal
+
+The system may calculate a prototype precursor attention signal based on factors such as:
+
+* recurrence
+* barrier failure frequency
+* exposure characteristics
+* cross-activity occurrence
+* SIF-potential observations
+
+This must be clearly labelled as a **prototype attention signal**, not an official OIL risk score.
+
+---
+
+# FR-12 — Explainability
+
+For every major AI-derived result, the system should provide:
+
+```text
+What was detected?
+Why was it detected?
+Which evidence supports it?
+Which reports contributed to the pattern?
+```
+
+---
+
+# 8. Non-Functional Requirements
+
+## NFR-01 — Explainability
+
+Safety-critical outputs must be traceable to source evidence.
+
+## NFR-02 — Reliability
+
+Malformed or incomplete AI responses must not silently enter the database.
+
+## NFR-03 — Human Oversight
+
+HSE users must be able to validate AI findings.
+
+## NFR-04 — Security
+
+The architecture should support deployment within a private/on-premise environment for sensitive safety data.
+
+## NFR-05 — Scalability
+
+The architecture should allow batch processing of large observation datasets.
+
+## NFR-06 — Modularity
+
+The system should separate:
+
+* language understanding
+* normalization
+* safety reasoning
+* structural matching
+* analytics
+
+---
+
+# 9. AI Architecture
+
+MECHORA will use a hybrid architecture.
+
+```text
+                 RAW REPORT
+                     │
+                     ▼
+              ┌──────────────┐
+              │ LLM / NLP    │
+              │ Extraction   │
+              └──────┬───────┘
+                     ▼
+          STRUCTURED SAFETY EVENT
+                     │
+          ┌──────────┼───────────┐
+          ▼          ▼           ▼
+      Negation   Normalize    Evidence
+       Engine      Engine       Layer
+          └──────────┼───────────┘
+                     ▼
+             PRECURSOR SIGNATURE
+                     │
+                     ▼
+       STRUCTURAL PRECURSOR ENGINE
+                     │
+          ┌──────────┼──────────┐
+          ▼          ▼          ▼
+        SIF         LSR      Clustering
+      Potential    Mapping
+          └──────────┼──────────┘
+                     ▼
+             PRECURSOR FAMILIES
+                     │
+                     ▼
+             HSE INTELLIGENCE
+```
+
+---
+
+# 10. Why Hybrid AI?
+
+MECHORA deliberately avoids an LLM-only architecture.
+
+### LLM is responsible for:
+
+* understanding natural language
+* extracting entities
+* identifying relationships
+* producing structured information
+
+### Deterministic / algorithmic components handle:
+
+* schema validation
+* normalization
+* negation checks
+* structural similarity
+* clustering
+* aggregation
+* analytics
+
+This improves:
+
+* reproducibility
+* explainability
+* testing
+* safety review
+* future model replacement
+
+---
+
+# 11. Data Strategy
+
+## MVP Data
+
+The prototype will use:
+
+### 1. Synthetic Safety Narratives
+
+Generated systematically across:
+
+* activities
+* hazards
+* energies
+* barriers
+* barrier states
+* exposures
+* consequences
+
+### 2. Representative Domain Examples
+
+Used to create realistic safety scenarios.
+
+### 3. Hand-Labelled Evaluation Set
+
+A carefully selected set will test:
+
+* same mechanism / different wording
+* same wording / opposite meaning
+* different equipment / same precursor
+* multiple hazards
+* negative cases
+* ambiguous cases
+
+---
+
+# 12. Data Model
+
+Core observation:
+
+```json
+{
+  "report_id": "OBS-001",
+  "narrative": "...",
+
+  "activity": "...",
+  "task_phase": "...",
+
+  "hazard": "...",
+  "energy": "...",
+
+  "unsafe_action": "...",
+  "unsafe_condition": "...",
+
+  "barrier": "...",
+  "barrier_state": "...",
+
+  "exposure": "...",
+
+  "actual_consequence": "...",
+  "potential_consequence": "...",
+
+  "location": "...",
+
+  "life_saving_rules": [],
+
+  "evidence": [],
+
+  "confidence": 0.0,
+
+  "precursor_signature": {}
+}
+```
+
+---
+
+# 13. Precursor Signature Schema
+
+```json
+{
+  "activity": "compressor_maintenance",
+  "task_phase": "maintenance",
+  "energy": "pressurized_gas",
+  "barrier": "energy_isolation",
+  "barrier_state": "not_verified",
+  "exposure": "gas_release",
+  "potential_consequence": "serious_injury_or_fatality"
+}
+```
+
+The signature is the primary structural representation used by the precursor engine.
+
+---
+
+# 14. Structural Precursor Engine
+
+## Principle
+
+Traditional clustering:
+
+```text
+Text
+ ↓
+Embedding
+ ↓
+Similarity
+ ↓
+Cluster
+```
+
+MECHORA:
+
+```text
+Text
+ ↓
+Safety Event
+ ↓
+Normalize
+ ↓
+Structural Signature
+ ↓
+Barrier / Energy / Exposure comparison
+ ↓
+Precursor Family
+```
+
+Embeddings may supplement structural similarity.
+
+---
+
+# 15. Example
+
+### Observation A
+
+> Pipeline flange opened before depressurization confirmation.
+
+### Observation B
+
+> Compressor maintenance started before zero-pressure verification.
+
+### Observation C
+
+> Valve replacement began without isolation verification.
+
+MECHORA extracts:
+
+```text
+A:
+Pressure
++
+Energy Isolation
++
+Verification Failure
++
+Exposure
+```
+
+```text
+B:
+Pressure
++
+Energy Isolation
++
+Verification Failure
++
+Exposure
+```
+
+```text
+C:
+Pressure
++
+Energy Isolation
++
+Verification Failure
++
+Exposure
+```
+
+Result:
+
+```text
+PRECURSOR FAMILY
+
+Energy Isolation Verification Failure
+```
+
+The product insight:
+
+> **Different Equipment → Different Wording → Same Failed Barrier**
+
+---
+
+# 16. Dashboard Requirements
+
+## Dashboard A — Executive Overview
+
+Display:
+
+```text
+Total Observations
+
+SIF-Potential Observations
+
+Recurring Precursor Families
+
+Recurring Barrier Failures
+```
+
+Additional filters:
+
+* site
+* activity
+* date
+* hazard
+* Life-Saving Rule
+
+---
+
+## Dashboard B — Observation Explorer
+
+Display:
+
+```text
+Original Narrative
+
+Structured Safety Event
+
+Evidence
+
+SIF Potential
+
+Life-Saving Rule
+
+Precursor Family
+```
+
+---
+
+## Dashboard C — Precursor Intelligence
+
+Display:
+
+```text
+Precursor Family
+
+Occurrences
+
+Common Barrier
+
+Barrier State
+
+Hazard/Energy
+
+Affected Activities
+
+Affected Locations
+```
+
+---
+
+## Dashboard D — Precursor Detail
+
+Display:
+
+```text
+Family Overview
+        ↓
+Common Mechanism
+        ↓
+Affected Activities
+        ↓
+Affected Locations
+        ↓
+Supporting Observations
+        ↓
+Evidence
+```
+
+---
+
+# 17. Prototype HSE Attention Signal
+
+The MVP may use a prototype signal such as:
+
+```text
+Precursor Attention =
+Recurrence
++
+Barrier Failure Frequency
++
+Exposure Characteristics
++
+Cross-Activity Occurrence
++
+SIF-Potential Evidence
+```
+
+The exact mathematical formulation will be documented and labelled as a prototype.
+
+MECHORA must **not** represent this as an official OIL risk score.
+
+---
+
+# 18. Human-in-the-Loop
+
+MECHORA is designed as decision support.
+
+The HSE expert remains responsible for:
+
+* validating extracted information
+* confirming precursor relationships
+* interpreting context
+* deciding whether intervention is required
+
+The system should support:
+
+```text
+AI Finding
+     ↓
+Evidence
+     ↓
+HSE Review
+     ↓
+Validated Finding
+```
+
+---
+
+# 19. MVP Success Criteria
+
+The MVP will be considered functional when it can demonstrate:
+
+### SC-01
+
+Convert a safety narrative into a structured safety event.
+
+### SC-02
+
+Correctly distinguish positive and negative barrier statements.
+
+### SC-03
+
+Map relevant Life-Saving Rules.
+
+### SC-04
+
+Identify SIF-potential indicators with explainable evidence.
+
+### SC-05
+
+Group different narratives describing the same underlying precursor mechanism.
+
+### SC-06
+
+Avoid grouping structurally different hazards merely because their wording is similar.
+
+### SC-07
+
+Show supporting observations behind every precursor family.
+
+### SC-08
+
+Provide an HSE-oriented dashboard.
+
+---
+
+# 20. Evaluation Strategy
+
+Evaluation should focus on **hard cases**, not only average accuracy.
+
+## Test Category 1
+
+Same meaning, different wording.
+
+## Test Category 2
+
+Same wording, opposite meaning.
+
+## Test Category 3
+
+Different activity, same mechanism.
+
+## Test Category 4
+
+Same barrier, different hazard.
+
+## Test Category 5
+
+Multiple simultaneous hazards.
+
+## Test Category 6
+
+Ambiguous narratives.
+
+## Test Category 7
+
+Verified barriers with no precursor signal.
+
+Metrics can include:
+
+* extraction accuracy
+* field-level precision/recall
+* SIF classification precision/recall
+* Life-Saving Rule mapping accuracy
+* precursor grouping precision
+* false-positive rate
+* false-negative rate
+
+No performance numbers should be claimed until measured.
+
+---
+
+# 21. Technology Stack
+
+## Frontend
+
+* React
+* Vite
+* Tailwind CSS
+
+## Backend
+
+* Python
+* FastAPI
+* Pydantic
+
+## AI
+
+* Gemini API
+* Structured JSON generation
+
+## NLP / ML
+
+* Python
+* scikit-learn
+* sentence-transformers / embedding model if required
+* rule-based normalization
+
+## Database
+
+* MongoDB
+
+## Data Processing
+
+* pandas
+* NumPy
+
+## Deployment
+
+* Docker
+
+---
+
+# 22. Proposed Repository Structure
+
+```text
+mechora/
+│
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── api/
+│   │   ├── models/
+│   │   ├── schemas/
+│   │   ├── services/
+│   │   │   ├── extraction/
+│   │   │   ├── normalization/
+│   │   │   ├── negation/
+│   │   │   ├── sif/
+│   │   │   ├── lsr/
+│   │   │   └── precursor/
+│   │   ├── database/
+│   │   └── utils/
+│   │
+│   ├── tests/
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── hooks/
+│   │   └── utils/
+│   └── package.json
+│
+├── data/
+│   ├── synthetic/
+│   ├── evaluation/
+│   └── ontology/
+│
+├── docs/
+│   ├── architecture/
+│   ├── ontology/
+│   └── evaluation/
+│
+├── scripts/
+│
+├── docker-compose.yml
+└── README.md
+```
+
+---
+
+# 23. MVP Development Priority
+
+## P0 — Must Have
+
+1. Safety report input
+2. AI extraction
+3. Structured safety event
+4. Evidence spans
+5. Negation/barrier-state handling
+6. Precursor signature
+7. Structural precursor matching
+8. SIF assessment
+9. Life-Saving Rule mapping
+10. Precursor family view
+
+## P1 — Important
+
+11. Batch CSV upload
+12. Activity/location analytics
+13. Filters
+14. HSE attention signal
+15. Human validation
+
+## P2 — Future
+
+16. Continuous HSSE ingestion
+17. Advanced graph analytics
+18. Feedback learning
+19. Enterprise authentication
+20. Notifications
+21. Integration with existing HSSE platforms
+22. On-premise enterprise deployment
+23. Model fine-tuning using validated historical data
+
+---
+
+# 24. Explicitly Out of Scope for MVP
+
+Do NOT build initially:
+
+* Kubernetes
+* microservice architecture
+* complex RBAC
+* mobile application
+* real-time streaming infrastructure
+* custom foundation model
+* autonomous corrective actions
+* accident prediction
+* automatic safety-policy enforcement
+* complex 3D visualization
+* excessive dashboard analytics
+
+The MVP should prove the **precursor intelligence concept** first.
+
+---
+
+# 25. Security & Privacy
+
+For prototype:
+
+* synthetic/representative data only
+* API keys stored in environment variables
+* no hardcoded credentials
+* no private OIL data
+
+For production:
+
+* private cloud/on-premise deployment
+* encrypted data
+* role-based access
+* audit logs
+* controlled model access
+* data retention policies
+* enterprise authentication
+* secure API gateway
+
+---
+
+# 26. Production Data Transition
+
+The prototype does not claim access to OIL's private historical data.
+
+Production deployment would require:
+
+```text
+OIL Historical Reports
+        ↓
+Data Cleaning
+        ↓
+Expert Labelling
+        ↓
+Ontology Calibration
+        ↓
+Model Evaluation
+        ↓
+Threshold Calibration
+        ↓
+Pilot Deployment
+        ↓
+HSE Validation
+        ↓
+Production
+```
+
+The system should learn from validated organizational data rather than assuming synthetic data represents OIL perfectly.
+
+---
+
+# 27. Major Risks
+
+## Risk 1 — False Positive
+
+A non-critical observation may be incorrectly flagged.
+
+**Mitigation:**
+
+* evidence display
+* confidence
+* human validation
+* threshold calibration
+
+---
+
+## Risk 2 — False Negative
+
+A critical precursor may be missed.
+
+**Mitigation:**
+
+* hard-case evaluation
+* expert-labelled data
+* hybrid rules
+* conservative review workflow
+
+---
+
+## Risk 3 — LLM Hallucination
+
+The model may invent information not present in the report.
+
+**Mitigation:**
+
+* strict schema
+* evidence spans
+* explicit unknown values
+* validation rules
+* no unsupported inference
+
+---
+
+## Risk 4 — Ontology Gaps
+
+The predefined vocabulary may not represent every safety scenario.
+
+**Mitigation:**
+
+* extensible ontology
+* HSE feedback
+* continuous validation
+
+---
+
+## Risk 5 — Domain Shift
+
+Synthetic data may not represent actual OIL reporting language.
+
+**Mitigation:**
+
+* production calibration using historical OIL data
+* expert review
+* incremental improvement
+
+---
+
+# 28. Core Product Differentiator
+
+MECHORA is not differentiated simply because it uses:
+
+* AI
+* NLP
+* LLM
+* embeddings
+* dashboards
+
+The differentiation is the **representation of the safety event**.
+
+Traditional:
+
+```text
+Report → Text → Similarity
+```
+
+MECHORA:
+
+```text
+Report
+ ↓
+Safety Event
+ ↓
+Hazard/Energy
+ ↓
+Barrier
+ ↓
+Barrier State
+ ↓
+Exposure
+ ↓
+Potential Consequence
+ ↓
+Precursor Mechanism
+```
+
+Therefore:
+
+> **The unit of intelligence is the precursor mechanism, not the report.**
+
+---
+
+# 29. Product Principles
+
+### Principle 1
+
+**Safety mechanism over wording.**
+
+### Principle 2
+
+**Evidence over unsupported AI claims.**
+
+### Principle 3
+
+**Human validation over autonomous decisions.**
+
+### Principle 4
+
+**Structural reasoning over embedding-only clustering.**
+
+### Principle 5
+
+**Prototype honestly; production claims require validation.**
+
+---
+
+# 30. Future Vision
+
+Once validated using organizational data, MECHORA can evolve into a continuous safety intelligence layer.
+
+```text
+Continuous HSSE Data
+        ↓
+AI Understanding
+        ↓
+Safety Event Graph
+        ↓
+Recurring Barrier Patterns
+        ↓
+Precursor Families
+        ↓
+Cross-Site Intelligence
+        ↓
+HSE Investigation
+        ↓
+Validated Intervention
+```
+
+Future capabilities may include:
+
+* cross-site precursor comparison
+* barrier-health monitoring
+* temporal precursor trends
+* emerging precursor detection
+* expert feedback learning
+* safety knowledge graph
+* enterprise HSSE integration
+* multilingual safety narrative processing
+
+The long-term vision is:
+
+> **Move from reviewing what happened to continuously understanding what keeps failing.**
+
+---
+
+# 31. MVP Definition of Done
+
+The MVP is complete when a judge can provide three different safety narratives and the system can:
+
+```text
+1. Read the narratives
+        ↓
+2. Extract structured safety events
+        ↓
+3. Identify barrier state
+        ↓
+4. Handle negation
+        ↓
+5. Generate precursor signatures
+        ↓
+6. Identify common structural mechanisms
+        ↓
+7. Map relevant Life-Saving Rules
+        ↓
+8. Surface SIF-potential indicators
+        ↓
+9. Create a recurring precursor family
+        ↓
+10. Show the evidence behind the finding
+```
+
+The critical demonstration should end with:
+
+> **Different stories.**
+> **Different equipment.**
+> **Same failed barrier.**
+> **Recurring precursor.**
+
+---
+
+# 32. One-Sentence Product Definition
+
+> **MECHORA is an AI-assisted safety intelligence platform that converts unstructured safety observations into structured safety mechanisms and discovers recurring barrier-failure precursors across activities and locations.**
+
+---
+
+# 33. MVP North Star
+
+### We are NOT building:
+
+> Another AI dashboard that classifies safety reports.
+
+### We ARE building:
+
+> **A mechanism-level intelligence layer that helps HSE teams discover recurring precursor conditions hidden across thousands of safety narratives.**
+
+**END OF PRD — VERSION 1.0**

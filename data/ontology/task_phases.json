@@ -1,0 +1,15 @@
+{
+  "_comment": "Canonical task phases rich enough for the precursor signature schema (task_phase weight 15%).",
+  "task_phases": [
+    {"code": "pre_job", "label": "Pre-Job Preparation", "synonyms": ["before work started", "before starting work", "prior to work", "pre-job", "preparation for work", "before the job", "prior to the job", "before the task"]},
+    {"code": "maintenance", "label": "Maintenance", "synonyms": ["maintenance", "service work", "overhaul work", "preventive maintenance", "during maintenance", "while servicing", "maintenance work"]},
+    {"code": "repair", "label": "Repair", "synonyms": ["repair", "corrective work", "fixing", "repair work", "during repair"]},
+    {"code": "operation", "label": "Operation", "synonyms": ["operation", "during operation", "running", "operating the", "while running", "during normal operation", "operating", "operations"]},
+    {"code": "installation", "label": "Installation", "synonyms": ["installation", "installing", "fitting", "commissioning work", "assembly"]},
+    {"code": "testing", "label": "Testing", "synonyms": ["testing", "test run", "pressure test", "functional test", "during testing", "start-up test", "trial run"]},
+    {"code": "commissioning", "label": "Commissioning", "synonyms": ["commissioning", "start-up", "startup", "initial start"]},
+    {"code": "cleaning", "label": "Cleaning", "synonyms": ["cleaning", "flushing", "pigging", "desludging"]},
+    {"code": "inspection", "label": "Inspection", "synonyms": ["inspection", "inspecting", "survey", "checking the", "examination"]},
+    {"code": "unknown", "label": "Unknown", "synonyms": []}
+  ]
+}

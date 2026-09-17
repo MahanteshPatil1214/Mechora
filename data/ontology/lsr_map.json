@@ -1,0 +1,39 @@
+{
+  "_comment": "IOGP 12 Life-Saving Rules (canonical slugs). Mapping from detected barrier -> rule is explainable and deterministic. Low-confidence mappings fall back to needs_review.",
+  "rules": [
+    {"code": "work_authorization", "label": "Work Authorization", "rule_number": 1},
+    {"code": "gas_testing", "label": "Gas Testing", "rule_number": 2},
+    {"code": "confined_space_entry", "label": "Confined Space Entry", "rule_number": 3},
+    {"code": "working_at_height", "label": "Working at Height", "rule_number": 4},
+    {"code": "energy_isolation", "label": "Energy Isolation", "rule_number": 5},
+    {"code": "hot_work", "label": "Hot Work", "rule_number": 6},
+    {"code": "safe_mechanical_lifting", "label": "Safe Mechanical Lifting", "rule_number": 7},
+    {"code": "line_of_fire", "label": "Line of Fire", "rule_number": 8},
+    {"code": "bypassing_safety_controls", "label": "Bypassing Safety Controls", "rule_number": 9},
+    {"code": "change_management", "label": "Change Management", "rule_number": 10},
+    {"code": "safe_operation", "label": "Safe Operation", "rule_number": 11},
+    {"code": "driving_safety", "label": "Driving Safety", "rule_number": 12}
+  ],
+  "barrier_to_rule": {
+    "energy_isolation": ["energy_isolation"],
+    "work_permit": ["work_authorization"],
+    "confined_space_procedure": ["confined_space_entry", "gas_testing"],
+    "fall_protection": ["working_at_height"],
+    "hot_work_controls": ["hot_work", "gas_testing"],
+    "chemical_handling_controls": ["safe_operation"],
+    "machinery_guarding": ["bypassing_safety_controls", "line_of_fire"],
+    "lifting_controls": ["safe_mechanical_lifting"],
+    "housekeeping": ["line_of_fire"],
+    "competent_supervision": ["work_authorization"]
+  },
+  "energy_to_rule": {
+    "pressurized_gas": ["energy_isolation"],
+    "electrical_energy": ["energy_isolation"],
+    "flammable_atmosphere": ["gas_testing"],
+    "chemical_exposure": ["safe_operation"],
+    "thermal_energy": ["energy_isolation"],
+    "stored_mechanical_energy": ["energy_isolation"],
+    "gravity": ["working_at_height"],
+    "moving_equipment": ["line_of_fire"]
+  }
+}

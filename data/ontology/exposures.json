@@ -1,0 +1,155 @@
+{
+  "_comment": "Canonical exposure types with severity rank used by the prototype SIF assessment (labelled prototype).",
+  "exposures": [
+    {
+      "code": "uncontrolled_gas_release",
+      "label": "Uncontrolled Gas / Fluid Release",
+      "severity_rank": 4,
+      "synonyms": [
+        "gas release",
+        "gas leak",
+        "release of gas",
+        "escaping gas",
+        "uncontrolled release",
+        "fluid release",
+        "hydrocarbon release",
+        "gas blow",
+        "leak",
+        "leaking",
+        "blew",
+        "hissing",
+        "gas cloud",
+        "release occurred"
+      ]
+    },
+    {
+      "code": "electrical_shock_risk",
+      "label": "Electrical Shock / Arc Risk",
+      "severity_rank": 4,
+      "synonyms": [
+        "electrical shock",
+        "electric shock",
+        "shock hazard",
+        "arc flash",
+        "arc blast",
+        "live part",
+        "energized part",
+        "electrocution",
+        "live terminal"
+      ]
+    },
+    {
+      "code": "fire_or_explosion",
+      "label": "Fire / Explosion Hazard",
+      "severity_rank": 5,
+      "synonyms": [
+        "fire",
+        "explosion",
+        "ignition",
+        "flash fire",
+        "burns",
+        "ignited",
+        "combustion",
+        "flash",
+        "flame"
+      ]
+    },
+    {
+      "code": "chemical_contact",
+      "label": "Chemical Contact / Inhalation",
+      "severity_rank": 4,
+      "synonyms": [
+        "chemical contact",
+        "chemical splash",
+        "skin contact",
+        "fume inhalation",
+        "exposure to the chemical",
+        "toxic exposure",
+        "splash",
+        "vapour inhalation",
+        "inhaled"
+      ]
+    },
+    {
+      "code": "fall_from_height",
+      "label": "Fall from Height",
+      "severity_rank": 4,
+      "synonyms": [
+        "fall from height",
+        "fell",
+        "slipped from",
+        "nearly fell",
+        "loss of balance",
+        "fall risk",
+        "fell off",
+        "missed step"
+      ]
+    },
+    {
+      "code": "caught_in_machinery",
+      "label": "Caught-In / Entanglement",
+      "severity_rank": 4,
+      "synonyms": [
+        "caught in",
+        "caught between",
+        "clothing caught",
+        "hand caught",
+        "rotating part grabbed",
+        "entangled",
+        "pinch point",
+        "caught"
+      ]
+    },
+    {
+      "code": "object_drop_struck_by",
+      "label": "Object Drop / Struck-By",
+      "severity_rank": 3,
+      "synonyms": [
+        "dropped object",
+        "fell from height",
+        "struck by",
+        "struck by object",
+        "falling material",
+        "object dropped",
+        "tool dropped",
+        "load dropped",
+        "suspended load"
+      ]
+    },
+    {
+      "code": "thermal_burn",
+      "label": "Thermal Burn",
+      "severity_rank": 3,
+      "synonyms": [
+        "burns",
+        "burn",
+        "scald",
+        "hot surface contact",
+        "steam burn",
+        "burn injury"
+      ]
+    },
+    {
+      "code": "confined_space_atmosphere",
+      "label": "Confined Space Atmosphere",
+      "severity_rank": 4,
+      "synonyms": [
+        "oxygen deficiency",
+        "low oxygen",
+        "confined atmosphere",
+        "toxic atmosphere",
+        "enclosed atmosphere",
+        "oxygen level",
+        "vessel atmosphere",
+        "purging",
+        "oxygen deficient"
+      ]
+    },
+    {
+      "code": "unknown",
+      "label": "Unknown",
+      "severity_rank": 1,
+      "synonyms": []
+    }
+  ]
+}

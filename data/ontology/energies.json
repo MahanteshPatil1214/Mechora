@@ -1,0 +1,179 @@
+{
+  "_comment": "Canonical hazards/energies. Each has a severity rank used only by the prototype SIF assessment and exposure context (labelled prototype, not OIL values).",
+  "energies": [
+    {
+      "code": "pressurized_gas",
+      "label": "Pressurized Gas / Fluid",
+      "severity_rank": 5,
+      "synonyms": [
+        "pressurized gas",
+        "pressurised gas",
+        "pressurized line",
+        "pressure",
+        "gas",
+        "gas under pressure",
+        "compressed gas",
+        "high pressure gas",
+        "pressurized fluid",
+        "hydrocarbon gas",
+        "natural gas",
+        "gas leak",
+        "pressure system",
+        "gas pipeline",
+        "zero pressure",
+        "depressurized",
+        "depressurisation",
+        "pressurised system",
+        "zero energy",
+        "zero-energy",
+        "depressurization",
+        "depressurised",
+        "isolation check",
+        "isolated",
+        "pressure absent",
+        "no pressure",
+        "pressure was absent",
+        "energy isolation",
+        "isolation of the line",
+        "line isolation",
+        "isolation verification",
+        "isolation checks",
+        "system isolation"
+      ]
+    },
+    {
+      "code": "electrical_energy",
+      "label": "Electrical Energy",
+      "severity_rank": 5,
+      "synonyms": [
+        "electrical energy",
+        "live circuit",
+        "energized circuit",
+        "energised circuit",
+        "live electrical",
+        "high voltage",
+        "voltage",
+        "electricity",
+        "electrical panel",
+        "electrical system",
+        "power supply",
+        "live wires",
+        "live conductor",
+        "circuit",
+        "earth leakage relay"
+      ]
+    },
+    {
+      "code": "flammable_atmosphere",
+      "label": "Flammable Atmosphere",
+      "severity_rank": 5,
+      "synonyms": [
+        "flammable atmosphere",
+        "flammable gas",
+        "explosive atmosphere",
+        "combustible gas",
+        "flammable vapour",
+        "flammable vapor",
+        "hydrocarbon vapour",
+        "ignitable mixture",
+        "gas testing",
+        "flammable concentration",
+        "gas test"
+      ]
+    },
+    {
+      "code": "chemical_exposure",
+      "label": "Chemical / Toxic Exposure",
+      "severity_rank": 4,
+      "synonyms": [
+        "chemical exposure",
+        "toxic gas",
+        "hazardous chemical",
+        "chemical spill",
+        "toxic fume",
+        "vapour",
+        "vapors",
+        "acid",
+        "caustic",
+        "hydrogen sulfide",
+        "h2s",
+        "solvent exposure",
+        "chemical handling",
+        "oxygen-deficient",
+        "oxygen deficient"
+      ]
+    },
+    {
+      "code": "thermal_energy",
+      "label": "Thermal Energy",
+      "severity_rank": 3,
+      "synonyms": [
+        "thermal energy",
+        "hot surface",
+        "steam",
+        "hot metal",
+        "burn hazard",
+        "scalding",
+        "hot pipe",
+        "heat exposure",
+        "molten"
+      ]
+    },
+    {
+      "code": "stored_mechanical_energy",
+      "label": "Stored Mechanical Energy",
+      "severity_rank": 3,
+      "synonyms": [
+        "stored mechanical energy",
+        "spring tension",
+        "compressed spring",
+        "tensioned",
+        "pressurized spring",
+        "stored energy",
+        "mechanical energy",
+        "hydraulic pressure",
+        "accumulator"
+      ]
+    },
+    {
+      "code": "gravity",
+      "label": "Gravity / Fall",
+      "severity_rank": 3,
+      "synonyms": [
+        "gravity",
+        "fall from height",
+        "falling",
+        "height",
+        "elevated",
+        "roof top",
+        "working at height",
+        "scaffold",
+        "open edge",
+        "unguarded edge",
+        "fall hazard",
+        "dropped object",
+        "suspended load",
+        "overhead load"
+      ]
+    },
+    {
+      "code": "moving_equipment",
+      "label": "Moving Equipment",
+      "severity_rank": 3,
+      "synonyms": [
+        "moving equipment",
+        "rotating machinery",
+        "rotating shaft",
+        "moving parts",
+        "running equipment",
+        "conveyor",
+        "rotating equipment",
+        "entanglement",
+        "nip point",
+        "moving machinery",
+        "motor",
+        "electric motor"
+      ]
+    }
+  ]
+}

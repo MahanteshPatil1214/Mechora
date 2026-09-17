@@ -1,0 +1,16 @@
+{
+  "_comment": "Prototype locations used in synthetic narratives.",
+  "locations": [
+    {"code": "compressor_room", "label": "Compressor Room", "synonyms": []},
+    {"code": "pipeline_section", "label": "Pipeline Section", "synonyms": []},
+    {"code": "pump_station", "label": "Pump Station", "synonyms": []},
+    {"code": "tank_farm", "label": "Tank Farm", "synonyms": []},
+    {"code": "well_site", "label": "Well Site", "synonyms": []},
+    {"code": "substation", "label": "Substation", "synonyms": []},
+    {"code": "workshop", "label": "Workshop", "synonyms": []},
+    {"code": "process_area", "label": "Process Area", "synonyms": []},
+    {"code": "storage_yard", "label": "Storage Yard", "synonyms": []},
+    {"code": "offshore_platform", "label": "Offshore Platform", "synonyms": []},
+    {"code": "unknown", "label": "Unknown", "synonyms": []}
+  ]
+}
