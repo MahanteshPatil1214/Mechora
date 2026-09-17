@@ -186,6 +186,38 @@ class LSRMapping(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Precursor family explainers
+# ---------------------------------------------------------------------------
+
+
+class GroupingEvidence(BaseModel):
+    """Per-dimension commonality evidence (WHY GROUPED?).
+
+    Generated from the actual per-observation comparison inside the family,
+    never hardcoded: the dominant value and its coverage over members.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    dimension: str = ""
+    value: str = ""
+    status: Literal["same", "mixed", "distinct"] = "same"
+    coverage: float = Field(default=0.0, ge=0.0, le=1.0)
+    note: str = ""
+
+
+class ExclusionEntry(BaseModel):
+    """WHY NOT GROUPED: a structurally-similar family kept separate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    other_family_id: str = ""
+    similarity: float = Field(default=0.0, ge=0.0, le=1.0)
+    differing_dimensions: list[str] = Field(default_factory=list)
+    basis: str = ""
+
+
+# ---------------------------------------------------------------------------
 # Precursor signature
 # ---------------------------------------------------------------------------
 
@@ -277,6 +309,8 @@ class SafetyEvent(BaseModel):
 
     evidence: list[Evidence] = Field(default_factory=list)
 
+    field_evidence: dict[str, str] = Field(default_factory=dict)
+
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
 
     evidence_status: EVIDENCE_STATUS = "grounded"
@@ -332,8 +366,12 @@ class PrecursorFamily(BaseModel):
     hazard: str = ""
     attention_signal: float = Field(default=0.0, ge=0.0, le=100.0)
     attention_basis: list[str] = Field(default_factory=list)
+    attention_factors: list[dict[str, Any]] = Field(default_factory=list)
     sif_potential_count: int = 0
     recurring: bool = False
+    recurring_threshold: int = 2
+    grouping_evidence: list[GroupingEvidence] = Field(default_factory=list)
+    exclusions: list[ExclusionEntry] = Field(default_factory=list)
     created_at: str = Field(
         default_factory=lambda: _dt.datetime.now(_dt.timezone.utc).isoformat()
     )

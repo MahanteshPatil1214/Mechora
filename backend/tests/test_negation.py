@@ -119,3 +119,26 @@ def test_closed_state_set():
     for _barrier, text, _expected in CASE_EQUIVALENTS:
         state = eng.classify_sentence(text).state
         assert state in valid
+
+
+def test_required_phrase_level_negation_pairs():
+    """Demanded phrase level tests: verified vs NOT-verified, confirmed vs
+    NOT-confirmed must be exact opposites (FR-04)."""
+    eng = NegationEngine(get_ontology())
+    pairs = [
+        ("Isolation was verified",
+         "Isolation was NOT verified",
+         "energy_isolation"),
+        ("Zero pressure was confirmed",
+         "Zero pressure was NOT confirmed",
+         "energy_isolation"),
+        ("Zero energy was confirmed",
+         "Zero energy was NOT confirmed",
+         "energy_isolation"),
+    ]
+    for pos, neg, barrier in pairs:
+        assert eng.classify_sentence(pos).state == "verified", pos
+        assert eng.classify_sentence(neg).state == "not_verified", neg
+        # Barrier-context path (energy_isolation mention in narrative).
+        assert eng.classify_barrier(barrier, pos).state == "verified", pos
+        assert eng.classify_barrier(barrier, neg).state == "not_verified", neg

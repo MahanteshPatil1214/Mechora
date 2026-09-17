@@ -81,7 +81,11 @@ class PrecursorFamilyRow(Base):
     hazard: Mapped[str] = mapped_column(Text, default="")
     attention_signal: Mapped[float] = mapped_column(Float, default=0.0, index=True)
     attention_basis: Mapped[list] = mapped_column(JSON, default=list)
+    attention_factors: Mapped[list] = mapped_column(JSON, default=list)
     sif_potential_count: Mapped[int] = mapped_column(Integer, default=0)
+    recurring_threshold: Mapped[int] = mapped_column(Integer, default=2)
+    grouping_evidence: Mapped[list] = mapped_column(JSON, default=list)
+    exclusions: Mapped[list] = mapped_column(JSON, default=list)
     created_at: Mapped[str] = mapped_column(String(40), default=_now)
 
 

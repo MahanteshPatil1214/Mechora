@@ -121,6 +121,26 @@ def test_verified_and_not_verified_do_not_share_family():
         assert not (o1.id in fam.observation_ids and o2.id in fam.observation_ids)
 
 
+def test_flange_gas_line_maintenance_activity():
+    """Regression: real HSE wording must resolve to pipeline_maintenance,
+    not unknown (activity was previously unmapped)."""
+    narrative = (
+        "During routine flange tightening on the gas line, the fitter did "
+        "not confirm zero energy before loosening the joint and a small gas "
+        "release occurred."
+    )
+    event = AnalysisPipeline(get_ontology(), get_settings()).analyze(
+        "OBS-FLG", narrative, provider="rules"
+    ).event
+    assert event.activity == "pipeline_maintenance"
+    assert event.task_phase == "maintenance"
+    assert event.energy == "pressurized_gas"
+    assert event.barrier == "energy_isolation"
+    assert event.barrier_state == "not_verified"
+    assert event.exposure == "uncontrolled_gas_release"
+    assert event.potential_consequence == "serious_injury_or_fatality"
+
+
 def test_sif_and_lsr_are_present():
     pipeline = AnalysisPipeline(get_ontology(), get_settings())
     event = pipeline.analyze("OBS-1", SAMPLES[0][0], provider="rules").event

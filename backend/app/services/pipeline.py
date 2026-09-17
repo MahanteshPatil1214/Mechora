@@ -160,6 +160,11 @@ class AnalysisPipeline:
 
         if output is not None:
             event.confidence = raw.confidence
+            # Per-attribute supporting spans (rules path only; grounded text).
+            fev = {k: v for k, v in (output.matched or {}).items() if v}
+            if "consequence" in fev:
+                fev["potential_consequence"] = fev.pop("consequence")
+            event.field_evidence = fev
 
         # Derived layers
         event.precursor_signature = build_signature(event)

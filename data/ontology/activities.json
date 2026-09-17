@@ -14,7 +14,18 @@
         "pipeline inspection",
         "flange replacement",
         "pipeline pigging",
-        "repairing a pipeline flange"
+        "repairing a pipeline flange",
+        "flange tightening",
+        "tightening the flange",
+        "loosening the joint",
+        "tightening the joint",
+        "flange joint",
+        "flange bolts",
+        "flange seal",
+        "line repair",
+        "joint repair",
+        "opening the line",
+        "disconnecting the line"
       ]
     },
     {
@@ -29,7 +40,9 @@
         "turbine maintenance",
         "compressor inspection",
         "overhauling the compressor",
-        "compressor servicing"
+        "compressor servicing",
+        "compressor discharge",
+        "repairing the compressor"
       ]
     },
     {

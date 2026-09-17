@@ -40,6 +40,8 @@ class Settings(BaseSettings):
     # --- Precursor engine ---
     family_assign_threshold: float = 0.65
     embedding_blend: float = 0.05  # max supporting weight for embeddings
+    recurring_min_observations: int = 2  # explicit recurring threshold
+    family_exclusion_floor: float = 0.35  # min similarity to report a WHY-NOT pair
 
     report_id_prefix: str = "OBS"
 

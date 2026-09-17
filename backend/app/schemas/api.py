@@ -68,8 +68,12 @@ class FamilyOut(BaseModel):
     hazard: str
     attention_signal: float
     attention_basis: list[str]
+    attention_factors: list[dict] = Field(default_factory=list)
     sif_potential_count: int
     recurring: bool
+    recurring_threshold: int = 2
+    grouping_evidence: list[dict] = Field(default_factory=list)
+    exclusions: list[dict] = Field(default_factory=list)
     created_at: str
 
 

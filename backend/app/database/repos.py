@@ -87,12 +87,18 @@ def _fam_to_row(fam: PrecursorFamily) -> PrecursorFamilyRow:
         hazard=fam.hazard,
         attention_signal=fam.attention_signal,
         attention_basis=fam.attention_basis,
+        attention_factors=fam.attention_factors,
         sif_potential_count=fam.sif_potential_count,
+        recurring_threshold=fam.recurring_threshold,
+        grouping_evidence=[g.model_dump() for g in fam.grouping_evidence],
+        exclusions=[e.model_dump() for e in fam.exclusions],
         created_at=fam.created_at,
     )
 
 
 def _row_to_fam(row: PrecursorFamilyRow) -> PrecursorFamily:
+    from app.models.safety_event import ExclusionEntry, GroupingEvidence
+
     return PrecursorFamily(
         id=row.id,
         name=row.name,
@@ -107,8 +113,16 @@ def _row_to_fam(row: PrecursorFamilyRow) -> PrecursorFamily:
         hazard=row.hazard or "",
         attention_signal=row.attention_signal,
         attention_basis=list(row.attention_basis or []),
+        attention_factors=list(row.attention_factors or []),
         sif_potential_count=row.sif_potential_count,
         recurring=bool(row.recurring),
+        recurring_threshold=row.recurring_threshold or 2,
+        grouping_evidence=[
+            GroupingEvidence.model_validate(g) for g in (row.grouping_evidence or [])
+        ],
+        exclusions=[
+            ExclusionEntry.model_validate(e) for e in (row.exclusions or [])
+        ],
         created_at=row.created_at,
     )
 

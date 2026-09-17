@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api, label } from "../api.js";
-import { Field, StateBadge, SIFBadge } from "./Badge.jsx";
+import { Field, StateBadge, SIFBadge, EvidenceChips } from "./Badge.jsx";
 
 export default function Observations({ refreshKey }) {
   const [rows, setRows] = useState([]);
@@ -59,6 +59,9 @@ export default function Observations({ refreshKey }) {
               <div className="flex items-center gap-2">
                 <StateBadge value={o.event.barrier_state} />
                 <SIFBadge value={o.event.sif.classification} />
+                <span className="text-[10px] text-slate-500">
+                  {Math.round((o.event.sif.confidence ?? 0) * 100)}%
+                </span>
               </div>
             </div>
             <p className="mt-2 line-clamp-2 text-sm text-slate-300">{o.narrative}</p>
@@ -76,6 +79,11 @@ export default function Observations({ refreshKey }) {
                 )}
               </span>
             </div>
+            {o.event.field_evidence && (
+              <div className="mt-2">
+                <EvidenceChips fieldEvidence={o.event.field_evidence} />
+              </div>
+            )}
           </div>
         ))}
       </div>

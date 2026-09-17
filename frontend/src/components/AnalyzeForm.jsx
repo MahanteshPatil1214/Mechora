@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { api } from "../api.js";
-import { Field, StateBadge, SIFBadge } from "./Badge.jsx";
+import { Field, StateBadge, SIFBadge, SifPanel, EvidenceChips } from "./Badge.jsx";
 
 const SAMPLES = [
   "Went to carry out repair on the crude line flange, fitter opened the drain valve before the line was proven depressurized. There was a sudden release of residual pressure and fluid splashed out, no one injured but coveralls were soaked.",
@@ -112,11 +112,11 @@ export default function AnalyzeForm({ onAnalyzed }) {
               <code key={r} className="mr-1">{r}</code>
             ))}
           </div>
-          {result.event.sif?.model_note ? (
-            <p className="text-[11px] italic text-slate-500">
-              {result.event.sif.model_note}
-            </p>
-          ) : null}
+          {result.precursor_family_id && (
+            <p className="text-xs text-sky-300">precursor family: {result.precursor_family_id}</p>
+          )}
+          <EvidenceChips fieldEvidence={result.event.field_evidence} />
+          <SifPanel sif={result.event.sif} />
         </div>
       )}
     </div>

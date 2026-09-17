@@ -29,8 +29,12 @@ def _to_out(fam) -> FamilyOut:
         hazard=fam.hazard,
         attention_signal=fam.attention_signal,
         attention_basis=list(fam.attention_basis or []),
+        attention_factors=list(fam.attention_factors or []),
         sif_potential_count=fam.sif_potential_count,
         recurring=bool(fam.recurring),
+        recurring_threshold=fam.recurring_threshold or 2,
+        grouping_evidence=[g.model_dump() for g in fam.grouping_evidence],
+        exclusions=[e.model_dump() for e in fam.exclusions],
         created_at=fam.created_at,
     )
 
