@@ -54,15 +54,19 @@ DEMO_NARRATIVES: list[tuple[str, str, str]] = [
     ("C2", "VER-02",
      "Compressor maintenance: lockout was checked and the system proven "
      "depressurized before work. Everything was safe."),
-    # -- Group D: similar wording / different mechanism (WHY NOT GROUPED) --
-    ("D1", "GASLN-01",
+    # -- Group D: mechanical barrier failure (verified != failed) ----------
+    ("D1", "FAIL-01",
+     "During hydrotest pump maintenance, the high-pressure isolation valve "
+     "ruptured and failed to hold pressure, releasing gas to atmosphere."),
+    # -- Group E: similar wording / different mechanism (WHY NOT GROUPED) --
+    ("E1", "GASLN-01",
      "Pipeline repair: energy isolation was NOT verified before the joint "
      "was opened; a gas leak was observed."),
-    ("D2", "GASLN-02",
+    ("E2", "GASLN-02",
      "Pipeline repair: the preliminary flammable gas test was skipped before "
      "the line was cracked open; a flash could occur."),
-    # -- Group E: ambiguous watch-list -------------------------------------
-    ("E1", "WATCH-01",
+    # -- Group F: ambiguous watch-list (NEEDS_REVIEW) -----------------------
+    ("F1", "WATCH-01",
      "An area watch noted a strange noise near the compressor during a "
      "routine meeting; no work was in progress."),
 ]
@@ -73,35 +77,15 @@ def main() -> int:
 
     # Reset the backing store for a deterministic demo. In auto/sqlite mode
     # the SQLite fallback file is the backing store: remove it before the
-    # engine opens it. (backend_name() is unavailable before init_db(), so
-    # decide from the configured store mode.)
-    if settings.store.lower() == "postgres":
-        postgres_reset = True
-    else:
-        postgres_reset = False
-        db_path = Path(settings.sqlite_fallback_path)
-        try:
-            if db_path.exists():
-                db_path.unlink()
-                for suffix in ("-wal", "-shm"):
-                    d = Path(str(db_path) + suffix)
-                    if d.exists():
-                        d.unlink()
-                print(f"reset sqlite demo db: {db_path}")
-        except OSError as exc:
-            print(f"  (warning: could not remove {db_path}: {exc})")
-        dispose()
-
     init_db()
 
-    if postgres_reset:
-        from sqlalchemy import delete
-        from app.database.engine import get_session
-        from app.database.tables import ObservationRow, PrecursorFamilyRow
-        with get_session() as s:
-            s.execute(delete(PrecursorFamilyRow))
-            s.execute(delete(ObservationRow))
-            s.commit()
+    from sqlalchemy import delete
+    from app.database.engine import get_session
+    from app.database.tables import ObservationRow, PrecursorFamilyRow
+    with get_session() as s:
+        s.execute(delete(PrecursorFamilyRow))
+        s.execute(delete(ObservationRow))
+        s.commit()
 
     pipeline = AnalysisPipeline(get_ontology(), settings)
     observations = []

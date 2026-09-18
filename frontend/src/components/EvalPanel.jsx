@@ -64,9 +64,36 @@ export default function EvalPanel() {
             </div>
           ))}
         </div>
-        <p className="mt-2 text-[11px] italic text-slate-600">
-          Deterministic rule pipeline · no fabricated metrics
-        </p>
+        <div className="mt-3 rounded-md border border-slate-800 bg-slate-950/60 p-2.5 text-[11px] space-y-1.5">
+          <p className="font-semibold text-slate-300 flex items-center gap-1.5">
+            <span className="text-sky-400">ℹ</span> Benchmark transparency
+          </p>
+          <ul className="space-y-1 text-slate-400">
+            <li className="flex items-start gap-1.5">
+              <span className="text-sky-400 font-bold">•</span>
+              Total benchmark set: n={data.metrics.record_count ?? data.counts?.records ?? 216} frozen records
+            </li>
+            <li className="flex items-start gap-1.5">
+              <span className="text-sky-400 font-bold">•</span>
+              Rule-based / deterministic benchmark (ontology + negation engine; no LLM randomness)
+            </li>
+            <li className="flex items-start gap-1.5">
+              <span className="text-sky-400 font-bold">•</span>
+              Synthetic / representative sample data — not live operational field data
+            </li>
+            <li className="flex items-start gap-1.5">
+              <span className="text-amber-400 font-bold">•</span>
+              NOT OIL production accuracy — not an official corporate risk score
+            </li>
+            <li className="flex items-start gap-1.5">
+              <span className="text-amber-400 font-bold">•</span>
+              Not independently validated field performance
+            </li>
+          </ul>
+          <p className="text-[10px] text-slate-500 italic pt-0.5">
+            Offline verification benchmark · deterministic pipeline · frozen test set · no fabricated metrics.
+          </p>
+        </div>
       </div>
     </div>
   );

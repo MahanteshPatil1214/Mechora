@@ -1,4 +1,4 @@
-"""Prototype Precursor Attention Signal (FR-11 / PRD section 17).
+"""Prototype HSE Attention Signal (FR-11 / PRD section 17).
 
 A configurable 0-100 prototype signal. It MUST NOT be presented as an official
 OIL risk score. Inputs: recurrence, barrier-failure frequency, exposure
@@ -21,8 +21,8 @@ ATTENTION_WEIGHTS: dict[str, float] = {
 }
 
 ATTENTION_DISCLAIMER = (
-    "Prototype Precursor Attention Signal (0-100). Decision-support signal; "
-    "not an official OIL risk score."
+    "Prototype HSE Attention Signal — decision support, "
+    "not an official OIL risk score or accident prediction."
 )
 
 # Only factors that actually contribute a meaningful lift are reported in

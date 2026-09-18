@@ -80,18 +80,20 @@ Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/v1/analyze `
 | Schema validity | 1.000 | 1.000 |
 | Activity | 1.000 | ≥ 0.95 |
 | Task phase | 0.995 | ≥ 0.90 |
-| Energy | 0.954 | ≥ 0.90 |
+| Energy | 0.981 | ≥ 0.90 |
 | Barrier | 0.977 | ≥ 0.92 |
 | Barrier state | 1.000 | ≥ 0.95 |
-| Exposure | 0.968 | ≥ 0.92 |
-| Potential consequence | 0.958 | ≥ 0.90 |
+| Exposure | 0.954 | ≥ 0.92 |
+| Potential consequence | 0.949 | ≥ 0.90 |
 | Location | 1.000 | ≥ 0.95 |
-| SIF (exact / macro-F1) | 0.977 / 0.896 | ≥ 0.95 / ≥ 0.85 |
+| SIF (exact / macro-F1) | 1.000 / 1.000 | ≥ 0.95 / ≥ 0.85 |
 | LSR (exact rule set) | 0.968 | ≥ 0.90 |
 | Precursor family tag | 0.972 | ≥ 0.90 |
 | Negation: isolation verified-vs-not | 1.000 (n=40) | ≥ 0.98 |
 | Hard negatives (no false negation) | 1.000 (n=30) | ≥ 0.95 |
-| Same-family grouping suite | 1.000 (n=1) | ≥ 0.95 |
+| Same-family grouping suite | 1.000 (n=50) | ≥ 0.95 |
+| Cross-activity same precursor | 1.000 (n=50) | ≥ 0.95 |
+| Verified-vs-failure separation | 1.000 (n=30) | ≥ 0.95 |
 
 ## Layout
 

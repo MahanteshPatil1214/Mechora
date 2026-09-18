@@ -120,6 +120,51 @@ def test_recurring_threshold_is_explicit():
     assert assignment["FLG-1"] != assignment["WELD-2"]
 
 
+def test_single_observation_family_is_not_labeled_recurring():
+    """A single observation (observation_count < recurring threshold) must
+    never be branded RECURRING or 'recurring' anywhere in its narrative."""
+    from app.services.precursor.family import FamilyBuilder
+
+    pipeline, obs = _pipeline_and_obs([
+        ("SINGLE-1", MEERUT_EXAMPLE),
+    ])
+    families, _ = FamilyBuilder(get_ontology()).build(
+        [obs], family_index=1,
+        recurring_threshold=get_settings().recurring_min_observations,
+    )
+    fam = families[0]
+    assert len(fam.observation_ids) == 1
+    assert fam.recurring is False
+    assert fam.recurrence["status"] == "single"
+    assert fam.recurrence["is_recurring"] is False
+    narrative = " ".join((fam.description, fam.why_it_matters)).lower()
+    assert "recurring" not in narrative
+    assert "single" in fam.recurrence["label"]
+
+
+def test_recurring_family_keeps_recurrence_language():
+    """Multi-observation families keep the recurrence narrative; the status
+    is derived from the observation count, not the template alone."""
+    from app.services.precursor.family import FamilyBuilder
+
+    pipeline, obs = _pipeline_and_obs([
+        ("FLG-1", MEERUT_EXAMPLE),
+        ("CMP-1", "Repair at the compressor discharge: nobody verified "
+                  "isolation before the crew opened the casing; pressure "
+                  "was still present."),
+        ("FLG-2", MEERUT_EXAMPLE),
+    ])
+    families, _ = FamilyBuilder(get_ontology()).build(
+        [obs], family_index=1,
+        recurring_threshold=get_settings().recurring_min_observations,
+    )
+    fam = families[0]
+    assert len(fam.observation_ids) == 3
+    assert fam.recurring is True
+    assert fam.recurrence["status"] == "recurring"
+    assert "recurring" in fam.why_it_matters.lower()
+
+
 def test_attention_disclaimer_and_contributing_factors_only():
     pipeline, obs = _pipeline_and_obs([
         ("FLG-1", MEERUT_EXAMPLE),

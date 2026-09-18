@@ -1,6 +1,15 @@
 import { useState } from "react";
-import { api } from "../api.js";
-import { Field, StateBadge, SIFBadge, SifPanel, EvidenceChips } from "./Badge.jsx";
+import { api, label } from "../api.js";
+import { Field, StateBadge, SIFBadge, NeedsReviewBadge, SifPanel, EvidenceChips, FamilyTypeBadge } from "./Badge.jsx";
+
+function potentialBasis(event) {
+  if (!event || event.potential_consequence_basis !== "model_inference") return "";
+  const parts = [];
+  if (event.barrier && event.barrier !== "unknown") parts.push(`${label(event.barrier)} (${label(event.barrier_state)})`);
+  if (event.energy && event.energy !== "unknown") parts.push(label(event.energy));
+  if (event.exposure && event.exposure !== "unknown") parts.push(label(event.exposure));
+  return parts.join(" + ");
+}
 
 const SAMPLES = [
   "Went to carry out repair on the crude line flange, fitter opened the drain valve before the line was proven depressurized. There was a sudden release of residual pressure and fluid splashed out, no one injured but coveralls were soaked.",
@@ -39,6 +48,14 @@ export default function AnalyzeForm({ onAnalyzed }) {
       setBusy(false);
     }
   }
+
+  const derivedType = result
+    ? result.event.barrier_state === "verified"
+      ? "controlled"
+      : result.event.needs_review || result.event.barrier_state === "unknown"
+      ? "needs_review"
+      : "precursor"
+    : "precursor";
 
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
@@ -87,24 +104,135 @@ export default function AnalyzeForm({ onAnalyzed }) {
       )}
       {result && (
         <div className="mt-4 space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-xs text-slate-400">
               {result.report_id} · {result.id} · provider={result.provider}
             </span>
-            <SIFBadge value={result.event.sif.classification} />
-          </div>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <Field name="Activity" value={result.event.activity} />
-            <Field name="Task phase" value={result.event.task_phase} />
-            <Field name="Energy" value={result.event.energy} />
-            <Field name="Barrier" value={result.event.barrier} />
-            <Field name="Exposure" value={result.event.exposure} />
-            <Field name="Consequence" value={result.event.potential_consequence} />
-            <Field name="Location" value={result.event.location} />
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] uppercase tracking-widest text-slate-500">Barrier state</span>
+            <div className="flex items-center gap-2">
+              {result.event.needs_review && (
+                <NeedsReviewBadge missingFields={result.event.missing_fields} />
+              )}
+              <FamilyTypeBadge type={derivedType} />
               <StateBadge value={result.event.barrier_state} />
+              <SIFBadge value={result.event.sif.classification} />
             </div>
+          </div>
+          {result.event.needs_review && (
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200 space-y-1">
+              <div className="font-semibold text-amber-300">⚠ Precursor Needs HSE Human Review</div>
+              <p>
+                Critical safety attributes could not be confirmed from the narrative text alone:{" "}
+                <span className="font-mono text-amber-100">
+                  {result.event.missing_fields?.join(", ")}
+                </span>
+                . In accordance with safety logic, unverified critical fields are held for review rather than guessed.
+              </p>
+            </div>
+          )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+            {(() => {
+              const fb = result.event.field_basis || {};
+              return [
+                <Field
+                  key="activity"
+                  name="Activity"
+                  value={result.event.activity}
+                  evidence={result.event.field_evidence?.activity}
+                  basis={fb.activity}
+                />,
+                <Field
+                  key="phase"
+                  name="Task Phase"
+                  value={result.event.task_phase}
+                  evidence={result.event.field_evidence?.task_phase}
+                  basis={fb.task_phase}
+                />,
+                <Field
+                  key="energy"
+                  name="Energy / Hazard"
+                  value={result.event.energy}
+                  evidence={result.event.field_evidence?.energy}
+                  basis={fb.energy}
+                />,
+                <Field
+                  key="barrier"
+                  name="Barrier"
+                  value={result.event.barrier}
+                  evidence={result.event.field_evidence?.barrier}
+                  basis={fb.barrier}
+                />,
+                <Field
+                  key="exposure"
+                  name="Exposure"
+                  value={result.event.exposure}
+                  evidence={result.event.field_evidence?.exposure}
+                  basis={fb.exposure}
+                />,
+                <div
+                  key="barrierState"
+                  className="flex flex-col gap-1 rounded-md border border-slate-800/80 bg-slate-900/60 p-2 min-w-[140px]"
+                >
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                      Barrier State
+                    </span>
+                    <span className="rounded bg-slate-800 px-1 py-0.2 text-[9px] font-mono text-slate-500 lowercase">
+                      negation
+                    </span>
+                  </div>
+                  <StateBadge value={result.event.barrier_state} />
+                  {fb.barrier_state && fb.barrier_state !== "unknown" && (
+                    <div className="flex items-center gap-1">
+                      <span
+                        className={
+                          fb.barrier_state === "explicit"
+                            ? "rounded border border-emerald-500/40 bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-emerald-300"
+                            : "rounded border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-amber-300"
+                        }
+                      >
+                        {fb.barrier_state === "explicit" ? "EXPLICIT" : "INFERRED"}
+                      </span>
+                      <span className="text-[9px] italic text-slate-500">
+                        {fb.barrier_state === "explicit" ? "stated in report" : "no direct span — derived"}
+                      </span>
+                    </div>
+                  )}
+                  {result.event.field_evidence?.barrier_state ? (
+                    <div className="mt-0.5 flex items-start gap-1 text-[11px] text-sky-400 font-mono italic leading-tight">
+                      <span className="text-[10px] font-sans font-semibold uppercase tracking-tight text-sky-500/80 not-italic">
+                        evidence:
+                      </span>
+                      <span className="break-words">“{result.event.field_evidence.barrier_state}”</span>
+                    </div>
+                  ) : (
+                    <span className="text-[10px] text-slate-600 italic">no direct span</span>
+                  )}
+                </div>,
+                <Field
+                  key="potential"
+                  name="Potential"
+                  value={result.event.potential_consequence}
+                  evidence={result.event.field_evidence?.potential_consequence}
+                  basis={result.event.potential_consequence_basis}
+                  basisDetail={potentialBasis(result.event)}
+                />,
+                <Field
+                  key="actual"
+                  name="Actual"
+                  value={result.event.actual_consequence}
+                  evidence={result.event.field_evidence?.actual_consequence}
+                  basis={fb.actual_consequence}
+                />,
+                <Field
+                  key="location"
+                  name="Location"
+                  value={result.event.location}
+                  evidence={result.event.field_evidence?.location}
+                  basis={fb.location}
+                  isCanonical={false}
+                />,
+              ];
+            })()}
           </div>
           <div className="text-xs text-slate-400">
             Life-saving rules:{" "}
@@ -112,10 +240,27 @@ export default function AnalyzeForm({ onAnalyzed }) {
               <code key={r} className="mr-1">{r}</code>
             ))}
           </div>
-          {result.precursor_family_id && (
-            <p className="text-xs text-sky-300">precursor family: {result.precursor_family_id}</p>
+          {result.event?.needs_review || !result.precursor_family_id || result.precursor_family_id === "UNASSIGNED / PENDING REVIEW" ? (
+            <div className="rounded-md border border-amber-500/30 bg-amber-500/10 p-2.5 text-xs flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-wider text-amber-400 font-bold">Safety Family:</span>
+                <span className="text-amber-200 font-mono font-bold">UNASSIGNED / PENDING REVIEW</span>
+              </div>
+              <span className="text-[10px] text-amber-300/80 italic">
+                Critical safety fields missing — held for HSE specialist review before family assignment
+              </span>
+            </div>
+          ) : (
+            <div className="rounded-md border border-sky-500/30 bg-sky-500/10 p-2.5 text-xs flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-wider text-sky-400 font-bold">Assigned Safety Family:</span>
+                <span className="text-sky-200 font-mono font-bold">{result.precursor_family_id}</span>
+              </div>
+              <span className="text-[10px] text-slate-400 italic">
+                Clustered by invariant physical barrier mechanism
+              </span>
+            </div>
           )}
-          <EvidenceChips fieldEvidence={result.event.field_evidence} />
           <SifPanel sif={result.event.sif} />
         </div>
       )}

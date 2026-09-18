@@ -142,3 +142,99 @@ def test_required_phrase_level_negation_pairs():
         # Barrier-context path (energy_isolation mention in narrative).
         assert eng.classify_barrier(barrier, pos).state == "verified", pos
         assert eng.classify_barrier(barrier, neg).state == "not_verified", neg
+
+
+def test_complex_syntactic_negations():
+    """Verify robust detection of negation with intervening words and varied syntax."""
+    eng = NegationEngine(get_ontology())
+    cases = [
+        ("energy_isolation", "Isolation was checked but NOT verified before the crew opened the valve.", "not_verified"),
+        ("energy_isolation", "The team commenced work having failed to confirm zero pressure.", "not_verified"),
+        ("energy_isolation", "The crew proceeded without complete isolation verification.", "not_verified"),
+        ("energy_isolation", "Could not verify zero energy before flange bolt removal.", "not_verified"),
+        ("confined_space_procedure", "Entry was logged without atmospheric testing carried out.", "not_verified"),
+        ("energy_isolation", "Isolation was strictly checked and verified prior to breaking containment.", "verified"),
+        ("energy_isolation", "Lockout was confirmed and applied by the competent supervisor.", "verified"),
+    ]
+    for barrier, text, expected in cases:
+        result = eng.classify_barrier(barrier, text)
+        assert result.state == expected, f"Failed for '{text}': got {result.state}, expected {expected}"
+
+
+def test_all_failure_states_distinct_from_verified():
+    """Ensure verified is strictly distinct from failed, not_verified, and absent."""
+    eng = NegationEngine(get_ontology())
+    v = eng.classify_sentence("Zero energy was confirmed.")
+    nv = eng.classify_sentence("Zero energy was not confirmed.")
+    f = eng.classify_sentence("The isolation valve failed to hold pressure.")
+    ab = eng.classify_sentence("The pump guard was missing.")
+
+    assert v.state == "verified"
+    assert nv.state == "not_verified"
+    assert f.state == "failed"
+    assert ab.state == "absent"
+
+    # Strict inequality
+    assert v.state != nv.state
+    assert v.state != f.state
+    assert v.state != ab.state
+    assert nv.state != f.state
+
+
+def test_unknown_critical_fields_set_needs_review():
+    """Unknown critical fields (barrier, state, energy, exposure) must trigger NEEDS_REVIEW."""
+    from app.config import get_settings
+    from app.services.pipeline import AnalysisPipeline
+    pipeline = AnalysisPipeline(get_ontology(), get_settings())
+    ambiguous = "During a routine team meeting a safety observation about the compressor area was noted for review."
+    event = pipeline.analyze("OBS-AMB", ambiguous, provider="rules").event
+
+    assert event.needs_review is True
+    assert "barrier" in event.missing_fields
+    assert "barrier_state" in event.missing_fields
+    assert event.sif.classification == "needs_review"
+
+
+def test_user_requested_exact_negation_contrasts():
+    """Verify the exact 4 pairs demanded by SIH 2026 specification."""
+    eng = NegationEngine(get_ontology())
+    assert eng.classify_sentence("Isolation was verified.").state == "verified"
+    assert eng.classify_sentence("Isolation was NOT verified.").state == "not_verified"
+
+    assert eng.classify_sentence("Zero pressure was confirmed.").state == "verified"
+    assert eng.classify_sentence("Zero pressure was NOT confirmed.").state == "not_verified"
+
+    assert eng.classify_sentence("Gas testing was completed.").state == "verified"
+    assert eng.classify_sentence("Gas testing was NOT completed.").state == "not_verified"
+
+    assert eng.classify_sentence("Valve did not fail.").state == "verified"
+
+
+def test_negation_four_way_regression():
+    """Final audit regression: verified / NOT verified / failed are exact and
+    distinct; 'could not be confirmed' resolves to UNKNOWN (indeterminate),
+    not a guessed not_verified/failed state."""
+    eng = NegationEngine(get_ontology())
+    assert eng.classify_barrier("energy_isolation", "Isolation was verified.").state == "verified"
+    assert eng.classify_barrier(
+        "energy_isolation", "Isolation was NOT verified."
+    ).state == "not_verified"
+    assert eng.classify_barrier("energy_isolation", "Isolation failed.").state == "failed"
+
+    result = eng.classify_barrier(
+        "energy_isolation", "Isolation could not be confirmed."
+    )
+    assert result.state == "unknown"
+    assert result.evidence_span == "could not be confirmed"
+
+    # Indeterminate state must surface as NEEDS_REVIEW in the full pipeline.
+    from app.config import get_settings
+    from app.services.pipeline import AnalysisPipeline
+    event = AnalysisPipeline(get_ontology(), get_settings()).analyze(
+        "OBS-CNFC", "Isolation could not be confirmed before the job began.",
+        provider="rules"
+    ).event
+    assert event.barrier_state == "unknown"
+    assert event.needs_review is True
+    assert event.sif.classification == "needs_review"
+    assert eng.classify_sentence("Valve failed.").state == "failed"

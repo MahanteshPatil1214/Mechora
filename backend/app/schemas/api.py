@@ -66,6 +66,11 @@ class FamilyOut(BaseModel):
     activities: list[str]
     locations: list[str]
     hazard: str
+    family_type: str = "precursor"
+    core_mechanism: dict = Field(default_factory=dict)
+    context: dict = Field(default_factory=dict)
+    recurrence: dict = Field(default_factory=dict)
+    why_it_matters: str = ""
     attention_signal: float
     attention_basis: list[str]
     attention_factors: list[dict] = Field(default_factory=list)

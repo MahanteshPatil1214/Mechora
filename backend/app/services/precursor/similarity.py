@@ -75,6 +75,7 @@ class StructuralSimilarity:
         # side is a non-failure state blocks grouping entirely.
         sa, sb = getattr(a, STATE_FIELD), getattr(b, STATE_FIELD)
         ba, bb = getattr(a, BARRIER_FIELD), getattr(b, BARRIER_FIELD)
+        dimension_sim = total / max_w if max_w else 0.0
         if (
             _known(sa) and _known(sb) and sa != sb
             and ("verified" in (sa, sb))
@@ -92,6 +93,7 @@ class StructuralSimilarity:
         similarity = total / max_w if max_w else 0.0
         return {
             "similarity": round(similarity, 6),
+            "dimension_similarity": round(dimension_sim, 6),
             "details": dims,
         }
 

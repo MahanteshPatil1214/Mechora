@@ -18,27 +18,22 @@
         "hydrocarbon gas",
         "natural gas",
         "gas leak",
+        "leak",
+        "leaking",
+        "fluid leak",
         "pressure system",
         "gas pipeline",
         "zero pressure",
         "depressurized",
         "depressurisation",
         "pressurised system",
-        "zero energy",
-        "zero-energy",
         "depressurization",
         "depressurised",
-        "isolation check",
-        "isolated",
         "pressure absent",
         "no pressure",
         "pressure was absent",
-        "energy isolation",
-        "isolation of the line",
-        "line isolation",
-        "isolation verification",
-        "isolation checks",
-        "system isolation"
+        "hydrocarbon",
+        "hydrocarbon release"
       ]
     },
     {
@@ -100,7 +95,9 @@
         "solvent exposure",
         "chemical handling",
         "oxygen-deficient",
-        "oxygen deficient"
+        "oxygen deficient",
+        "atmospheric test",
+        "atmospheric testing"
       ]
     },
     {

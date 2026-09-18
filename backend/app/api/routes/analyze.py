@@ -22,9 +22,13 @@ def _get_pipeline() -> AnalysisPipeline:
     return _pipeline
 
 
+import uuid
+
+
 @router.post("/analyze", response_model=AnalyzeResponse)
 def analyze(req: AnalyzeRequest) -> AnalyzeResponse:
-    report_id = (req.report_id or "REPORT-UNASSIGNED").strip()[:128]
+    raw_id = (req.report_id or "REPORT-UNASSIGNED").strip()[:100]
+    report_id = f"{raw_id}-{uuid.uuid4().hex[:6]}" if (not raw_id or raw_id == "REPORT-UNASSIGNED") else raw_id
     pipeline = _get_pipeline()
     try:
         result = pipeline.analyze(report_id, req.narrative, provider=req.provider)
@@ -34,7 +38,14 @@ def analyze(req: AnalyzeRequest) -> AnalyzeResponse:
     obs = pipeline.to_observation(
         report_id, req.narrative, provider=result.provider
     )
-    saved = repos.create_observation(obs)
+    try:
+        saved = repos.create_observation(obs)
+    except Exception:
+        # If report_id collided with existing record, append a unique suffix
+        obs.report_id = f"{report_id}-{uuid.uuid4().hex[:6]}"
+        obs.id = ""
+        saved = repos.create_observation(obs)
+
     return AnalyzeResponse(
         id=saved.id,
         report_id=saved.report_id,

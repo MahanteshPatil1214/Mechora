@@ -99,6 +99,8 @@ def main() -> int:
         "isolation_verified_vs_not": {"tp": 0, "n": 0},
         "hard_negative_no_false_negation": {"ok": 0, "n": 0},
         "same_family_grouping": {"ok": 0, "n": 0},
+        "diff_activity_same_precursor": {"ok": 0, "n": 0},
+        "verified_separation": {"ok": 0, "n": 0},
     }
 
     families_by_evall_id: dict[str, str] = {}
@@ -179,24 +181,25 @@ def main() -> int:
             if gt.get("barrier_state") == "verified" and \
                     event.barrier_state == "verified":
                 critical["hard_negative_no_false_negation"]["ok"] += 1
+            # Verified records must never be grouped into failure families
+            critical["verified_separation"]["n"] += 1
+            if not family_tag.endswith("::not_verified") and not family_tag.endswith("::failed"):
+                critical["verified_separation"]["ok"] += 1
+
+        # Per-observation grouping evaluation: records with different wording
+        # must group into the ground truth mechanism family tag
+        if cat == "same_mechanism_diff_wording":
+            critical["same_family_grouping"]["n"] += 1
+            if family_tag == _norm(gt_fam):
+                critical["same_family_grouping"]["ok"] += 1
+
+        # Different activity same precursor: activity differences must not split mechanism
+        if cat == "diff_activity_same_precursor":
+            critical["diff_activity_same_precursor"]["n"] += 1
+            if family_tag == _norm(gt_fam):
+                critical["diff_activity_same_precursor"]["ok"] += 1
 
         detail.append(row)
-
-    # Same-mechanism clustering: records in same_mechanism_diff_wording
-    # sharing the same expected family_tag must share the predicted family_tag.
-    by_family_gt: dict[tuple, list[str]] = defaultdict(list)
-    for rec in records:
-        if rec["category"] != "same_mechanism_diff_wording":
-            continue
-        key = rec["ground_truth"].get("family_tag", "UNASSIGNED")
-        by_family_gt[key].append((rec["report_id"], key))
-    for key, members in by_family_gt.items():
-        groups: dict[str, set] = defaultdict(set)
-        for rid, _ in members:
-            groups[families_by_evall_id.get(rid, "UNASSIGNED")].add(key)
-        consistent = len(groups) == 1
-        critical["same_family_grouping"]["n"] += 1
-        critical["same_family_grouping"]["ok"] += int(consistent)
 
     # ---- summary ----------------------------------------------------------
     schema_valid = (len(records) - len(schema_errors)) / len(records)
@@ -257,6 +260,14 @@ def main() -> int:
             "same_family_grouping": {
                 "accuracy": round(same_fam["ok"] / same_fam["n"], 4) if same_fam["n"] else None,
                 "n": same_fam["n"],
+            },
+            "diff_activity_same_precursor": {
+                "accuracy": round(critical["diff_activity_same_precursor"]["ok"] / critical["diff_activity_same_precursor"]["n"], 4) if critical["diff_activity_same_precursor"]["n"] else None,
+                "n": critical["diff_activity_same_precursor"]["n"],
+            },
+            "verified_vs_failure_separation": {
+                "accuracy": round(critical["verified_separation"]["ok"] / critical["verified_separation"]["n"], 4) if critical["verified_separation"]["n"] else None,
+                "n": critical["verified_separation"]["n"],
             },
         },
         "category": {

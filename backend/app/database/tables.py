@@ -67,6 +67,7 @@ class PrecursorFamilyRow(Base):
 
     id: Mapped[str] = mapped_column(String(40), primary_key=True)
     name: Mapped[str] = mapped_column(String(200), default="", index=True)
+    family_type: Mapped[str] = mapped_column(String(30), default="precursor", index=True)
     description: Mapped[str] = mapped_column(Text, default="")
     recurring: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
     common_barrier: Mapped[str] = mapped_column(String(60), default="unknown", index=True)
@@ -75,6 +76,10 @@ class PrecursorFamilyRow(Base):
     )
     common_energy: Mapped[str] = mapped_column(String(60), default="unknown", index=True)
     common_exposure: Mapped[str] = mapped_column(String(60), default="unknown")
+    core_mechanism: Mapped[dict] = mapped_column(JSON, default=dict)
+    context: Mapped[dict] = mapped_column(JSON, default=dict)
+    recurrence: Mapped[dict] = mapped_column(JSON, default=dict)
+    why_it_matters: Mapped[str] = mapped_column(Text, default="")
     activities: Mapped[list] = mapped_column(JSON, default=list)
     locations: Mapped[list] = mapped_column(JSON, default=list)
     observation_ids: Mapped[list] = mapped_column(JSON, default=list)

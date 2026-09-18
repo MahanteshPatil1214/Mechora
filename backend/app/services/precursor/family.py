@@ -21,7 +21,11 @@ from app.services.normalization.ontology import Ontology
 from app.services.precursor.attention import compute_attention
 
 # Structural dimensions used for WHY GROUPED? evidence (weight-bearing dims
-# plus signal indicators). Order matches the PRD priority feel.
+# plus signal indicators). Order matches the PRD priority feel. NOTE: only
+# dimensions that actually participate in structural clustering are listed;
+# potential_consequence is derived from energy/exposure/state (not a grouping
+# weight) and is deliberately excluded so WHY GROUPED never claims a
+# non-clustering dimension caused grouping.
 GROUPING_DIMENSIONS = (
     ("energy", "energy"),
     ("barrier", "barrier"),
@@ -29,7 +33,6 @@ GROUPING_DIMENSIONS = (
     ("exposure", "exposure"),
     ("task_phase", "task_phase"),
     ("activity", "activity"),
-    ("potential_consequence", "potential_consequence"),
 )
 
 
@@ -45,39 +48,65 @@ class FamilyBuilder:
     def build(self, groups: list[list[Observation]], family_index: int = 0,
               recurring_threshold: int = 2
               ) -> tuple[list[PrecursorFamily], dict[str, str]]:
-        """Build families. Returns (families, obs_id -> family_id)."""
+        """Build families. Returns (families, obs_id -> family_id).
+
+        ``family_index`` is accepted for backward compatibility but IGNORED:
+        family IDs are derived deterministically from the structural mechanism
+        signature, so the same mechanism always keeps the same family id no
+        matter how many observations are inserted, filtered or re-sorted.
+        """
         families: list[PrecursorFamily] = []
         assignment: dict[str, str] = {}
-        idx = family_index
-
         for group in groups:
-            idx += 1
-            family_id = f"PFAM-{idx:03d}"
-            family = self._family_from_group(group, family_id,
-                                             recurring_threshold)
+            family = self._family_from_group(group, recurring_threshold)
             for obs in group:
-                assignment[obs.id] = family_id
+                assignment[obs.id] = family.id
             families.append(family)
 
         return families, assignment
 
+    @staticmethod
+    def _family_id(barrier: str, state: str, energy: str,
+                   exposure: str) -> str:
+        """Deterministic, stable, unique family id derived from the mechanism
+        signature (barrier + barrier_state + energy + exposure). Distinct
+        structural families always differ in at least one of these core
+        fields, so the hash is collision-safe within the clustering result.
+        """
+        import hashlib
+
+        key = "||".join(
+            (code or "unknown").strip().lower()
+            for code in (barrier, state, energy, exposure)
+        )
+        digest = hashlib.sha1(key.encode("utf-8")).hexdigest()
+        return f"PFAM-{digest[:5].upper()}"
+
     def _family_from_group(self, group: list[Observation],
-                           family_id: str,
                            recurring_threshold: int = 2) -> PrecursorFamily:
         events = [o.event for o in group]
-
-        mechanism = self._dominant(events, "barrier")
-        state = self._dominant(events, "barrier_state")
-        energy = self._dominant(events, "energy")
-        exposure = self._dominant(events, "exposure")
 
         barriers_known = [e.barrier for e in events if e.barrier != UNKNOWN_CODE]
         barrier = barriers_known[0] if barriers_known else "unknown"
         states_known = [e.barrier_state for e in events
                         if e.barrier_state != UNKNOWN_CODE]
         state = states_known[0] if states_known else "unknown"
-        energies_known = [e.energy for e in events if e.energy != UNKNOWN_CODE]
-        energy = energies_known[0] if energies_known else "unknown"
+
+        # Structural Precursor Principle: Only assign a family-level common
+        # energy or exposure if a solid majority of member observations
+        # explicitly share that attribute. Never infer a family-level exposure
+        # when reports have Unknown or divergent exposures.
+        energy = self._dominant(events, "energy", require_majority=True)
+        exposure = self._dominant(events, "exposure", require_majority=True)
+
+        family_id = self._family_id(barrier, state, energy, exposure)
+
+        if state == "verified":
+            family_type = "controlled"
+        elif state in ("unknown", "needs_review") or barrier in ("unknown", "needs_review"):
+            family_type = "needs_review"
+        else:
+            family_type = "precursor"
 
         name = self._name(barrier, state)
 
@@ -88,21 +117,99 @@ class FamilyBuilder:
         hazards = sorted({e.hazard for e in events
                           if e.hazard and e.hazard != "unknown"})
 
+        dominant_phase = self._dominant(events, "task_phase", require_majority=False)
+
+        core_mechanism = {
+            "energy": energy,
+            "barrier": barrier,
+            "barrier_state": state,
+            "exposure": exposure,
+        }
+
+        context = {
+            "task_phase": dominant_phase,
+            "activities": activities,
+            "locations": locations,
+            "distinct_activities_count": len(activities),
+            "distinct_locations_count": len(locations),
+        }
+
+        recurring = len(group) >= recurring_threshold
+
+        recurrence = {
+            "observation_count": len(group),
+            "distinct_activities_count": len(activities),
+            "distinct_locations_count": len(locations),
+            "is_recurring": recurring,
+            "recurring_threshold": recurring_threshold,
+            "status": "recurring" if recurring else "single",
+            "label": "recurring" if recurring else "single / not established",
+        }
+
+        if family_type == "precursor":
+            barrier_label = self.ontology.label("barrier", barrier)
+            state_label = self.ontology.label("barrier_state", state)
+            energy_label = self.ontology.label("energy", energy)
+            if len(activities) > 1:
+                act_names = ", ".join(
+                    self.ontology.label("activity", a) for a in activities[:3]
+                )
+                if recurring:
+                    why_it_matters = (
+                        f"{len(group)} observations reveal the same failed barrier "
+                        f"({barrier_label}: {state_label}) recurring across "
+                        f"{len(activities)} distinct activities ({act_names}). "
+                        f"While the work equipment varies, the underlying mechanism "
+                        f"is identical: work involving {energy_label} without "
+                        f"verified barrier controls."
+                    )
+                else:
+                    why_it_matters = (
+                        f"This observation shows a failed barrier ({barrier_label}: "
+                        f"{state_label}) during {act_names} work. Recurrence is not "
+                        f"established with only {len(group)} observation; monitor "
+                        f"for further reports."
+                    )
+            else:
+                act_str = (
+                    self.ontology.label("activity", activities[0])
+                    if activities else "routine work"
+                )
+                if recurring:
+                    why_it_matters = (
+                        f"{len(group)} observations indicate a recurring barrier "
+                        f"vulnerability in {barrier_label} during {act_str}."
+                    )
+                else:
+                    why_it_matters = (
+                        f"A single observation indicates an unverified barrier state "
+                        f"({barrier_label}: {state_label}) during {act_str}. "
+                        f"Recurrence is not yet established; monitor for additional "
+                        f"reports of the same mechanism."
+                    )
+        elif family_type == "controlled":
+            why_it_matters = (
+                f"{len(group)} observation(s) confirm positive verification of "
+                f"{self.ontology.label('barrier', barrier)} prior to work on energized systems. "
+                f"Risk controls functioning as designed."
+            )
+        else:
+            why_it_matters = (
+                "Critical safety mechanism cannot be established from the available narrative. "
+                "Requires HSE specialist review to classify required barrier controls."
+            )
+
         attention = compute_attention(group)
 
         sif_high_count = sum(
             1 for e in events if e.sif.classification == "high"
         )
-        recurring = len(group) >= recurring_threshold
-
-        exposures_known = [e.exposure for e in events
-                           if e.exposure != UNKNOWN_CODE]
-        exposure = exposures_known[0] if exposures_known else "unknown"
 
         grouping_evidence = self._grouping_evidence(events)
 
         parts = [
-            f"{len(group)} observation(s).",
+            f"{len(group)} observation(s)"
+            f"{' — recurring precursor mechanism' if recurring else ' — single observation; recurrence not established'}.",
         ]
         if barrier != UNKNOWN_CODE:
             parts.append(
@@ -117,17 +224,24 @@ class FamilyBuilder:
             parts.append(
                 f"Common exposure: {self.ontology.label('exposure', exposure)}."
             )
+        else:
+            parts.append("Exposure: Unknown / unconfirmed across member reports.")
         description = " ".join(parts)
 
         return PrecursorFamily(
             id=family_id,
             name=name,
+            family_type=family_type,
             description=description,
             observation_ids=[o.id for o in group],
             common_barrier=barrier,
             common_barrier_state=state,
             common_energy=energy,
             common_exposure=exposure,
+            core_mechanism=core_mechanism,
+            context=context,
+            recurrence=recurrence,
+            why_it_matters=why_it_matters,
             activities=activities,
             locations=locations,
             hazard="; ".join(hazards),
@@ -145,7 +259,9 @@ class FamilyBuilder:
         observation set inside this family (never hardcoded)."""
         out: list[GroupingEvidence] = []
         n = len(events)
+        CORE_FIELDS = {"energy", "barrier", "barrier_state", "exposure"}
         for dimension, attr in GROUPING_DIMENSIONS:
+            category = "core_mechanism" if dimension in CORE_FIELDS else "context"
             known: list[str] = []
             for e in events:
                 value = getattr(e, attr)
@@ -154,16 +270,15 @@ class FamilyBuilder:
             if not known:
                 out.append(GroupingEvidence(
                     dimension=dimension,
+                    category=category,
                     value="",
-                    status="distinct",
+                    status="unknown",
                     coverage=0.0,
-                    note="No common value extracted",
+                    note="Unknown / not stated across member reports",
                 ))
                 continue
             counts = Counter(known)
             dominant, count = counts.most_common(1)[0]
-            # Deterministic tie-break on ties: prefer the alphabetically last
-            # code so the family is stable regardless of dict ordering.
             coverage = round(count / n, 4)
             if coverage == 1.0:
                 status = "same"
@@ -174,14 +289,17 @@ class FamilyBuilder:
             label = self._label(dimension, dominant)
             out.append(GroupingEvidence(
                 dimension=dimension,
+                category=category,
                 value=dominant,
                 status=status,
                 coverage=coverage,
                 note=(
-                    f"{label} in {count}/{n} observation(s)"
+                    f"Invariant match: {label} across all {n} observation(s)"
                     if status == "same" else
-                    f"{label} dominant ({count}/{n}), "
-                    f"{n - count} differ"
+                    f"{label} dominant ({count}/{n}), {n - count} differ. "
+                    f"Differing {dimension} allowed: mechanism (barrier/energy) is invariant across operations."
+                    if dimension in ("activity", "location", "task_phase") else
+                    f"{label} dominant ({count}/{n}), {n - count} differ"
                 ),
             ))
         return out
@@ -194,7 +312,7 @@ class FamilyBuilder:
         except Exception:  # noqa: BLE001
             return code.replace("_", " ").title()
 
-    def _dominant(self, events, field: str) -> str:
+    def _dominant(self, events, field: str, require_majority: bool = False) -> str:
         counter: dict[str, int] = {}
         for e in events:
             value = getattr(e, field)
@@ -202,11 +320,13 @@ class FamilyBuilder:
                 counter[value] = counter.get(value, 0) + 1
         if not counter:
             return UNKNOWN_CODE
-        top = max(
+        top_val, top_cnt = max(
             counter.items(),
             key=lambda kv: (kv[1], -_code_len(kv[0])),
         )
-        return top[0]
+        if require_majority and top_cnt < (len(events) + 1) // 2:
+            return UNKNOWN_CODE
+        return top_val
 
     def _name(self, barrier: str, state: str) -> str:
         by_barrier = self.templates.get(barrier, {})

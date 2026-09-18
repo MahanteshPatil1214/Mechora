@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "./api.js";
+import PipelineBanner from "./components/PipelineBanner.jsx";
 import AnalyzeForm from "./components/AnalyzeForm.jsx";
 import OverviewCards from "./components/OverviewCards.jsx";
 import Observations from "./components/Observations.jsx";
@@ -19,10 +20,10 @@ export default function App() {
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-white">
-            MECHORA <span className="font-normal text-slate-400">· Prototype Precursor Attention Signal</span>
+            MECHORA <span className="font-normal text-slate-400">· Prototype HSE Attention Signal</span>
           </h1>
-          <p className="text-xs text-slate-500">
-            Deterministic HSE precursor engine — decision support, not a risk score
+          <p className="text-xs text-slate-400">
+            Prototype HSE Attention Signal — decision support, not an official OIL risk score or accident prediction.
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs text-slate-400">
@@ -33,7 +34,11 @@ export default function App() {
         </div>
       </header>
 
-      <main className="mt-6 space-y-4">
+      <div className="mt-4">
+        <PipelineBanner />
+      </div>
+
+      <main className="mt-5 space-y-4">
         <AnalyzeForm onAnalyzed={() => setRefreshKey((k) => k + 1)} />
         <OverviewCards />
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -44,6 +49,12 @@ export default function App() {
         </div>
         <EvalPanel />
       </main>
+
+      <footer className="mt-8 border-t border-slate-900 py-4 text-center text-xs text-slate-500">
+        <p>
+          <strong className="text-slate-400">Disclaimer:</strong> Prototype HSE Attention Signal — decision support, not an official OIL risk score or accident prediction.
+        </p>
+      </footer>
     </div>
   );
 }

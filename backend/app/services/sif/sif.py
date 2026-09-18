@@ -67,22 +67,89 @@ class SIFAssessor:
         for s in penalty_breakdown:
             evidence.append(s)
 
+        # Transparency: attach the grounded narrative spans behind each
+        # critical field, plus the consequence basis, so every YES/REVIEW is
+        # backed by the actual text evidence (never inferred silently).
+        field_evidence = event.field_evidence or {}
+        for field, marker in (
+            ("energy", "energy"),
+            ("exposure", "exposure"),
+            ("barrier", "barrier"),
+            ("barrier_state", "barrier_state"),
+        ):
+            span = field_evidence.get(field)
+            if span:
+                evidence.append(f"grounded {marker}: \"{span}\"")
+        if event.potential_consequence != UNKNOWN_CODE:
+            pot_basis = event.potential_consequence_basis
+            if pot_basis == "explicit":
+                pot_label = "explicitly stated in the report"
+            elif pot_basis == "model_inference":
+                pot_label = "MODEL-INFERRED by the prototype SIF rule from grounded hazard/exposure evidence, not stated in the report"
+            else:
+                pot_label = "basis unknown"
+            span = event.field_evidence.get("potential_consequence")
+            evidence.append(
+                f"potential consequence '{event.potential_consequence}' "
+                f"({pot_label})"
+                + (f"; narrative support: \"{span}\"" if span else "")
+            )
+
         if state == "verified" and energy not in self.high_energy:
             return SIFAssessment(
                 classification="low",
-                confidence=round(max(confidence, 0.7), 3),
-                reason=("Barrier verified and no high-energy exposure; "
-                        "no SIF-potential indicators."),
+                confidence=0.85,
+                basis="rule_inference",
+                reason=("Barrier verified and risk controls confirmed intact; "
+                        "no unmitigated SIF-potential indicators."),
                 supporting_evidence=evidence,
             )
 
-        is_high_exposure = exposure in self.high_exposure or energy in self.high_energy
-        if coverage < 0.5 and not is_high_exposure:
+        critical_fields = ["barrier", "barrier_state", "energy", "exposure"]
+        missing_critical = [
+            f for f in critical_fields
+            if getattr(event, f) == UNKNOWN_CODE or not getattr(event, f)
+        ]
+
+        if missing_critical:
+            # A SIF YES must never rest solely on a failed barrier state.
+            # Require a narrative-stated severe actual consequence, or a
+            # rule-derived severe potential backed by a grounded high hazard
+            # or exposure. Anything weaker is held for HSE review.
+            narrative_severe = event.actual_consequence in (
+                "serious_injury_or_fatality", "fatality",
+            )
+            # A grounded high hazard/exposure (severity rank >= 4) behind the
+            # rule-inferred potential consequence justifies a YES; a failed
+            # barrier state alone never does. Unknown ranks are 1, so a
+            # missing hazard/exposure cannot satisfy this.
+            hazard_basis = (
+                self.ontology.energy_rank(event.energy) >= 4
+                or self.ontology.exposure_rank(event.exposure) >= 4
+            )
+            inferred_severe = (
+                event.potential_consequence
+                in ("serious_injury_or_fatality", "fatality")
+                and hazard_basis
+            )
+            has_direct_severe_consequence = narrative_severe or inferred_severe
+            if has_direct_severe_consequence:
+                return SIFAssessment(
+                    classification="high",
+                    confidence=round(min(0.70, 0.45 + 0.05 * (len(critical_fields) - len(missing_critical))), 3),
+                    basis="explicit" if narrative_severe else "rule_inference",
+                    reason=(
+                        f"Grounded hazard/consequence indicators show SIF potential "
+                        f"despite missing critical field(s) "
+                        f"({', '.join(missing_critical)}); evidence-based, not guessed."
+                    ),
+                    supporting_evidence=evidence,
+                )
             return SIFAssessment(
                 classification="needs_review",
-                confidence=round(min(confidence, 0.4), 3),
-                reason=("Insufficient structured evidence "
-                        "(energy/exposure/barrier unknowns) to assess SIF potential."),
+                confidence=round(min(0.40, 0.15 + 0.05 * (len(critical_fields) - len(missing_critical))), 3),
+                basis="needs_review",
+                reason=f"Insufficient critical evidence ({', '.join(missing_critical)}) to assess SIF potential with certainty. Held for HSE human review.",
                 supporting_evidence=evidence,
             )
 
@@ -94,40 +161,53 @@ class SIFAssessor:
             classification = "high"
             reason = (
                 "High-hazard energy combined with an ineffective barrier state "
-                "and serious exposure indicators."
+                "and active exposure indicators."
             )
+            confidence = 0.88
         elif score >= self.medium_threshold:
             classification = "medium"
             reason = (
                 "Moderate energy/exposure with a not-fully-effective barrier "
                 "state indicates medium SIF potential."
             )
+            confidence = 0.75
         else:
-            classification = "low"
-            reason = (
-                "No strong combination of hazardous energy, exposure and barrier "
-                "failure indicates low SIF potential."
-            )
+            if state in self.penalty_states:
+                classification = "needs_review"
+                reason = (
+                    "Barrier failure state deters a low classification "
+                    "without HSE review."
+                )
+                confidence = 0.50
+            else:
+                classification = "low"
+                reason = (
+                    "No strong combination of hazardous energy, exposure and barrier "
+                    "failure indicates low SIF potential."
+                )
+                confidence = 0.80
 
         if event.potential_consequence in (
             "serious_injury_or_fatality", "fatality",
         ) and classification in ("low", "medium"):
             classification = "high"
+            confidence = max(confidence, 0.85)
             reason = (
-                "Narrative-level consequence indicators "
-                "(serious injury or fatality) raise SIF potential."
-            )
-
-        if state in ("not_verified", "failed", "absent") and classification == "low":
-            classification = "needs_review"
-            reason = (
-                "Barrier failure states deters a low classification "
-                "without HSE review."
+                "Rule-grounded consequence potential (serious injury or "
+                "fatality inferred from hazard/exposure evidence) elevates "
+                "SIF potential."
             )
 
         return SIFAssessment(
             classification=classification,
             confidence=confidence,
+            basis=(
+                "explicit"
+                if event.actual_consequence in (
+                    "serious_injury_or_fatality", "fatality",
+                )
+                else "rule_inference"
+            ),
             reason=reason,
             supporting_evidence=evidence,
         )

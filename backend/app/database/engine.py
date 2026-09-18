@@ -74,6 +74,26 @@ def init_db() -> None:
     from app.database import tables  # noqa: F401
     Base.metadata.create_all(_engine)
 
+    # Lightweight migration for existing SQLite / Postgres tables
+    from sqlalchemy import inspect, text
+    try:
+        inspector = inspect(_engine)
+        if "precursor_families" in inspector.get_table_names():
+            existing_cols = {col["name"] for col in inspector.get_columns("precursor_families")}
+            needed_cols = [
+                ("family_type", "VARCHAR(32) DEFAULT 'precursor'"),
+                ("core_mechanism", "TEXT DEFAULT '{}'"),
+                ("context", "TEXT DEFAULT '{}'"),
+                ("recurrence", "TEXT DEFAULT '{}'"),
+                ("why_it_matters", "TEXT DEFAULT ''"),
+            ]
+            with _engine.begin() as conn:
+                for col_name, col_def in needed_cols:
+                    if col_name not in existing_cols:
+                        conn.execute(text(f"ALTER TABLE precursor_families ADD COLUMN {col_name} {col_def}"))
+    except Exception as exc:  # pragma: no cover
+        logger.warning("Auto-migration check skipped or failed: %s", exc)
+
 
 def get_session() -> Session:
     if _session_factory is None:

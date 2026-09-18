@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 
 from app.config import Settings
 from app.models.safety_event import (
+    BARRIER_FAILURE_STATES,
     LLMExtraction,
     Observation,
     SafetyEvent,
@@ -19,7 +20,11 @@ from app.models.safety_event import (
 )
 from app.services.evidence.evidence import EvidenceGrounder, evidence_status_for
 from app.services.extraction.llm_extractor import LLMExtractor
-from app.services.extraction.rule_extractor import ExtractionOutput, RuleBasedExtractor
+from app.services.extraction.rule_extractor import (
+    ExtractionOutput,
+    RuleBasedExtractor,
+    inferred_potential_consequence,
+)
 from app.services.lsr.lsr import LSRMapper
 from app.services.negation.engine import NegationEngine, split_sentences
 from app.services.normalization.canonical import Canonicalizer
@@ -124,9 +129,6 @@ class AnalysisPipeline:
         event.barrier = self.canonicalizer.map_existing(raw.barrier, "barrier")
         event.exposure = self.canonicalizer.map_existing(raw.exposure, "exposure")
         event.location = self.canonicalizer.map_existing(raw.location, "location")
-        event.potential_consequence = self.canonicalizer.map_existing(
-            raw.potential_consequence, "consequence"
-        )
 
         event.hazard = (raw.hazard or "unknown").strip()[:300] or "unknown"
         event.unsafe_action = (raw.unsafe_action or "unknown").strip()[:500] or "unknown"
@@ -142,10 +144,44 @@ class AnalysisPipeline:
             event.barrier_state = raw.barrier_state
             event.confidence = 0.3
 
-        # Actual consequence free text -> canonical if known.
+        # Potential consequence is deterministic and rule-grounded: it is
+        # recomputed authoritatively from the final canonical hazard/exposure/
+        # barrier-state so no provider (LLM) can invent an ungrounded SIF
+        # potential. Unknown hazard AND exposure -> unknown consequence.
+        event.potential_consequence = inferred_potential_consequence(
+            event.energy,
+            event.exposure,
+            event.barrier_state,
+            self.ontology,
+        )
+
+        # Actual consequence: populated ONLY from an explicit narrative
+        # statement ("No injury occurred." -> none_identified + explicit span;
+        # "could have been fatal" -> serious_injury_or_fatality). When nothing
+        # is stated, the value is UNKNOWN — the "none_identified" default would
+        # falsely imply a consequence was considered and ruled out.
         actual = raw.actual_consequence or "unknown"
-        actual_code, _ = self.canonicalizer.map(actual, "consequence")
-        event.actual_consequence = actual_code if actual_code != UNKNOWN_CODE else "none_identified"
+        if self.ontology.is_known("consequence", actual):
+            # Already-canonical code (e.g. none_identified or a code an LLM
+            # returned verbatim): use it directly; a natural-language phrase
+            # would be mapped below instead.
+            actual_code, actual_span = actual, ""
+        else:
+            actual_code, actual_span = self.canonicalizer.map(actual, "consequence")
+        _actual_span = (
+            (output.matched or {}).get("actual_consequence")
+            if output is not None else actual_span
+        )
+        if actual_code == UNKNOWN_CODE:
+            event.actual_consequence = "unknown"
+        elif (
+            not _actual_span and actual_code == "none_identified"
+            and actual in ("", "unknown", "none_identified", "no consequence")
+        ):
+            # Unstated consequence masquerading as "no consequence identified".
+            event.actual_consequence = "unknown"
+        else:
+            event.actual_consequence = actual_code
 
         # LSR list from LLM must be canonical & deduped; deterministic mapper
         # recomputes authoritative mapping afterwards anyway.
@@ -163,10 +199,65 @@ class AnalysisPipeline:
             # Per-attribute supporting spans (rules path only; grounded text).
             fev = {k: v for k, v in (output.matched or {}).items() if v}
             if "consequence" in fev:
-                fev["potential_consequence"] = fev.pop("consequence")
+                fev["actual_consequence"] = fev.pop("consequence")
             event.field_evidence = fev
+        else:
+            fev = {}
+        if _actual_span and not fev.get("actual_consequence"):
+            fev["actual_consequence"] = _actual_span
+        event.field_evidence = fev
 
+        # Potential-consequence basis: 'explicit' ONLY when the narrative
+        # literally states the exact same consequence code; otherwise it is
+        # 'model_inference' (documented prototype rule over grounded hazard/
+        # exposure) and must never carry fabricated textual evidence. A
+        # literal severe-outcome statement ("could have been fatal") with no
+        # hazard phrase is still surfaced as an explicit potential.
+        _pot = event.potential_consequence
+        explicit_span = _actual_span or ""
+        if _pot not in (UNKNOWN_CODE, "none_identified", ""):
+            if explicit_span and event.actual_consequence == _pot:
+                event.potential_consequence_basis = "explicit"
+                if not event.field_evidence.get("potential_consequence"):
+                    event.field_evidence["potential_consequence"] = \
+                        event.field_evidence.get("actual_consequence", "")
+            else:
+                event.potential_consequence_basis = "model_inference"
+        elif explicit_span and event.actual_consequence in (
+                "serious_injury_or_fatality", "fatality"):
+            event.potential_consequence = event.actual_consequence
+            event.potential_consequence_basis = "explicit"
+            event.field_evidence["potential_consequence"] = explicit_span
+        else:
+            event.potential_consequence_basis = "unknown"
+        # Per-field EXPLICIT vs INFERRED provenance: a value is 'explicit'
+        # only when a verbatim narrative span supports it; a normalized or
+        # rule-derived value without a direct span is 'inferred' and must
+        # never be presented as if it were quoted from the report.
+        for _f in (
+            "activity", "task_phase", "energy", "barrier", "barrier_state",
+            "exposure", "actual_consequence", "location",
+        ):
+            _val = getattr(event, _f)
+            if _val in ("", "unknown", UNKNOWN_CODE):
+                event.field_basis[_f] = "unknown"
+            elif event.field_evidence.get(_f):
+                event.field_basis[_f] = "explicit"
+            else:
+                event.field_basis[_f] = "inferred"
+        event.field_basis["potential_consequence"] = event.potential_consequence_basis
         # Derived layers
+        # Unknown critical fields -> NEEDS_REVIEW (PRD / Safety Logic)
+        CRITICAL_FIELDS = ("barrier", "barrier_state", "energy", "exposure")
+        missing_critical = [
+            f for f in CRITICAL_FIELDS
+            if getattr(event, f) == UNKNOWN_CODE or not getattr(event, f)
+        ]
+        if event.barrier_state == "verified" and "exposure" in missing_critical:
+            missing_critical.remove("exposure")
+        event.missing_fields = missing_critical
+        event.needs_review = bool(missing_critical)
+
         event.precursor_signature = build_signature(event)
         event.sif = self.sif.assess(event)
         mapping = self.lsr.map(event)
@@ -184,7 +275,7 @@ class AnalysisPipeline:
 
         ordered_keys = [
             "activity", "barrier", "barrier_state", "energy", "exposure",
-            "consequence", "location", "task_phase",
+            "actual_consequence", "location", "task_phase",
         ]
         for key in ordered_keys:
             span = matched.get(key, "")
@@ -202,8 +293,10 @@ class AnalysisPipeline:
                 continue
             status = "grounded"
             idx = -1
+            s_low = span.lower()
             for i, sent in enumerate(sentences):
-                if span in sent or sent in span:
+                sent_low = sent.lower()
+                if s_low in sent_low or sent_low in s_low:
                     idx = i
                     break
             if idx == -1:

@@ -165,6 +165,7 @@ class SIFAssessment(BaseModel):
 
     classification: SIF_CLASS = "needs_review"
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+    basis: Literal["explicit", "rule_inference", "needs_review"] = "rule_inference"
     reason: str = ""
     supporting_evidence: list[str] = Field(default_factory=list)
     model_note: str = (
@@ -200,8 +201,9 @@ class GroupingEvidence(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     dimension: str = ""
+    category: Literal["core_mechanism", "context"] = "core_mechanism"
     value: str = ""
-    status: Literal["same", "mixed", "distinct"] = "same"
+    status: Literal["same", "mixed", "distinct", "unknown"] = "same"
     coverage: float = Field(default=0.0, ge=0.0, le=1.0)
     note: str = ""
 
@@ -212,8 +214,11 @@ class ExclusionEntry(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     other_family_id: str = ""
+    other_family_name: str = ""
     similarity: float = Field(default=0.0, ge=0.0, le=1.0)
     differing_dimensions: list[str] = Field(default_factory=list)
+    dimension_values: list[dict[str, str]] = Field(default_factory=list)
+    dimension_comparisons: list[dict[str, str]] = Field(default_factory=list)
     basis: str = ""
 
 
@@ -227,12 +232,15 @@ class PrecursorSignature(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    activity: ACTIVITY_CODES = "unknown"
-    task_phase: TASK_PHASE_CODES = "unknown"
+    # Core mechanism dimensions (authoritative for mechanism grouping)
     energy: ENERGY_CODES = "unknown"
     barrier: BARRIER_CODES = "unknown"
     barrier_state: BARRIER_STATE_CODES = "unknown"
     exposure: EXPOSURE_CODES = "unknown"
+
+    # Context dimensions (context variation across activities)
+    task_phase: TASK_PHASE_CODES = "unknown"
+    activity: ACTIVITY_CODES = "unknown"
     potential_consequence: CONSEQUENCE_CODES = "unknown"
 
 
@@ -302,6 +310,9 @@ class SafetyEvent(BaseModel):
 
     actual_consequence: CONSEQUENCE_CODES = "unknown"
     potential_consequence: CONSEQUENCE_CODES = "unknown"
+    potential_consequence_basis: Literal[
+        "unknown", "explicit", "model_inference"
+    ] = "unknown"
 
     location: LOCATION_CODES = "unknown"
 
@@ -311,9 +322,18 @@ class SafetyEvent(BaseModel):
 
     field_evidence: dict[str, str] = Field(default_factory=dict)
 
+    # Per-field provenance: "explicit" (verbatim span supports the value),
+    # "inferred" (rule-derived value with no direct span) or "unknown".
+    # Inferred values must never be displayed as if directly extracted.
+    field_basis: dict[str, str] = Field(default_factory=dict)
+
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
 
     evidence_status: EVIDENCE_STATUS = "grounded"
+
+    # Unknown / needs-review handling (PRIORITY: unknown over invented value).
+    missing_fields: list[str] = Field(default_factory=list)
+    needs_review: bool = False
 
     precursor_signature: PrecursorSignature = Field(default_factory=PrecursorSignature)
 
@@ -348,6 +368,9 @@ class Observation(BaseModel):
 # ---------------------------------------------------------------------------
 
 
+FAMILY_TYPE_CODES = Literal["precursor", "controlled", "needs_review"]
+
+
 class PrecursorFamily(BaseModel):
     """A group of observations sharing a structural precursor mechanism."""
 
@@ -355,21 +378,34 @@ class PrecursorFamily(BaseModel):
 
     id: str = ""
     name: str = ""
+    family_type: FAMILY_TYPE_CODES = "precursor"
     description: str = ""
     observation_ids: list[str] = Field(default_factory=list)
+
+    # Core Mechanism
     common_barrier: BARRIER_CODES = "unknown"
     common_barrier_state: BARRIER_STATE_CODES = "unknown"
     common_energy: ENERGY_CODES = "unknown"
     common_exposure: EXPOSURE_CODES = "unknown"
+    core_mechanism: dict[str, str] = Field(default_factory=dict)
+
+    # Context & Scope
+    context: dict[str, Any] = Field(default_factory=dict)
     activities: list[str] = Field(default_factory=list)
     locations: list[str] = Field(default_factory=list)
     hazard: str = ""
+
+    # Recurrence Intelligence
+    recurrence: dict[str, Any] = Field(default_factory=dict)
+    recurring: bool = False
+    recurring_threshold: int = 2
+    sif_potential_count: int = 0
+    why_it_matters: str = ""
+
+    # Attention & Explainability
     attention_signal: float = Field(default=0.0, ge=0.0, le=100.0)
     attention_basis: list[str] = Field(default_factory=list)
     attention_factors: list[dict[str, Any]] = Field(default_factory=list)
-    sif_potential_count: int = 0
-    recurring: bool = False
-    recurring_threshold: int = 2
     grouping_evidence: list[GroupingEvidence] = Field(default_factory=list)
     exclusions: list[ExclusionEntry] = Field(default_factory=list)
     created_at: str = Field(

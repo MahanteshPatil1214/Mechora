@@ -10,16 +10,21 @@ cd E:\Mecora
 .\\.venv\Scripts\python scripts\seed_demo.py
 ```
 
-If `STORE=editing/sqlite` this resets the local demo DB and writes 11 curated
+If `STORE=editing/sqlite` this resets the local demo DB and writes 12 curated
 observations. Expected result:
 
 ```
 precursor families: 4 (recurring 3)
-  PFAM-001  Energy Isolation Verification Failure      n=5 recurring=True attention=84.71
-  PFAM-002  Hot Work Controls Verification Failure     n=3 recurring=True attention=78.88
-  PFAM-003  Energy Isolation Verified                  n=2 recurring=True attention=21.52
-  PFAM-004  Barrier Review Needed                      n=1 recurring=False attention= 5.69
+  PFAM-A7CC6  Energy Isolation Verification Failure      n=5 recurring=True attention=84.71
+  PFAM-05AF8  Hot Work Controls Verification Failure     n=3 recurring=True attention=78.88
+  PFAM-F36C4  Energy Isolation Failure                   n=1 recurring=False attention=64.44
+  PFAM-418BD  Energy Isolation Verified                  n=2 recurring=True attention=21.52
 ```
+
+Family ids (`PFAM-<5-hex>`) are derived deterministically from each family's
+structural mechanism signature (barrier + barrier_state + energy + exposure),
+so they are stable across seeding cycles, observation insertions and ordering
+changes.
 
 If the store is Postgres (not the local SQLite fallback) seeding resets its
 `mechora` tables instead.
@@ -54,22 +59,21 @@ release · consequence = serious injury or fatality;
 SIF panel: **HIGH** at 95%, with reason, supporting evidence lines and the
 prototype note; evidence chips show the exact spans returned by extraction
 ("loosening the joint", "zero energy", "did not confirm", "release occurred");
-family: PFAM-001.
+family: PFAM-A7CC6.
 
 **Beat 2 — Precursor families panel.**
-Toggle "Recurring only" to show PFAM-001/PFAM-002/PFAM-003.
+Toggle "Recurring only" to show PFAM-A7CC6/PFAM-05AF8/PFAM-418BD.
 
-- **PFAM-001** is the strongest signal: attention 84.7/100, basis lines
+- **PFAM-A7CC6** is the strongest signal: attention 84.7/100, basis lines
   (Recurrence 5, Failed-barrier 5/5, Max exposure 4/5, Cross-activity 4
   distinct, SIF 5/5, Max energy 5/5) and the prototype disclaimer.
 - **WHY GROUPED** chips: barrier = energy isolation ✓100%, barrier state =
   not verified ✓100%, exposure = uncontrolled gas release ✓100%, task phase ✓,
   energy mixed 80%, activity distinct 40% — the *different stories →
   same failed barrier → recurring precursor* story.
-- **WHY NOT GROUPED** on PFAM-001 vs PFAM-002: sim 0.35, differs barrier,
-  energy, exposure. Group D is two gas-line narratives with identical
-  activity/task-phase/state that fail different barriers — shown kept
-  separate.
+- **WHY NOT GROUPED** on PFAM-A7CC6 vs PFAM-05AF8: differs barrier,
+  energy, exposure. Group D is a gas-line narrative whose failed energy
+  isolation is kept separate in PFAM-F36C4.
 
 **Beat 3 — Observations list.**
 Filter "All states" → observations show SIF badges with confidence and the
@@ -78,13 +82,12 @@ state = verified and never appear in the not-verified family.
 
 ## 4. Demo seed groups
 
-| Group | Count | Purpose |
-| --- | --- | --- |
-| A | 4 | Energy-isolation-not-verified across different equipment (pipeline flange, pump, valve, compressor) → one recurring family PFAM-001 |
-| B | 2 | Hot-work gas-testing-not-completed narratives → PFAM-002 |
-| C | 2 | Verified positives (energy isolation proven, tank entry checked) → PFAM-003 |
-| D | 2 | Same activity wording, different failed barrier (energy isolation vs hot-work controls) → WHY NOT GROUPED pair |
-| E | 1 | Watch-list / barrier-review-need observation → PFAM-004 |
+| Group | Family | Count | Purpose |
+| --- | --- | --- | --- |
+| A | PFAM-A7CC6 | 5 | Energy-isolation-not-verified across different equipment (pipeline flange, pump, valve, compressor) → recurring precursor family |
+| B | PFAM-05AF8 | 3 | Hot-work gas-testing-not-completed narratives → recurring precursor family |
+| C | PFAM-418BD | 2 | Verified positives (energy isolation proven, tank entry checked) → controlled family, never merged with failures |
+| D | PFAM-F36C4 | 1 | Failed energy isolation (hardware failure state) kept separate from the verification-omission family → WHY NOT GROUPED |
 
 ## 5. What not to demo
 

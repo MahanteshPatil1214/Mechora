@@ -212,12 +212,23 @@
         "failed to verify",
         "failed to confirm",
         "failed to check",
+        "failed to test",
         "failed to ensure",
         "failed to complete",
+        "failed to isolate",
+        "failed to depressurize",
+        "failed to depressurise",
         "could not verify",
         "could not confirm",
         "was unable to verify",
-        "did not confirm"
+        "did not confirm",
+        "did not verify",
+        "did not check",
+        "did not test",
+        "was skipped",
+        "was omitted",
+        "skipped",
+        "omitted"
       ]
     }
   },
@@ -241,7 +252,10 @@
       "energized",
       "energised",
       "de-energized",
-      "de-energised"
+      "de-energised",
+      "valve",
+      "valves",
+      "gas"
     ],
     "work_permit": [
       "permit",
@@ -269,6 +283,8 @@
     ],
     "confined_space_procedure": [
       "atmosphere",
+      "atmospheric",
+      "atmospheric testing",
       "ventilation",
       "entry permit",
       "gas monitoring",

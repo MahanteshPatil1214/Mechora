@@ -44,13 +44,13 @@ Each record is scored per field (`activity`, `task_phase`, `energy`,
 | Schema validity | 1.000 | 1.000 |
 | Activity | 1.000 | ≥ 0.95 |
 | Task phase | 0.995 | ≥ 0.90 |
-| Energy | 0.954 | ≥ 0.90 |
+| Energy | 0.981 | ≥ 0.90 |
 | Barrier | 0.977 | ≥ 0.92 |
 | Barrier state | 1.000 | ≥ 0.95 |
-| Exposure | 0.968 | ≥ 0.92 |
-| Potential consequence | 0.958 | ≥ 0.90 |
+| Exposure | 0.954 | ≥ 0.92 |
+| Potential consequence | 0.949 | ≥ 0.90 |
 | Location | 1.000 | ≥ 0.95 |
-| SIF exact / macro-F1 | 0.977 / 0.896 | ≥ 0.95 / ≥ 0.85 |
+| SIF exact / macro-F1 | 1.000 / 1.000 | ≥ 0.95 / ≥ 0.85 |
 | LSR exact set | 0.968 | ≥ 0.90 |
 | Precursor family tag | 0.972 | ≥ 0.90 |
 

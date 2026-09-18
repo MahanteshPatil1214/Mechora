@@ -8,6 +8,11 @@
       "synonyms": [
         "gas release",
         "gas leak",
+        "gas leaked",
+        "leaked out",
+        "leaked",
+        "gas escaped",
+        "pressure escaped",
         "release of gas",
         "escaping gas",
         "uncontrolled release",
@@ -17,9 +22,22 @@
         "leak",
         "leaking",
         "blew",
+        "blew out",
+        "blew fluid out",
         "hissing",
+        "gas hissed",
+        "hissed",
         "gas cloud",
-        "release occurred"
+        "release occurred",
+        "gas released",
+        "gas was released",
+        "was released",
+        "gas leaked out",
+        "pressure was still present",
+        "pressure present",
+        "residual pressure",
+        "releasing gas",
+        "releasing gas to atmosphere"
       ]
     },
     {
@@ -51,7 +69,9 @@
         "ignited",
         "combustion",
         "flash",
-        "flame"
+        "flame",
+        "sparks",
+        "sparks flew"
       ]
     },
     {
@@ -142,7 +162,9 @@
         "oxygen level",
         "vessel atmosphere",
         "purging",
-        "oxygen deficient"
+        "oxygen deficient",
+        "atmospheric test",
+        "atmospheric testing"
       ]
     },
     {
