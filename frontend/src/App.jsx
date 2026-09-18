@@ -1,60 +1,93 @@
-import { useEffect, useState } from "react";
-import { api } from "./api.js";
-import PipelineBanner from "./components/PipelineBanner.jsx";
-import AnalyzeForm from "./components/AnalyzeForm.jsx";
-import OverviewCards from "./components/OverviewCards.jsx";
-import Observations from "./components/Observations.jsx";
-import FamiliesPanel from "./components/FamiliesPanel.jsx";
-import EvalPanel from "./components/EvalPanel.jsx";
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
+
+// Layouts
+import PublicLayout from "./layouts/PublicLayout.jsx";
+import HSELayout from "./layouts/HSELayout.jsx";
+
+// Pages
+import Home from "./pages/Home.jsx";
+import Login from "./pages/Login.jsx";
+import Overview from "./pages/Overview.jsx";
+import Analyze from "./pages/Analyze.jsx";
+import Observations from "./pages/Observations.jsx";
+import ObservationDetail from "./pages/ObservationDetail.jsx";
+import PrecursorFamilies from "./pages/PrecursorFamilies.jsx";
+import PrecursorFamilyDetail from "./pages/PrecursorFamilyDetail.jsx";
+import HSEReview from "./pages/HSEReview.jsx";
+import Analytics from "./pages/Analytics.jsx";
+import SettingsPage from "./pages/Settings.jsx";
+
+function ProtectedRoute({ children }) {
+  const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400 text-xs">
+        Authenticating HSE Session…
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+  }
+
+  return children;
+}
 
 export default function App() {
-  const [health, setHealth] = useState(null);
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  useEffect(() => {
-    api.health().then(setHealth).catch(() => {});
-  }, []);
-
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight text-white">
-            MECHORA <span className="font-normal text-slate-400">· Prototype HSE Attention Signal</span>
-          </h1>
-          <p className="text-xs text-slate-400">
-            Prototype HSE Attention Signal — decision support, not an official OIL risk score or accident prediction.
-          </p>
-        </div>
-        <div className="flex items-center gap-2 text-xs text-slate-400">
-          <span className={`h-2 w-2 rounded-full ${health ? "bg-emerald-400" : "bg-slate-600"}`} />
-          <span>backend {health?.backend ?? "…"}</span>
-          <span className="text-slate-600">|</span>
-          <span>provider {health?.provider ?? "…"}</span>
-        </div>
-      </header>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public Product Pages */}
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<Home />} />
+          </Route>
 
-      <div className="mt-4">
-        <PipelineBanner />
-      </div>
+          {/* Dedicated Login */}
+          <Route path="/login" element={<Login />} />
 
-      <main className="mt-5 space-y-4">
-        <AnalyzeForm onAnalyzed={() => setRefreshKey((k) => k + 1)} />
-        <OverviewCards />
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <Observations refreshKey={refreshKey} />
-          <div className="space-y-4">
-            <FamiliesPanel />
-          </div>
-        </div>
-        <EvalPanel />
-      </main>
+          {/* Protected HSE Workspace Pages */}
+          <Route
+            path="/app"
+            element={
+              <ProtectedRoute>
+                <HSELayout />
+              </ProtectedRoute>
+            }
+          >
+            {/* Overview / Command Center */}
+            <Route index element={<Overview />} />
 
-      <footer className="mt-8 border-t border-slate-900 py-4 text-center text-xs text-slate-500">
-        <p>
-          <strong className="text-slate-400">Disclaimer:</strong> Prototype HSE Attention Signal — decision support, not an official OIL risk score or accident prediction.
-        </p>
-      </footer>
-    </div>
+            {/* Conversational Safety Analysis Workspace */}
+            <Route path="analyze" element={<Analyze />} />
+
+            {/* Observations Browser & Detail */}
+            <Route path="observations" element={<Observations />} />
+            <Route path="observations/:id" element={<ObservationDetail />} />
+
+            {/* Precursor Families & Hero Screen Detail */}
+            <Route path="families" element={<PrecursorFamilies />} />
+            <Route path="families/:id" element={<PrecursorFamilyDetail />} />
+
+            {/* HSE Human-in-the-loop Review Queue */}
+            <Route path="review" element={<HSEReview />} />
+
+            {/* Operational Analytics & Separated Model Benchmark */}
+            <Route path="analytics" element={<Analytics />} />
+
+            {/* System & Account Settings */}
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
+
+          {/* Fallback to Home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }

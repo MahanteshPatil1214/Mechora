@@ -98,7 +98,7 @@ class LLMExtractor:
             "exposure": ontology.codes("exposure"),
             "consequence": ontology.codes("consequence"),
             "location": ontology.codes("location"),
-            "lsr": list(ontology.lsr_table().get("rules", [])),
+            "lsr": [r.get("code", "") for r in ontology.lsr_table().get("rules", []) if r.get("code")],
         }
 
     def extract(self, report_id: str, narrative: str) -> tuple[LLMExtraction, dict]:
