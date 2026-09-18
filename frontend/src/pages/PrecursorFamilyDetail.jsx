@@ -321,7 +321,9 @@ export default function PrecursorFamilyDetail() {
             <div className="pt-2 border-t border-rose-500/20 flex items-center justify-between text-xs">
               <span className="text-rose-300/80">Recurrence Threshold</span>
               <span className="font-mono font-bold text-white">
-                {totalObs} ≥ {family.recurring_threshold || 2}
+                {family.recurring
+                  ? `${totalObs} ≥ ${family.recurring_threshold || 2}`
+                  : `${totalObs} observation${totalObs === 1 ? "" : "s"} · recurrence not established`}
               </span>
             </div>
           </div>

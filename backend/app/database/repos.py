@@ -314,11 +314,21 @@ def recompute_families(engine: Any = None) -> int:
     return len(families)
 
 
-def list_families(recurring_only: bool = False, limit: int = 200) -> list[PrecursorFamily]:
+def list_families(recurring_only: bool = False, limit: int = 200,
+                  include_controls: bool = False) -> list[PrecursorFamily]:
+    """List precursor families.
+
+    Verified/compliance (``family_type == "controlled"``) groups are NOT
+    precursor families and are excluded by default — they remain available as
+    hard-negative control groups for validation via ``get_family()`` or
+    ``include_controls=True``.
+    """
     with get_session() as s:
         stmt = select(PrecursorFamilyRow).order_by(
             PrecursorFamilyRow.attention_signal.desc()
         )
+        if not include_controls:
+            stmt = stmt.where(PrecursorFamilyRow.family_type != "controlled")
         if recurring_only:
             stmt = stmt.where(PrecursorFamilyRow.recurring.is_(True))
         rows = s.execute(stmt.limit(limit)).scalars().all()
@@ -347,13 +357,20 @@ def dashboard_summary() -> dict[str, Any]:
             ).scalar_one()
         )
         families = int(
-            s.execute(select(func.count()).select_from(PrecursorFamilyRow)).scalar_one()
+            s.execute(
+                select(func.count())
+                .select_from(PrecursorFamilyRow)
+                .where(PrecursorFamilyRow.family_type != "controlled")
+            ).scalar_one()
         )
         recurring = int(
             s.execute(
                 select(func.count())
                 .select_from(PrecursorFamilyRow)
-                .where(PrecursorFamilyRow.recurring.is_(True))
+                .where(
+                    (PrecursorFamilyRow.family_type != "controlled")
+                    & PrecursorFamilyRow.recurring.is_(True)
+                )
             ).scalar_one()
         )
         barrier_failures = int(

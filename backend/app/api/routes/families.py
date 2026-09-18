@@ -48,8 +48,18 @@ def _to_out(fam) -> FamilyOut:
 def list_families(
     recurring_only: bool = Query(False),
     limit: int = Query(200, ge=1, le=500),
+    include_controls: bool = Query(
+        False,
+        description=(
+            "Also return verified/compliance control families. Precursor "
+            "families and counts exclude them by default."
+        ),
+    ),
 ) -> FamilyList:
-    families = repos.list_families(recurring_only=recurring_only, limit=limit)
+    families = repos.list_families(
+        recurring_only=recurring_only, limit=limit,
+        include_controls=include_controls,
+    )
     recurring = sum(1 for f in families if f.recurring)
     return FamilyList(
         total=len(families),

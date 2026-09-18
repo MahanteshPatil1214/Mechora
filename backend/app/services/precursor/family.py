@@ -82,6 +82,21 @@ class FamilyBuilder:
         digest = hashlib.sha1(key.encode("utf-8")).hexdigest()
         return f"PFAM-{digest[:5].upper()}"
 
+    @staticmethod
+    def _recurrence_unit(group: list[Observation]) -> int:
+        """Authoritative recurrence unit: the number of UNIQUE
+        observation/report records in the group. One observation maps to one
+        report in this system, so the unit is the distinct-record count —
+        never inflated by duplicated ids and identical wherever it is shown
+        (family card, family detail, recurrence threshold, linked count)."""
+        unique_obs = len({o.id for o in group if o.id})
+        unique_reports = len({o.report_id for o in group if o.report_id})
+        if unique_obs:
+            return unique_obs
+        if unique_reports:
+            return unique_reports
+        return len(group)
+
     def _family_from_group(self, group: list[Observation],
                            recurring_threshold: int = 2) -> PrecursorFamily:
         events = [o.event for o in group]
@@ -134,10 +149,24 @@ class FamilyBuilder:
             "distinct_locations_count": len(locations),
         }
 
-        recurring = len(group) >= recurring_threshold
+        # Authoritative recurrence unit: unique observation/report records.
+        # One observation == one report, so the unit is the distinct record
+        # count — never inflated by duplicate ids and identical everywhere it
+        # is displayed (card, detail, threshold comparison, linked count).
+        unit = self._recurrence_unit(group)
+        distinct_reports = len({o.report_id for o in group if o.report_id})
+
+        # Only PRE-CURSOR (failed-barrier) families can be "recurring".
+        # Verified/compliance groups are control groups, never recurring
+        # precursor mechanisms; needs_review families are mid-classification
+        # and therefore also not yet recurring precursors.
+        recurring = (
+            family_type == "precursor" and unit >= recurring_threshold
+        )
 
         recurrence = {
-            "observation_count": len(group),
+            "observation_count": unit,
+            "distinct_report_count": distinct_reports,
             "distinct_activities_count": len(activities),
             "distinct_locations_count": len(locations),
             "is_recurring": recurring,
@@ -156,7 +185,7 @@ class FamilyBuilder:
                 )
                 if recurring:
                     why_it_matters = (
-                        f"{len(group)} observations reveal the same failed barrier "
+                        f"{unit} observations reveal the same failed barrier "
                         f"({barrier_label}: {state_label}) recurring across "
                         f"{len(activities)} distinct activities ({act_names}). "
                         f"While the work equipment varies, the underlying mechanism "
@@ -167,7 +196,7 @@ class FamilyBuilder:
                     why_it_matters = (
                         f"This observation shows a failed barrier ({barrier_label}: "
                         f"{state_label}) during {act_names} work. Recurrence is not "
-                        f"established with only {len(group)} observation; monitor "
+                        f"established with only {unit} observation; monitor "
                         f"for further reports."
                     )
             else:
@@ -177,7 +206,7 @@ class FamilyBuilder:
                 )
                 if recurring:
                     why_it_matters = (
-                        f"{len(group)} observations indicate a recurring barrier "
+                        f"{unit} observations indicate a recurring barrier "
                         f"vulnerability in {barrier_label} during {act_str}."
                     )
                 else:
@@ -189,7 +218,7 @@ class FamilyBuilder:
                     )
         elif family_type == "controlled":
             why_it_matters = (
-                f"{len(group)} observation(s) confirm positive verification of "
+                f"{unit} observation(s) confirm positive verification of "
                 f"{self.ontology.label('barrier', barrier)} prior to work on energized systems. "
                 f"Risk controls functioning as designed."
             )
@@ -208,7 +237,7 @@ class FamilyBuilder:
         grouping_evidence = self._grouping_evidence(events)
 
         parts = [
-            f"{len(group)} observation(s)"
+            f"{unit} observation(s)"
             f"{' — recurring precursor mechanism' if recurring else ' — single observation; recurrence not established'}.",
         ]
         if barrier != UNKNOWN_CODE:

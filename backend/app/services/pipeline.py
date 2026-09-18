@@ -171,6 +171,27 @@ class AnalysisPipeline:
             event.barrier_state = raw.barrier_state
             event.confidence = 0.3
 
+        # Exposure integrity guard (all providers): a RELEASE exposure is only
+        # legitimate when the narrative literally states a release/escape (a
+        # grounded span exists). A verified / positive-control narrative that
+        # does NOT state a release must never surface an invented "Uncontrolled
+        # Gas Release" — exposure stays Unknown unless explicitly grounded.
+        # This neutralises LLM hallucination, and the rules path already
+        # negates "no gas was released", so only genuinely grounded releases
+        # survive.
+        if event.barrier_state == "verified" and event.exposure not in (
+            UNKNOWN_CODE, "unknown"
+        ):
+            release_span = ""
+            if output is not None:
+                release_span = (output.matched or {}).get("exposure", "")
+            else:
+                release_span = self.rule_extractor.verbatim_span_for_code(
+                    narrative, "exposure", event.exposure
+                )
+            if not release_span:
+                event.exposure = "unknown"
+
         # Potential consequence is deterministic and rule-grounded: it is
         # recomputed authoritatively from the final canonical hazard/exposure/
         # barrier-state so no provider (LLM) can invent an ungrounded SIF

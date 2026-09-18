@@ -1620,9 +1620,10 @@ any earlier prose where the two disagree.
 
 ## 34.10 Validation & limits
 
-- 119 automated tests pass (95 baseline + 21 hardening + 3 positive-
-  verification precedence regression tests), plus the frozen
-  216-record evaluation and the SIH-2026 negation critical suite.
+- 126 automated tests pass (95 baseline + 21 hardening + 3 positive-
+  verification precedence regression tests + 7 data-semantics regression
+  tests), plus the frozen 216-record evaluation and the SIH-2026 negation
+  critical suite.
 - Frozen-eval acceptance thresholds all still hold (barrier_state 1.000,
   isolation verified/not-verified 1.000, hard-negative 1.000, family tag 0.972).
 - Precedence rule (semantic regression fix): explicit un-negated positive
@@ -1632,6 +1633,22 @@ any earlier prose where the two disagree.
   constructions ("opened the drain before the line was proven depressurized")
   and negated forms ("NOT verified before", "NEVER confirmed before") remain
   NOT_VERIFIED.
+- Data-semantics rules (consistency pass):
+  - Verified/compliance groups (family_type "controlled") are NOT precursor
+    families: excluded from /families, dashboard precursor & recurring
+    counts, and recurring attention by default; still fetchable via
+    ?include_controls=true or by family id for hard-negative validation.
+  - One authoritative recurrence unit = unique observation/report records,
+    used identically on the card, detail, threshold and linked-count surfaces;
+    recurring status applies only to precursor families and only at
+    count >= threshold, so impossible "1 ≥ 2" values never render.
+  - Verified positive-control narratives without a release never infer an
+    "Uncontrolled Gas Release" exposure; exposure/consequence stay Unknown
+    unless explicitly grounded — enforced deterministically on BOTH the rules
+    and LLM paths (an LLM-asserted release with no non-negated grounding
+    span is extinguished; a genuinely grounded release survives).
+  - Hard exclusion preserved: verified / not_verified / failed barrier
+    states never share a family.
 - Reproducibility: identical outputs verified across many Python hash seeds.
 - Honest limits: SIF scoring is prototype-only; attention is NOT risk; MECHORA
   does not quantify OIL likelihood, does not predict accidents, and cannot

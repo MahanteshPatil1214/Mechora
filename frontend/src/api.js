@@ -314,8 +314,8 @@ export const DEMO_OBSERVATIONS = [
       energy: "pressurized_gas",
       barrier: "energy_isolation",
       barrier_state: "verified",
-      exposure: "uncontrolled_gas_release",
-      potential_consequence: "none_identified",
+      exposure: "unknown",
+      potential_consequence: "unknown",
       location: "pipeline_section",
       confidence: 0.98,
       life_saving_rules: ["energy_isolation"],
@@ -344,13 +344,116 @@ export const DEMO_OBSERVATIONS = [
         energy: "pressurized_gas",
         barrier: "energy_isolation",
         barrier_state: "verified",
-        exposure: "uncontrolled_gas_release",
-        potential_consequence: "none_identified",
+        exposure: "unknown",
+        potential_consequence: "unknown",
       },
     },
     precursor_family_id: "PFAM-003",
     validation: "validated",
     created_at: new Date(Date.now() - 3600000 * 52).toISOString(),
+  },
+  {
+    id: "OBS-DEMO08",
+    report_id: "VER-02",
+    narrative:
+      "Compressor maintenance: lockout was checked and the system proven depressurized before work. Everything was safe.",
+    provider: "rules",
+    event: {
+      report_id: "VER-02",
+      activity: "compressor_maintenance",
+      task_phase: "maintenance",
+      energy: "pressurized_gas",
+      barrier: "energy_isolation",
+      barrier_state: "verified",
+      exposure: "unknown",
+      potential_consequence: "unknown",
+      location: "compressor_room",
+      confidence: 0.97,
+      life_saving_rules: ["energy_isolation"],
+      field_evidence: {
+        activity: "compressor maintenance",
+        barrier: "lockout",
+        barrier_state: "checked and the system proven depressurized",
+      },
+      sif: {
+        classification: "low",
+        confidence: 0.95,
+        reason: "Positive control verified: lockout applied and system depressurized.",
+        supporting_evidence: ["lockout was checked", "system proven depressurized"],
+        model_note:
+          "Prototype assessment. Decision support only; not accident prediction.",
+      },
+      lsr_mapping: {
+        rules: ["energy_isolation"],
+        confidence: 0.97,
+        basis: "Energy isolation rule followed correctly.",
+        evidence: ["lockout was checked"],
+      },
+      precursor_signature: {
+        activity: "compressor_maintenance",
+        task_phase: "maintenance",
+        energy: "pressurized_gas",
+        barrier: "energy_isolation",
+        barrier_state: "verified",
+        exposure: "unknown",
+        potential_consequence: "unknown",
+      },
+    },
+    precursor_family_id: "PFAM-003",
+    validation: "validated",
+    created_at: new Date(Date.now() - 3600000 * 53).toISOString(),
+  },
+  {
+    id: "OBS-DEMO09",
+    report_id: "HOTW-02",
+    narrative:
+      "Grinding operations over the tank opening: the flammable gas test was skipped and sparks could have ignited the vapours.",
+    provider: "rules",
+    event: {
+      report_id: "HOTW-02",
+      activity: "hot_work",
+      task_phase: "maintenance",
+      energy: "flammable_atmosphere",
+      barrier: "hot_work_controls",
+      barrier_state: "not_verified",
+      exposure: "fire_or_explosion",
+      potential_consequence: "serious_injury_or_fatality",
+      location: "tank_farm",
+      confidence: 0.9,
+      life_saving_rules: ["hot_work", "gas_testing"],
+      field_evidence: {
+        activity: "grinding operations",
+        barrier: "gas test",
+        barrier_state: "skipped",
+        exposure: "ignited the vapours",
+      },
+      sif: {
+        classification: "high",
+        confidence: 0.9,
+        reason: "Ignition source present with flammable atmosphere testing omitted.",
+        supporting_evidence: ["gas test was skipped"],
+        model_note:
+          "Prototype assessment. Decision support only; not accident prediction.",
+      },
+      lsr_mapping: {
+        rules: ["hot_work", "gas_testing"],
+        confidence: 0.9,
+        basis: "Hot work without atmospheric testing.",
+        evidence: ["gas test was skipped"],
+      },
+      precursor_signature: {
+        activity: "hot_work",
+        task_phase: "maintenance",
+        energy: "flammable_atmosphere",
+        barrier: "hot_work_controls",
+        barrier_state: "not_verified",
+        exposure: "fire_or_explosion",
+        potential_consequence: "serious_injury_or_fatality",
+      },
+    },
+    precursor_family_id: "PFAM-002",
+    validation: "pending",
+    created_at: new Date(Date.now() - 3600000 * 49).toISOString(),
   },
   {
     id: "OBS-DEMO07",
@@ -525,7 +628,7 @@ export const DEMO_FAMILIES = [
     ],
     attention_factors: [],
     sif_potential_count: 2,
-    observation_ids: ["OBS-DEMO05"],
+    observation_ids: ["OBS-DEMO05", "OBS-DEMO09"],
     grouping_evidence: [
       {
         dimension: "barrier",
@@ -563,38 +666,46 @@ export const DEMO_FAMILIES = [
     id: "PFAM-003",
     name: "Energy Isolation Verified",
     description:
-      "2 observation(s). Common barrier: Energy Isolation (state: Verified). Hard negative control group showing compliance.",
-    recurring: true,
+      "2 observation(s). Common barrier: Energy Isolation (state: Verified). Hard negative / compliance control group — excluded from precursor families.",
+    family_type: "controlled",
+    recurring: false,
     recurring_threshold: 2,
     common_barrier: "energy_isolation",
     common_barrier_state: "verified",
     common_energy: "pressurized_gas",
-    common_exposure: "uncontrolled_gas_release",
+    common_exposure: "unknown",
     activities: ["pipeline_maintenance", "compressor_maintenance"],
     locations: ["pipeline_section", "compressor_room"],
     hazard: "Controlled energy isolation compliance",
     attention_signal: 21.5,
     attention_basis: [
-      "Verified compliance group — low attention signal",
+      "Verified compliance control group — not a precursor family",
       "Demonstrates hard separation from failure families",
     ],
     attention_factors: [],
     sif_potential_count: 0,
-    observation_ids: ["OBS-DEMO06"],
+    observation_ids: ["OBS-DEMO06", "OBS-DEMO08"],
     grouping_evidence: [
       {
         dimension: "barrier",
         value: "energy_isolation",
         status: "same",
         coverage: 1.0,
-        note: "Energy Isolation verified",
+        note: "Energy Isolation in 2/2 observation(s)",
       },
       {
         dimension: "barrier_state",
         value: "verified",
         status: "same",
         coverage: 1.0,
-        note: "Verified barrier state",
+        note: "Verified barrier state in 2/2 observation(s)",
+      },
+      {
+        dimension: "exposure",
+        value: "unknown",
+        status: "unknown",
+        coverage: 0.0,
+        note: "Unknown / not stated across member reports",
       },
     ],
     exclusions: [
@@ -702,6 +813,7 @@ export const api = {
       ) {
         barrier_state = "verified";
         sif = "low";
+        exposure = "unknown";
       }
 
       const mockId = `OBS-${Date.now()}`;
@@ -720,10 +832,10 @@ export const api = {
           barrier,
           barrier_state,
           exposure,
-          potential_consequence:
-            barrier_state === "verified"
-              ? "none_identified"
-              : "serious_injury_or_fatality",
+potential_consequence:
+              barrier_state === "verified"
+                ? "unknown"
+                : "serious_injury_or_fatality",
           location: "pipeline_section",
           confidence: 0.93,
           life_saving_rules: [barrier === "hot_work_controls" ? "hot_work" : "energy_isolation"],
@@ -759,7 +871,7 @@ export const api = {
             exposure,
             potential_consequence:
               barrier_state === "verified"
-                ? "none_identified"
+                ? "unknown"
                 : "serious_injury_or_fatality",
           },
         },
@@ -836,21 +948,28 @@ export const api = {
     }
   },
 
-  families: async (recurringOnly = false, limit = 200) => {
+  families: async (recurringOnly = false, limit = 200, includeControls = false) => {
+    const precursorFamilies = (f) => includeControls || f.family_type !== "controlled";
+    const recurringFamilies = DEMO_FAMILIES.filter((f) => f.recurring);
+    const demofind = (recur) => {
+      const list = DEMO_FAMILIES.filter((f) => precursorFamilies(f));
+      const filtered = recur ? list.filter((f) => f.recurring) : list;
+      return {
+        total: filtered.length,
+        recurring: recurringFamilies.filter((f) => f.family_type !== "controlled" || includeControls).length,
+        families: filtered,
+      };
+    };
     try {
-      const res = await request(`/families?recurring_only=${recurringOnly}&limit=${limit}`);
+      const res = await request(
+        `/families?recurring_only=${recurringOnly}&limit=${limit}&include_controls=${includeControls}`,
+      );
       if (res && res.families && res.families.length > 0) {
         return res;
       }
-      const filtered = recurringOnly
-        ? DEMO_FAMILIES.filter((f) => f.recurring)
-        : DEMO_FAMILIES;
-      return { total: filtered.length, recurring: DEMO_FAMILIES.filter((f) => f.recurring).length, families: filtered };
+      return demofind(recurringOnly);
     } catch {
-      const filtered = recurringOnly
-        ? DEMO_FAMILIES.filter((f) => f.recurring)
-        : DEMO_FAMILIES;
-      return { total: filtered.length, recurring: DEMO_FAMILIES.filter((f) => f.recurring).length, families: filtered };
+      return demofind(recurringOnly);
     }
   },
 
