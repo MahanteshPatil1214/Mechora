@@ -16,6 +16,10 @@ Covers the hardening contract:
    fallback_reason are captured on the analysis result and on the observation,
    and survive an LLM failure at runtime.
 7. HSE human-in-the-loop: validation records reviewer / reason / timestamp.
+8. Canonical event = single source of truth: evidence grounding, consequence,
+   SIF, LSR, signature and grouping are provider-independent — an LLM may only
+   propose values (language), the pipeline re-derives every safety decision
+   deterministically.
 """
 
 from __future__ import annotations
@@ -352,3 +356,116 @@ def test_validation_records_reviewer_reason_timestamp():
     assert round_trip.validation_reviewer == "R. HSE Lead"
     assert round_trip.validation_reason == "matches field report"
     assert round_trip.validated_at == updated.validated_at
+
+
+# --------------------------------------------------------------------------
+# Canonical event = single source of truth (provider-independent safety logic)
+# --------------------------------------------------------------------------
+
+def _llm_result(report_id: str, narrative: str):
+    """Analyze through the LANGUAGE-only path with the LLM stubbed to return
+    exactly the structured values the rules engine would produce. Any drift in
+    barrier state, consequence, SIF, LSR or grouping can then only come from
+    the pipeline's deterministic layer, never from the model."""
+    pipeline = _pipeline()
+    out = pipeline.rule_extractor.extract(report_id, narrative)
+    pipeline.llm_extractor.extract = (
+        lambda _rid, _narr: (out.extraction, {"provider": "llm"})
+    )
+    return pipeline.analyze(report_id, narrative, provider="llm")
+
+
+def test_llm_path_evidence_grounding_matches_rules_path():
+    """Evidence attribution must be provider-independent: when an LLM proposes
+    the same canonical values as rules, field_basis and field_evidence are
+    identical, and every claimed span is verbatim."""
+    narrative = ("During flange maintenance work, zero energy was not "
+                 "confirmed before the job began and gas was heard leaking "
+                 "from the flange.")
+    ev_rules = _pipeline().analyze(
+        "EVID-L1", narrative, provider="rules").event
+    ev_llm = _llm_result("EVID-L2", narrative).event
+    for field in ("activity", "task_phase", "energy", "barrier",
+                  "barrier_state", "exposure", "location",
+                  "actual_consequence", "potential_consequence"):
+        assert ev_llm.field_basis[field] == ev_rules.field_basis[field], field
+    for span in ev_llm.field_evidence.values():
+        assert span in narrative, f"LLM-path evidence not verbatim: {span!r}"
+    assert ev_llm.field_basis["exposure"] == "explicit"
+    assert ev_llm.field_evidence.get("barrier_state") == \
+        ev_rules.field_evidence.get("barrier_state")
+
+
+def test_llm_path_never_attaches_negated_exposure_span():
+    """An LLM-proposed exposure is NOT 'explicit' when the narrative negates
+    the release ('none was released'): the value may stay (model-suggested,
+    inferred) but the negated phrase must never be attached as its evidence."""
+    from app.models.safety_event import LLMExtraction
+
+    pipeline = _pipeline()
+    raw = LLMExtraction(
+        activity="pipeline_maintenance",
+        task_phase="maintenance",
+        barrier="energy_isolation",
+        barrier_state="not_verified",
+        exposure="uncontrolled_gas_release",
+        evidence=["zero energy was not verified", "none was released"],
+    )
+    pipeline.llm_extractor.extract = (
+        lambda _rid, _narr: (raw, {"provider": "llm"})
+    )
+    ev = pipeline.analyze(
+        "EVID-NEG",
+        "Flange maintenance: zero energy was not verified; gas was contained, "
+        "none was released.",
+        provider="llm",
+    ).event
+    assert ev.exposure == "uncontrolled_gas_release"
+    assert ev.field_basis["exposure"] != "explicit"
+    assert not ev.field_evidence.get("exposure", "")
+
+
+def test_canonical_event_drives_all_downstream_layers_identically():
+    """SIF, LSR, signature and family assignment are computed ONLY from the
+    canonical event, so the rules and (identically-valued) LLM paths produce
+    the same safety results."""
+    from app.models.safety_event import Observation
+
+    obs_r = [_obs(rid, t) for rid, t in NOT_VERIFIED_ISOLATION]
+    obs_l = []
+    for rid, t in NOT_VERIFIED_ISOLATION:
+        r = _llm_result(rid, t)
+        o = Observation(report_id=rid, narrative=t, provider="llm",
+                        requested_provider="llm", event=r.event)
+        o.id = rid
+        obs_l.append(o)
+    fam_r, asg_r = _families(obs_r)
+    fam_l, asg_l = _families(obs_l)
+    for rid, _ in NOT_VERIFIED_ISOLATION:
+        assert asg_r[rid] == asg_l[rid], rid
+    assert {f.id for f in fam_r} == {f.id for f in fam_l}
+    for o_r, o_l in zip(obs_r, obs_l):
+        assert o_r.event.sif.classification == o_l.event.sif.classification
+        assert o_r.event.lsr_mapping.rules == o_l.event.lsr_mapping.rules
+        assert o_r.event.precursor_signature == o_l.event.precursor_signature
+
+
+def test_resolved_provider_is_exposed():
+    """The provenance vocabulary exposes requested_provider, resolved_provider,
+    fallback_used and fallback_reason on the analysis result."""
+    def boom(_rid, _narr):
+        raise RuntimeError("simulated Gemini outage")
+
+    pipeline = _pipeline()
+    pipeline.llm_extractor.extract = boom
+    res_llm = pipeline.analyze("RES-1", NOT_VERIFIED_ISOLATION[0][1],
+                               provider="llm")
+    assert res_llm.resolved_provider == "rules" == res_llm.provider
+    assert res_llm.requested_provider == "llm"
+    assert res_llm.fallback_used is True
+
+    res_rules = pipeline.analyze("RES-2", NOT_VERIFIED_ISOLATION[0][1],
+                                 provider="rules")
+    assert res_rules.resolved_provider == "rules" == res_rules.provider
+    assert res_rules.requested_provider == "rules"
+    assert res_rules.fallback_used is False

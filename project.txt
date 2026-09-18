@@ -1531,6 +1531,14 @@ any earlier prose where the two disagree.
   as if quoted.
 - Evidence spans are always exact narrative substrings; a hyphenated synonym
   ("zero-energy") still resolves its exact spaced span ("zero energy").
+- **Evidence attribution is provider-independent.** Whether the values came
+  from the rules engine or from Gemini, `field_evidence` and `field_basis`
+  (EXPLICIT/INFERRED/UNKNOWN) are recomputed deterministically from the
+  canonical event against the ontology. The LLM may only propose values
+  (language understanding); the pipeline decides whether real text supports
+  them. A model-suggested exposure is never marked EXPLICIT when the narrative
+  negates the release ("none was released"), and a negated non-event is never
+  attached as positive evidence (`none` included in negated-outcome regexes).
 - Potential consequence is **recomputed deterministically** from the final
   canonical hazard/exposure/state; an LLM can never invent one. It is labelled
   `model_inference` unless the narrative literally states the consequence
@@ -1570,10 +1578,12 @@ any earlier prose where the two disagree.
 ## 34.6 Extraction provider & provenance
 
 - provider vocabulary is `rules` | `llm` | `auto` (back end and UI).
-- Every analysis records `requested_provider` (what was asked), `provider`
-  (what actually ran) and, when an LLM pass was genuinely attempted and failed,
-  `fallback_used` + `fallback_reason`. The UI shows a Fallback notice with the
-  reason. An `auto` resolution to rules with no key-set is NOT a fallback.
+- Every analysis records `requested_provider` (what was asked), `provider` =
+  `resolved_provider` (what actually ran) and, when an LLM pass was genuinely
+  attempted and failed, `fallback_used` + `fallback_reason`. The UI shows a
+  Fallback notice with the reason. Both response models expose
+  `resolved_provider` alongside `provider`. An `auto` resolution to rules with
+  no key-set is NOT a fallback.
 - LLM failures (timeout, quota, malformed/extra JSON) degrade gracefully to the
   deterministic rules engine; no analysis is ever silently empty.
 
@@ -1610,7 +1620,7 @@ any earlier prose where the two disagree.
 
 ## 34.10 Validation & limits
 
-- 112 automated tests pass (95 baseline + 17 hardening), plus the frozen
+- 116 automated tests pass (95 baseline + 21 hardening), plus the frozen
   216-record evaluation and the SIH-2026 negation critical suite.
 - Frozen-eval acceptance thresholds all still hold (barrier_state 1.000,
   isolation verified/not-verified 1.000, hard-negative 1.000, family tag 0.972).

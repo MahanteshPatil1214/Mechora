@@ -49,6 +49,7 @@ CATEGORY_FIELDS = {
 class AnalysisResult:
     event: SafetyEvent
     provider: str = "rules"
+    resolved_provider: str = ""
     warnings: list[str] = field(default_factory=list)
     # Extraction provenance: what was asked for, what actually ran, and — when
     # an LLM pass was genuinely attempted but failed — why the deterministic
@@ -109,6 +110,7 @@ class AnalysisPipeline:
         return AnalysisResult(
             event=event,
             provider=provider,
+            resolved_provider=provider,
             warnings=warnings,
             requested_provider=requested,
             fallback_used=fallback_used,
@@ -159,10 +161,12 @@ class AnalysisPipeline:
             or "unknown"
 
         # Negation engine is authoritative for barrier state when a barrier is known.
+        barrier_state_span = ""
         if event.barrier != UNKNOWN_CODE:
             state_result = self.negation.classify_barrier(event.barrier, narrative)
             event.barrier_state = state_result.state
             event.confidence = state_result.confidence
+            barrier_state_span = state_result.evidence_span or ""
         elif raw.barrier_state != UNKNOWN_CODE:
             event.barrier_state = raw.barrier_state
             event.confidence = 0.3
@@ -225,7 +229,23 @@ class AnalysisPipeline:
                 fev["actual_consequence"] = fev.pop("consequence")
             event.field_evidence = fev
         else:
+            # LLM path: the model may only propose VALUES. Evidence
+            # attribution is recomputed deterministically from the canonical
+            # event via the ontology, so EXPLICIT vs INFERRED provenance never
+            # depends on what the model emitted — language understanding is
+            # Gemini's job; evidence grounding is the pipeline's.
             fev = {}
+            for _f in (
+                "activity", "task_phase", "energy", "barrier",
+                "exposure", "location",
+            ):
+                _sp = self.rule_extractor.verbatim_span_for_code(
+                    narrative, _f, getattr(event, _f)
+                )
+                if _sp:
+                    fev[_f] = _sp
+            if barrier_state_span:
+                fev["barrier_state"] = barrier_state_span
         if _actual_span and not fev.get("actual_consequence"):
             fev["actual_consequence"] = _actual_span
         event.field_evidence = fev

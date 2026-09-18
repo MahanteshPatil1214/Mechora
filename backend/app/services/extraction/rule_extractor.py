@@ -298,6 +298,34 @@ class RuleBasedExtractor:
         verbatim = self._extract_verbatim_span(narrative, best)
         return (code, verbatim)
 
+    def verbatim_span_for_code(self, narrative: str, category: str,
+                               code: str) -> str:
+        """Deterministic verbatim span for a canonical code.
+
+        Used to attribute EXPLICIT evidence to canonical values that arrived
+        via the LLM path: the model proposes a value, but the evidence and its
+        provenance are re-derived deterministically from the narrative so a
+        field is only ever 'explicit' when real text supports it. Exposure is
+        filtered so a negated non-event ('no gas was released') is never
+        attached as evidence for a positive exposure.
+        """
+        if not code or code == UNKNOWN_CODE:
+            return ""
+        concept = self.ontology.concept(category, code)
+        if not concept:
+            return ""
+        if category == "exposure":
+            spans = self._all_synonym_spans(narrative, concept.synonyms)
+            if not spans:
+                return ""
+            non_negated = [sp for sp in spans
+                           if not self._exposure_negated(narrative, sp)]
+            if not non_negated:
+                return ""
+            return max(non_negated, key=len)
+        _, span = self._best_synonym_match(narrative, category, code)
+        return span
+
     def _pick_primary(self, codes: list[str], spans: dict[str, str],
                       category: str) -> str:
         if not codes:

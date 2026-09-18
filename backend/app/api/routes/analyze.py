@@ -50,6 +50,7 @@ def analyze(req: AnalyzeRequest) -> AnalyzeResponse:
         id=saved.id,
         report_id=saved.report_id,
         provider=saved.provider,
+        resolved_provider=saved.provider,
         requested_provider=saved.requested_provider,
         fallback_used=saved.fallback_used,
         fallback_reason=saved.fallback_reason,

@@ -20,6 +20,7 @@ def _to_out(obs) -> ObservationOut:
         report_id=obs.report_id,
         narrative=obs.narrative,
         provider=obs.provider,
+        resolved_provider=obs.provider,
         requested_provider=obs.requested_provider,
         fallback_used=obs.fallback_used,
         fallback_reason=obs.fallback_reason,

@@ -33,18 +33,18 @@ class BarrierStateResult:
 # patterns require a tight auxiliary-verb structure instead of a loose filler
 # window that could cross clauses.
 _RE_NEGATED_OUTCOME = re.compile(
-    r"\b(?:no|nothing|never)\s+(?:[\w-]+\s+){0,2}"
+    r"\b(?:no|nothing|never|none)\s+(?:[\w-]+\s+){0,2}"
     r"(?:was|were|have|has|had|got)\s+"
     r"(?:released|releasing|leaked|leaking|escaped|escaping|discharged|"
     r"discharging|spilled|spilling|vented|venting|blown|blew)\b"
 )
 _RE_NEGATED_OUTCOME_NOUN = re.compile(
-    r"\b(?:no|nothing|without|never)\s+(?:any\s+)?"
+    r"\b(?:no|nothing|without|never|none)\s+(?:any\s+)?"
     r"(?:release|releases|leak|leaks|leakage|leakages|escape|escapes|"
     r"discharge|discharges|spill|spills)\b"
 )
 _RE_NEGATED_OUTCOME_NOAUX = re.compile(
-    r"\b(?:no|nothing|never)\s+(?:[\w-]+\s+)?"
+    r"\b(?:no|nothing|never|none)\s+(?:[\w-]+\s+)?"
     r"(?:released|releasing|leaked|leaking|escaped|escaping|discharged|"
     r"discharging|spilled|spilling|vented|venting|blown|blew)\b"
 )

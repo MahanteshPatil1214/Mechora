@@ -29,6 +29,7 @@ class AnalyzeResponse(BaseModel):
     id: str
     report_id: str
     provider: str
+    resolved_provider: str = ""
     requested_provider: str = "auto"
     fallback_used: bool = False
     fallback_reason: str = ""
@@ -44,6 +45,7 @@ class ObservationOut(BaseModel):
     report_id: str
     narrative: str
     provider: str
+    resolved_provider: str = ""
     requested_provider: str = "auto"
     fallback_used: bool = False
     fallback_reason: str = ""
