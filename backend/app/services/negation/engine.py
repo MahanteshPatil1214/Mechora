@@ -57,6 +57,31 @@ _NEGATED_OUTCOME_REGEXES = (
     _RE_NEGATED_OUTCOME_NOAUX,
 )
 
+# Explicit POSITIVE verification of a control/barrier: "was/were verified",
+# "was confirmed", "has been checked", "fully verified", "was applied". Only
+# matches when the verification verb is un-negated ("was NOT verified",
+# "was NEVER confirmed" do not match, because the negator sits between the
+# auxiliary and the verb). Used so an explicit positive verification outranks
+# an unrelated 'before/prior to' clause.
+_POSITIVE_VERIFIED_RE = re.compile(
+    r"\b(?:was|were|is|are|has\s+been|had\s+been|have\s+been)\s+"
+    r"(?:fully\s+|strictly\s+|physically\s+|independently\s+)?"
+    r"(?:proven|proved|verified|confirmed|checked|established|tested|approved|"
+    r"completed|issued|applied|isolated|locked|depressuriz\w+|signed|posted)\w*"
+)
+
+# Work/action verb occurring BEFORE a 'before/prior to' clause: marks the
+# order-violation construction ("opened the drain before the line was proven
+# depressurized" -> verification came too late -> not_verified). Absent when
+# the sentence is FRONTED with the 'before' clause ("Before opening the joint,
+# isolation was verified" -> positive statement -> verified).
+_ACTION_BEFORE_RE = re.compile(
+    r"\b(?:open(?:ed|ing)?|start\w*|began|begun|begins?|beginning|remove\w*|"
+    r"disconnect\w*|unbolt\w*|loosen\w*|loosening|break\w*|dismantl\w*|"
+    r"work(?:ed|ing)?|commenc\w*|enter\w*|proceed\w*|attempt\w*)\b"
+    r".*?\b(?:before|prior\s+to)\b"
+)
+
 
 class NegationEngine:
     """Sentence/clause-level barrier-state classification."""
@@ -313,6 +338,21 @@ class NegationEngine:
             norm,
         )
         if temporal_match:
+            # Precedence: an explicit un-negated positive verification in the
+            # sentence outranks an unrelated 'before/prior to' clause, UNLESS
+            # the order-violation construction holds (a work/action verb
+            # precedes the 'before' clause: "opened the drain before the line
+            # was proven depressurized"). "Before opening the joint, isolation
+            # was verified" is a POSITIVE statement -> verified; only the
+            # action-first disorder pattern is not_verified.
+            positive = _POSITIVE_VERIFIED_RE.search(norm)
+            action_before = _ACTION_BEFORE_RE.search(norm)
+            if positive and not action_before:
+                fail = self._failure_cue_match(norm)
+                if fail:
+                    return fail
+                span = positive.group(0)
+                return "verified", span, [span]
             span = temporal_match.group(0)
             return "not_verified", span, [span]
 

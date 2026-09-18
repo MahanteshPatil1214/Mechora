@@ -469,3 +469,69 @@ def test_resolved_provider_is_exposed():
     assert res_rules.resolved_provider == "rules" == res_rules.provider
     assert res_rules.requested_provider == "rules"
     assert res_rules.fallback_used is False
+
+
+# --------------------------------------------------------------------------
+# Positive-verification precedence over 'before/prior to' clauses
+# (regression: explicit verified positive evidence became NOT_VERIFIED + HIGH SIF)
+# --------------------------------------------------------------------------
+
+POSITIVE_VERIFIED_NARRATIVES = (
+    "Before opening the flange joint, physical isolation was applied, "
+    "zero stored pressure was verified, and work permits were fully "
+    "verified.",
+    "Prior to opening the gas line, physical isolation was applied, zero "
+    "pressure was verified and all work permits were fully verified.",
+    "Before starting work, zero energy was verified, physical isolation was "
+    "applied, and permits were fully verified. No gas was released.",
+    "Before the joint was opened, isolation was verified, zero pressure "
+    "confirmed, and the permit approved.",
+)
+
+
+def test_fronted_before_positive_verification_is_verified():
+    """An explicitly verified barrier phrased as 'Before/Prior to <work>,
+    <control> was verified/confirmed/applied' is a POSITIVE statement. It must
+    resolve to VERIFIED — never not_verified — and must not fabricate
+    exposure/consequence or force SIF HIGH from the energy source."""
+    for narrative in POSITIVE_VERIFIED_NARRATIVES:
+        res = _pipeline().analyze("VERIFY-BEFORE", narrative, provider="rules")
+        ev = res.event
+        assert ev.barrier_state == "verified", (narrative, ev.barrier_state)
+        assert ev.field_basis.get("barrier_state") == "explicit", narrative
+        # Positive barrier state extinguishes consequence inference and the
+        # narrative states no release, so nothing is fabricated.
+        assert ev.exposure == "unknown", (narrative, ev.exposure)
+        assert not ev.field_evidence.get("exposure", ""), narrative
+        assert ev.potential_consequence == "unknown", (
+            narrative, ev.potential_consequence)
+        assert ev.actual_consequence == "unknown", narrative
+        assert ev.sif.classification != "high", (
+            narrative, ev.sif.classification)
+        assert ev.needs_review is False, narrative
+
+
+def test_fronted_not_verified_before_clause_stays_not_verified():
+    """Hard-negative preserved: the SAME fronted 'Before ...' shape with an
+    explicit negation still resolves to NOT_VERIFIED."""
+    ev = _pipeline().analyze(
+        "VERIFY-BEFORE-NEG",
+        "Before the joint was opened, zero energy was not verified; gas was "
+        "released.",
+        provider="rules",
+    ).event
+    assert ev.barrier_state == "not_verified"
+
+
+def test_action_before_verification_order_violation_stays_not_verified():
+    """Hard-negative preserved: an ACTION-first disorder construction
+    ('opened the drain BEFORE the line was proven depressurized') is a genuine
+    order violation and must remain NOT_VERIFIED despite containing
+    'was proven'."""
+    ev = _pipeline().analyze(
+        "VERIFY-ORDER",
+        "The fitter opened the drain before the line was proven "
+        "depressurized; residual pressure blew fluid out.",
+        provider="rules",
+    ).event
+    assert ev.barrier_state == "not_verified"

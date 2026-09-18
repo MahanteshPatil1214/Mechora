@@ -1620,10 +1620,18 @@ any earlier prose where the two disagree.
 
 ## 34.10 Validation & limits
 
-- 116 automated tests pass (95 baseline + 21 hardening), plus the frozen
+- 119 automated tests pass (95 baseline + 21 hardening + 3 positive-
+  verification precedence regression tests), plus the frozen
   216-record evaluation and the SIH-2026 negation critical suite.
 - Frozen-eval acceptance thresholds all still hold (barrier_state 1.000,
   isolation verified/not-verified 1.000, hard-negative 1.000, family tag 0.972).
+- Precedence rule (semantic regression fix): explicit un-negated positive
+  verification ("Before opening the joint, isolation was verified, zero
+  pressure confirmed, permits fully verified") resolves to VERIFIED and
+  extinguishes consequence inference and SIF HIGH; order-violation
+  constructions ("opened the drain before the line was proven depressurized")
+  and negated forms ("NOT verified before", "NEVER confirmed before") remain
+  NOT_VERIFIED.
 - Reproducibility: identical outputs verified across many Python hash seeds.
 - Honest limits: SIF scoring is prototype-only; attention is NOT risk; MECHORA
   does not quantify OIL likelihood, does not predict accidents, and cannot
