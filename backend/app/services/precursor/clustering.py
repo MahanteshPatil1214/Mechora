@@ -49,6 +49,7 @@ def connected_groups(
             ba, bb = getattr(sig_a, "barrier", ""), getattr(sig_b, "barrier", "")
             sa, sb = getattr(sig_a, "barrier_state", ""), getattr(sig_b, "barrier_state", "")
             ea, eb = getattr(sig_a, "energy", ""), getattr(sig_b, "energy", "")
+            xa, xb = getattr(sig_a, "exposure", ""), getattr(sig_b, "exposure", "")
 
             # Structural Precursor Principle:
             # 1. Missing critical fields cannot group into a confident precursor family
@@ -65,6 +66,14 @@ def connected_groups(
 
             # 4. Different energy mechanisms must remain separate
             if ea != eb:
+                continue
+
+            # 5. Different exposure mechanisms must remain separate. Two stale
+            # barrier stories are only the SAME precursor when the way people
+            # were put at risk is structurally identical (e.g. uncontrolled gas
+            # release vs an ignition flash are distinct precursors even with the
+            # same failed barrier).
+            if xa != xb:
                 continue
 
             result = similarity.score(sig_a, sig_b)

@@ -69,7 +69,13 @@ class Ontology:
                 synonyms = list(item.get("synonyms", []))
                 meta = {k: v for k, v in item.items() if k not in ("code", "label", "synonyms")}
                 concept = Concept(code=code, label=label, category=category,
-                                  synonyms=tuple(sorted({label.lower(), *synonyms}, key=len)),
+                                  # Sort by (length, string) so equal-length
+                                  # synonyms keep a deterministic, repeatable
+                                  # order regardless of hash-seed iteration.
+                                  synonyms=tuple(
+                                      sorted({label.lower(), *synonyms},
+                                             key=lambda s: (len(s), s))
+                                  ),
                                   meta=meta)
                 self._concepts[category][code] = concept
                 for syn in concept.synonyms:

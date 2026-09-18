@@ -202,38 +202,49 @@ export default function ObservationDetail() {
                 label="Activity"
                 value={event.activity}
                 source="canonical"
+                basis={event.field_basis?.activity}
                 evidence={fieldEvidence.activity}
               />
               <FieldItem
                 label="Task Phase"
                 value={event.task_phase}
                 source="canonical"
+                basis={event.field_basis?.task_phase}
                 evidence={fieldEvidence.task_phase}
               />
               <FieldItem
                 label="Hazardous Energy"
                 value={event.energy}
                 source="inferred"
+                basis={event.field_basis?.energy}
                 evidence={fieldEvidence.energy}
               />
               <FieldItem
                 label="Required Barrier"
                 value={event.barrier}
                 source="inferred"
+                basis={event.field_basis?.barrier}
                 evidence={fieldEvidence.barrier}
               />
               <FieldItem
                 label="Exposure Mechanism"
                 value={event.exposure}
                 source="inferred"
+                basis={event.field_basis?.exposure}
                 evidence={fieldEvidence.exposure}
               />
               <FieldItem
                 label="Potential Consequence"
                 value={event.potential_consequence}
                 source="inferred"
+                basis={event.field_basis?.potential_consequence}
               />
-              <FieldItem label="Location" value={event.location} source="canonical" />
+              <FieldItem
+                label="Location"
+                value={event.location}
+                source="canonical"
+                basis={event.field_basis?.location}
+              />
               <div className="rounded-lg border border-slate-800 bg-slate-950 p-2.5 flex flex-col justify-between">
                 <span className="text-[10px] uppercase font-bold text-slate-400">
                   Barrier State

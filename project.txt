@@ -1481,3 +1481,143 @@ The critical demonstration should end with:
 > **A mechanism-level intelligence layer that helps HSE teams discover recurring precursor conditions hidden across thousands of safety narratives.**
 
 **END OF PRD — VERSION 1.0**
+
+---
+
+# 34. Implemented Architecture (hardening pass)
+
+> **LLM understands language. Safety structure drives the reasoning. MECHORA
+> clusters safety mechanisms, not merely text.**
+
+This section documents how the shipped system actually behaves. It is the
+authoritative implementation reference for the hardening pass and supersedes
+any earlier prose where the two disagree.
+
+## 34.1 Non-negotiable concepts
+
+- **Activity is context, not a hard boundary.** Two stories about different
+  equipment and different activities ("flange tightening" and "pump overhaul")
+  are the SAME precursor when the failed barrier, its state, the hazardous
+  energy and the exposure mechanism are structurally identical. Activity is
+  captured, shown and used only as context.
+- **Barrier state is a closed, never-crossed set.** `verified`,
+  `not_verified`, `failed`, `absent`, `partially_effective` and `unknown` are
+  distinct canonical codes. They NEVER merge in grouping.
+- **Hard grouping boundaries** (any one differing dimension blocks grouping):
+  required barrier, barrier state, hazardous energy, **exposure mechanism**.
+  Missing critical fields (`barrier`, `barrier_state`, `energy`, `exposure`)
+  block confident grouping entirely — such observations go to NEEDS REVIEW.
+- **A "precursor" is a failure story, not any report.** VERIFIED stories are
+  held (`UNASSIGNED / PENDING REVIEW`) unless they form their own controlled
+  family; they are never merged with failure stories or branded recurring.
+- **Determinism.** The extraction + grouping pipeline is byte-repeatable: same
+  narrative in, same canonical event, same evidence spans, same family id out.
+  No Python hash-seed or iteration-order dependence.
+
+## 34.2 Layers
+
+| Layer | Responsibility | Implementation |
+| --- | --- | --- |
+| LANGUAGE | free narrative -> canonical codes + verbatim evidence spans | `App.rule_extractor`, `LLMExtractor`, `Canonicalizer`, `NegationEngine` |
+| SAFETY | barrier state (authoritative), mechanical failure vs procedural omission, applicability guard | `NegationEngine`, `inferred_potential_consequence` |
+| STRUCTURAL | clustering into mechanism families, WHY GROUPED / WHY NOT GROUPED | `PrecursorEngine`, `Clustering`, `Similarity`, `FamilyBuilder`, `Attention` |
+| HSE | review flags, validation audit trail, attention signal | `SIFAssessor`, `LSRMapper`, `PATCH /observations/{id}/validation` |
+
+## 34.3 Extraction & evidence grounding
+
+- Canonical values carry a per-field provenance tag `field_basis`:
+  `explicit` (a verbatim narrative span supports it), `inferred` (normalized or
+  rule-derived, no direct quote) or `unknown`. Inferred values are never shown
+  as if quoted.
+- Evidence spans are always exact narrative substrings; a hyphenated synonym
+  ("zero-energy") still resolves its exact spaced span ("zero energy").
+- Potential consequence is **recomputed deterministically** from the final
+  canonical hazard/exposure/state; an LLM can never invent one. It is labelled
+  `model_inference` unless the narrative literally states the consequence
+  (`explicit` with verbatim text). Actual consequence (injuries, releases) is
+  populated ONLY from an explicit narrative statement; unstated -> `unknown`,
+  never defaulted to "none".
+- Negated outcomes ("no gas was released", "nothing leaked") are non-events and
+  never become positive exposure/energy attributes.
+
+## 34.4 Barrier-state engine (authoritative)
+
+- "was not verified / not confirmed / skipped / not issued" -> `not_verified`.
+- "ruptured / failed / blown" -> `failed`. "before X was verified" -> not_verified.
+- "could not be verified" -> `unknown` (indeterminate, held for review).
+- **"was NOT required / not needed / not necessary" -> `unknown`** (applicability,
+  not a failure; never counted as a barrier-failure signal).
+- "was not skipped" -> `verified` (the check was performed); "did not fail" ->
+  `verified`. A negated outcome never masks a real control failure in the same
+  sentence.
+
+## 34.5 Precursor engine
+
+- Signatures group only when barrier, barrier_state, energy AND exposure all
+  match and every critical field is known. Connectivity is single-linkage
+  through those hard boundaries — no merged pair in a family crosses a bound.
+- Families expose `grouping_evidence` (WHY GROUPED, per dimension: same /
+  mixed / distinct) and `exclusions` (WHY NOT GROUPED, with differing dimensions
+  and basis) so every membership decision is explainable.
+- `recurring` is explicit (`observation_count >= recurring_min_observations`).
+  A single observation is never branded recurring.
+- **Attention signal (0–100) is an explainable decision-support score, NOT a
+  risk percentage and NOT a measure of injury likelihood.** It is computed from
+  documented factors (recurrence, barrier failure, exposure severity, SIF
+  evidence, cross-activity recurrence) and surfaces `attention_basis` +
+  `attention_factors` with a disclaimer.
+
+## 34.6 Extraction provider & provenance
+
+- provider vocabulary is `rules` | `llm` | `auto` (back end and UI).
+- Every analysis records `requested_provider` (what was asked), `provider`
+  (what actually ran) and, when an LLM pass was genuinely attempted and failed,
+  `fallback_used` + `fallback_reason`. The UI shows a Fallback notice with the
+  reason. An `auto` resolution to rules with no key-set is NOT a fallback.
+- LLM failures (timeout, quota, malformed/extra JSON) degrade gracefully to the
+  deterministic rules engine; no analysis is ever silently empty.
+
+## 34.7 SIF & Life-Saving Rules
+
+- SIF assessment is a decision-support prototype: it labels high/medium/low and
+  NEEDS REVIEW with a basis and model note, NEVER a scientific risk score.
+- IOGP Life-Saving Rules are mapped deterministically from barrier/energy/
+  exposure and re-computed over the final canonical event (LLM-suggested rules
+  are canonicalized and deduped first).
+
+## 34.8 HSE human-in-the-loop
+
+- `needs_review` + `missing_fields` flag under-specified observations at
+  creation. Vague narratives are family `UNASSIGNED / PENDING REVIEW`.
+- Validation PATCH accepts `status`, optional `reviewer` and `reason`, and
+  records `validated_at` — an immutable audit trail. Fields surface
+  `validation_reviewer`, `validation_reason`, `validated_at` in every payload.
+
+## 34.9 Demo scenarios (verifiable via UI or API)
+
+1. PTW-1 Pipeline flange / zero energy not verified / gas released.
+2. PTW-2 Pump overhaul / no confirmation / gas escaped.
+3. PTW-3 Valve maintenance / never checked / gas leaked.
+4. PTW-4 Compressor service / skipped / gas released.
+   -> ALL FOUR converge on one recurring family (PFAM-A7CC6, Energy Isolation
+   Verification Failure). Different stories, same failed barrier, recurring.
+5. PTW-5 Verified isolation -> separate, never merged, not recurring.
+6. PTW-6 Isolation valve failure -> separate failed family.
+7. PTW-7 Hot-work controls not verified -> separate family (different barrier
+   + different exposure).
+8. PTW-8 "Maintenance was performed on equipment." -> NEEDS REVIEW, all four
+   critical fields missing, unassigned.
+
+## 34.10 Validation & limits
+
+- 112 automated tests pass (95 baseline + 17 hardening), plus the frozen
+  216-record evaluation and the SIH-2026 negation critical suite.
+- Frozen-eval acceptance thresholds all still hold (barrier_state 1.000,
+  isolation verified/not-verified 1.000, hard-negative 1.000, family tag 0.972).
+- Reproducibility: identical outputs verified across many Python hash seeds.
+- Honest limits: SIF scoring is prototype-only; attention is NOT risk; MECHORA
+  does not quantify OIL likelihood, does not predict accidents, and cannot
+  replace a competent-person review. Grouping is structural; irony or tacit
+  knowledge in a narrative is not parsed.
+- Dev database is disposable (SQLite fallback). Schema changes require
+  reseeding the dev DB; Postgres was not available so JSONB path is untested.

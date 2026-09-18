@@ -38,6 +38,9 @@ def _obs_to_row(obs: Observation) -> ObservationRow:
         report_id=obs.report_id,
         narrative=obs.narrative,
         provider=obs.provider,
+        requested_provider=obs.requested_provider,
+        fallback_used=obs.fallback_used,
+        fallback_reason=obs.fallback_reason,
         event=json.loads(ev.model_dump_json()),
         activity=ev.activity,
         task_phase=ev.task_phase,
@@ -51,6 +54,9 @@ def _obs_to_row(obs: Observation) -> ObservationRow:
         life_saving_rules=ev.life_saving_rules,
         precursor_family_id=obs.precursor_family_id,
         validation=obs.validation,
+        validation_reviewer=obs.validation_reviewer,
+        validation_reason=obs.validation_reason,
+        validated_at=obs.validated_at,
         created_at=obs.created_at,
     )
 
@@ -64,9 +70,15 @@ def _row_to_obs(row: ObservationRow) -> Observation:
         report_id=row.report_id,
         narrative=row.narrative,
         provider=row.provider,
+        requested_provider=getattr(row, "requested_provider", "auto") or "auto",
+        fallback_used=bool(getattr(row, "fallback_used", False)),
+        fallback_reason=getattr(row, "fallback_reason", "") or "",
         event=SafetyEvent.model_validate(event),
         precursor_family_id=row.precursor_family_id,
         validation=row.validation,
+        validation_reviewer=getattr(row, "validation_reviewer", "") or "",
+        validation_reason=getattr(row, "validation_reason", "") or "",
+        validated_at=getattr(row, "validated_at", None),
         created_at=row.created_at,
     )
 
@@ -246,12 +258,20 @@ def count_observations(filters: ObservationFilters | None = None) -> int:
         return int(s.execute(stmt).scalar_one())
 
 
-def update_validation(obs_id: str, status: str) -> Observation | None:
+def update_validation(
+    obs_id: str,
+    status: str,
+    reviewer: str = "",
+    reason: str = "",
+) -> Observation | None:
     with get_session() as s:
         row = s.get(ObservationRow, obs_id)
         if not row:
             return None
         row.validation = status
+        row.validation_reviewer = (reviewer or "").strip()[:80]
+        row.validation_reason = (reason or "").strip()[:2000]
+        row.validated_at = _dt.datetime.now(_dt.timezone.utc).isoformat()
         s.commit()
         return _row_to_obs(row)
 

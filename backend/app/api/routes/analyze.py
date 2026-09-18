@@ -36,7 +36,7 @@ def analyze(req: AnalyzeRequest) -> AnalyzeResponse:
         raise HTTPException(status_code=500, detail=f"analysis failed: {exc}") from exc
 
     obs = pipeline.to_observation(
-        report_id, req.narrative, provider=result.provider
+        report_id, req.narrative, provider=req.provider
     )
     try:
         saved = repos.create_observation(obs)
@@ -50,6 +50,9 @@ def analyze(req: AnalyzeRequest) -> AnalyzeResponse:
         id=saved.id,
         report_id=saved.report_id,
         provider=saved.provider,
+        requested_provider=saved.requested_provider,
+        fallback_used=saved.fallback_used,
+        fallback_reason=saved.fallback_reason,
         warnings=result.warnings,
         event=saved.event.model_dump(),
         precursor_family_id=saved.precursor_family_id,

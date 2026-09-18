@@ -355,9 +355,18 @@ class Observation(BaseModel):
     report_id: str = ""
     narrative: str = ""
     provider: Literal["llm", "rules", "hybrid"] = "rules"
+    # Extraction provenance (what was asked for, whether a graceful fallback
+    # happened, and why) so every surfaced finding is auditable end-to-end.
+    requested_provider: str = "auto"
+    fallback_used: bool = False
+    fallback_reason: str = ""
     event: SafetyEvent = Field(default_factory=SafetyEvent)
     precursor_family_id: str | None = None
     validation: Literal["pending", "validated", "rejected"] = "pending"
+    # HSE human-in-the-loop audit trail. Empty until an HSE reviewer acts.
+    validation_reviewer: str = ""
+    validation_reason: str = ""
+    validated_at: str | None = None
     created_at: str = Field(
         default_factory=lambda: _dt.datetime.now(_dt.timezone.utc).isoformat()
     )

@@ -250,6 +250,20 @@ class NegationEngine:
     # ------------------------------------------------------------- internals
 
     def _classify_norm(self, norm: str) -> tuple[str, str, list[str]]:
+        # Applicability guard: "isolation was NOT required / not needed for this
+        # task" means the barrier was never applicable, not that it was skipped.
+        # This is a different story than a failure (not_verified/failed), so it
+        # must resolve to UNKNOWN and be held for HSE review instead of being
+        # counted as a barrier-failure signal.
+        not_required = re.search(
+            r"\b(?:is|was|were|has\s+been|being)?\s*not\s+"
+            r"(?:required|needed|necessary)\b",
+            norm,
+        )
+        if not_required:
+            span = not_required.group(0)
+            return "unknown", span, [span]
+
         # Negated failure pattern: "did not fail", "never failed", "did not
         # rupture", "was not skipped" etc. Indicates the barrier action was
         # actually carried out / held -> verified. "Was not skipped" means the

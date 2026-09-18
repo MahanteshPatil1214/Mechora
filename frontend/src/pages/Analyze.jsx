@@ -181,8 +181,8 @@ export default function Analyze() {
                 className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-slate-200 focus:border-amber-500 focus:outline-none"
               >
                 <option value="rules">Deterministic Rules Engine (Default / Recommended)</option>
-                <option value="ollama">Ollama (Local LLM)</option>
-                <option value="mock">Offline Test Mock</option>
+                <option value="llm">Gemini LLM (requires configured API key)</option>
+                <option value="auto">Auto — Gemini if key is set, else rules</option>
               </select>
             </div>
           </div>
@@ -359,6 +359,22 @@ export default function Analyze() {
                 Provider
               </span>
               <span className="font-mono text-slate-300">{result.provider || "rules"}</span>
+              {result.fallback_used && (
+                <div className="mt-1 text-[11px] text-amber-400 border-t border-slate-800/70 pt-1">
+                  <span className="font-semibold">⚠ Fallback</span>
+                  <span className="text-amber-300/80">
+                    {" deterministic rules engine"}
+                    {result.fallback_reason ? ` — ${result.fallback_reason}` : ""}.
+                  </span>
+                </div>
+              )}
+              {(result.warnings || []).length > 0 && (
+                <ul className="mt-1 text-[11px] text-slate-400 space-y-0.5">
+                  {(result.warnings || []).map((w, i) => (
+                    <li key={i} className="before:content-['·'] before:mr-1"> {w}</li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
 
@@ -417,41 +433,48 @@ export default function Analyze() {
                 label="Activity"
                 value={event.activity}
                 source="canonical"
+                basis={event.field_basis?.activity}
                 evidence={fieldEvidence.activity}
               />
               <FieldItem
                 label="Task Phase"
                 value={event.task_phase}
                 source="canonical"
+                basis={event.field_basis?.task_phase}
                 evidence={fieldEvidence.task_phase}
               />
               <FieldItem
                 label="Hazardous Energy"
                 value={event.energy}
                 source="inferred"
+                basis={event.field_basis?.energy}
                 evidence={fieldEvidence.energy}
               />
               <FieldItem
                 label="Required Barrier"
                 value={event.barrier}
                 source="inferred"
+                basis={event.field_basis?.barrier}
                 evidence={fieldEvidence.barrier}
               />
               <FieldItem
                 label="Exposure Mechanism"
                 value={event.exposure}
                 source="inferred"
+                basis={event.field_basis?.exposure}
                 evidence={fieldEvidence.exposure}
               />
               <FieldItem
                 label="Potential Consequence"
                 value={event.potential_consequence}
                 source="inferred"
+                basis={event.field_basis?.potential_consequence}
               />
               <FieldItem
                 label="Location"
                 value={event.location}
                 source="canonical"
+                basis={event.field_basis?.location}
               />
               <div className="rounded-lg border border-slate-800 bg-slate-950 p-2.5 flex flex-col justify-between">
                 <span className="text-[10px] uppercase font-bold text-slate-400">Barrier State</span>

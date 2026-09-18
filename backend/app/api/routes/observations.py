@@ -20,9 +20,15 @@ def _to_out(obs) -> ObservationOut:
         report_id=obs.report_id,
         narrative=obs.narrative,
         provider=obs.provider,
+        requested_provider=obs.requested_provider,
+        fallback_used=obs.fallback_used,
+        fallback_reason=obs.fallback_reason,
         event=obs.event,
         precursor_family_id=obs.precursor_family_id,
         validation=obs.validation,
+        validation_reviewer=obs.validation_reviewer,
+        validation_reason=obs.validation_reason,
+        validated_at=obs.validated_at,
         created_at=obs.created_at,
     )
 
@@ -71,7 +77,9 @@ def get_observation(obs_id: str) -> ObservationOut:
 
 @router.patch("/observations/{obs_id}/validation", response_model=ObservationOut)
 def update_validation(obs_id: str, body: ValidationUpdate) -> ObservationOut:
-    obs = repos.update_validation(obs_id, body.status)
+    obs = repos.update_validation(
+        obs_id, body.status, reviewer=body.reviewer or "", reason=body.reason or ""
+    )
     if obs is None:
         raise HTTPException(status_code=404, detail="observation not found")
     return _to_out(obs)

@@ -247,16 +247,18 @@ class RuleBasedExtractor:
         phrase is NOT present verbatim. Never falls back to a canonical or
         synonym string (evidence must be an exact quote; otherwise show
         "no direct span"). Light separators (hyphen, slash, any whitespace)
-        are tolerated so hyphenated report text (e.g. "zero-energy") still
-        yields its exact span.
+        are tolerated AND flexibly matched so a hyphenated synonym
+        ("zero energy" in text) still yields its exact span even when the
+        ontology spells it "zero-energy" (and vice versa). Without this, the
+        chosen synonym spelling (set-order dependent) silenced the evidence.
         """
         if not phrase or not narrative:
             return ""
-        words = phrase.strip().split()
-        if not words:
+        tokens = [t for t in re.split(r"[\s\-/]+", phrase) if t]
+        if not tokens:
             return ""
         sep = r"[\s\-/]+"
-        pattern = r"\b" + sep.join(re.escape(w) for w in words) + r"\b"
+        pattern = r"\b" + sep.join(re.escape(w) for w in tokens) + r"\b"
         m = re.search(pattern, narrative, re.IGNORECASE)
         if m:
             return m.group(0)
@@ -349,7 +351,9 @@ class RuleBasedExtractor:
             sp = RuleBasedExtractor._extract_verbatim_span(narrative, syn)
             if sp:
                 spans.append(sp)
-        return sorted(set(spans), key=len, reverse=True)
+        # Dedupe deterministically: length-descending, then alphabetical, so
+        # equal-length spans don't resolve by hash-seed set order.
+        return sorted(set(spans), key=lambda s: (-len(s), s))
 
     def _exposure_negated(self, narrative: str, span: str) -> bool:
         """True when EVERY sentence containing the exposure span negates the

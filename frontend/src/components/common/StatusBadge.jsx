@@ -84,9 +84,22 @@ export function FieldItem({
   source = "canonical",
   evidence = null,
   highlight = false,
+  basis = null,
 }) {
   const displayVal = label(value);
   const isUnknown = !value || value === "unknown";
+
+  const basisNorm = basis || (source === "inferred" ? "inferred"
+    : source === "grounded" ? "explicit" : null);
+
+  const basisChip =
+    basisNorm === "explicit" ? (
+      <span className="text-[10px] text-emerald-400 font-mono">explicit</span>
+    ) : basisNorm === "inferred" ? (
+      <span className="text-[10px] text-sky-400 font-mono">inferred</span>
+    ) : basisNorm === "unknown" ? (
+      <span className="text-[10px] text-amber-400 font-mono">unknown</span>
+    ) : null;
 
   return (
     <div
@@ -98,16 +111,7 @@ export function FieldItem({
     >
       <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-slate-400 font-medium mb-1">
         <span>{fieldLabel}</span>
-        {source === "inferred" && (
-          <span className="text-[10px] text-sky-400 font-mono">
-            inferred
-          </span>
-        )}
-        {source === "grounded" && (
-          <span className="text-[10px] text-emerald-400 font-mono">
-            explicit
-          </span>
-        )}
+        {basisChip}
       </div>
 
       <div

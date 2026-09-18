@@ -34,6 +34,9 @@ class ObservationRow(Base):
     report_id: Mapped[str] = mapped_column(String(40), unique=True, index=True)
     narrative: Mapped[str] = mapped_column(Text, default="")
     provider: Mapped[str] = mapped_column(String(12), default="rules")
+    requested_provider: Mapped[str] = mapped_column(String(12), default="auto")
+    fallback_used: Mapped[bool] = mapped_column(Boolean, default=False)
+    fallback_reason: Mapped[str] = mapped_column(Text, default="")
     event: Mapped[dict] = mapped_column(JSON, default=dict)
 
     activity: Mapped[str] = mapped_column(String(60), default="unknown", index=True)
@@ -54,6 +57,11 @@ class ObservationRow(Base):
         String(40), index=True, default=None
     )
     validation: Mapped[str] = mapped_column(String(20), default="pending")
+    validation_reviewer: Mapped[str] = mapped_column(String(80), default="")
+    validation_reason: Mapped[str] = mapped_column(Text, default="")
+    validated_at: Mapped[str | None] = mapped_column(
+        String(40), default=None
+    )
     created_at: Mapped[str] = mapped_column(String(40), default=_now, index=True)
 
     __table_args__ = (

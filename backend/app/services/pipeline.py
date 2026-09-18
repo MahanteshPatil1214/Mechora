@@ -50,6 +50,12 @@ class AnalysisResult:
     event: SafetyEvent
     provider: str = "rules"
     warnings: list[str] = field(default_factory=list)
+    # Extraction provenance: what was asked for, what actually ran, and — when
+    # an LLM pass was genuinely attempted but failed — why the deterministic
+    # extractor was used. 'auto' is a resolution target, not a fallback.
+    requested_provider: str = "auto"
+    fallback_used: bool = False
+    fallback_reason: str = ""
 
 
 class AnalysisPipeline:
@@ -70,7 +76,8 @@ class AnalysisPipeline:
 
     def analyze(self, report_id: str, narrative: str,
                 provider: str | None = None) -> AnalysisResult:
-        provider = provider or self._resolve_provider()
+        requested = provider or self._resolve_provider()
+        provider = requested
         extraction_output: ExtractionOutput | None = None
         raw: LLMExtraction | None = None
         warnings: list[str] = []
@@ -93,7 +100,20 @@ class AnalysisPipeline:
 
         event = self._build_event(report_id, narrative, raw, extraction_output)
 
-        return AnalysisResult(event=event, provider=provider, warnings=warnings)
+        fallback_used = requested == "llm" and provider == "rules"
+        fallback_reason = (
+            "LLM extraction failed at runtime; deterministic extractor used"
+            if fallback_used else ""
+        )
+
+        return AnalysisResult(
+            event=event,
+            provider=provider,
+            warnings=warnings,
+            requested_provider=requested,
+            fallback_used=fallback_used,
+            fallback_reason=fallback_reason,
+        )
 
     def to_observation(self, report_id: str, narrative: str,
                        provider: str | None = None) -> Observation:
@@ -102,6 +122,9 @@ class AnalysisPipeline:
             report_id=report_id,
             narrative=narrative,
             provider=result.provider,
+            requested_provider=result.requested_provider,
+            fallback_used=result.fallback_used,
+            fallback_reason=result.fallback_reason,
             event=result.event,
         )
 

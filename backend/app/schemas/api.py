@@ -29,6 +29,9 @@ class AnalyzeResponse(BaseModel):
     id: str
     report_id: str
     provider: str
+    requested_provider: str = "auto"
+    fallback_used: bool = False
+    fallback_reason: str = ""
     warnings: list[str] = Field(default_factory=list)
     event: Any
     precursor_family_id: str | None = None
@@ -41,9 +44,15 @@ class ObservationOut(BaseModel):
     report_id: str
     narrative: str
     provider: str
+    requested_provider: str = "auto"
+    fallback_used: bool = False
+    fallback_reason: str = ""
     event: SafetyEvent
     precursor_family_id: str | None = None
     validation: ValidationStatus = "pending"
+    validation_reviewer: str = ""
+    validation_reason: str = ""
+    validated_at: str | None = None
     created_at: str
 
 
@@ -90,6 +99,13 @@ class FamilyList(BaseModel):
 
 class ValidationUpdate(BaseModel):
     status: ValidationStatus
+    reviewer: str | None = Field(
+        default=None, description="HSE reviewer identity for the audit trail."
+    )
+    reason: str | None = Field(
+        default=None, max_length=2000,
+        description="Optional rationale recorded for the HSE audit trail.",
+    )
 
 
 class OntologyConcept(BaseModel):
