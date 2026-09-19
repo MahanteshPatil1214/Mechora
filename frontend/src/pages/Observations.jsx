@@ -8,6 +8,7 @@ import {
   Plus,
   ArrowRight,
   RotateCcw,
+  Trash2,
 } from "lucide-react";
 import { api, label } from "../api.js";
 import { PageHeader } from "../components/common/PageHeader.jsx";
@@ -20,6 +21,7 @@ export default function Observations() {
   const [observations, setObservations] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState("");
 
   const [query, setQuery] = useState(initialQ);
   const [stateFilter, setStateFilter] = useState("");
@@ -80,6 +82,23 @@ export default function Observations() {
     setActivityFilter("");
     setQuery("");
     setSortBy("newest");
+  };
+
+  const handleDelete = async (obs) => {
+    if (
+      !window.confirm(
+        `Delete observation "${obs.report_id}"?\n\nThis permanently removes the record and rebuilds precursor families. This cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+    setDeletingId(obs.id);
+    try {
+      await api.deleteObservation(obs.id);
+    } finally {
+      setDeletingId("");
+    }
+    loadData();
   };
 
   return (
@@ -302,13 +321,28 @@ export default function Observations() {
 
                       {/* Action Link */}
                       <td className="py-3 px-3.5 text-right whitespace-nowrap">
-                        <Link
-                          to={`/app/observations/${obs.id}`}
-                          className="font-medium text-amber-400 hover:text-amber-300 flex items-center justify-end gap-1 hover:underline"
-                        >
-                          <span>Details</span>
-                          <ArrowRight size={12} />
-                        </Link>
+                        <div className="flex items-center justify-end gap-2.5">
+                          <Link
+                            to={`/app/observations/${obs.id}`}
+                            className="font-medium text-amber-400 hover:text-amber-300 flex items-center gap-1 hover:underline"
+                          >
+                            <span>Details</span>
+                            <ArrowRight size={12} />
+                          </Link>
+                          <button
+                            type="button"
+                            title="Delete observation"
+                            disabled={deletingId === obs.id}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleDelete(obs);
+                            }}
+                            className="text-slate-500 hover:text-rose-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

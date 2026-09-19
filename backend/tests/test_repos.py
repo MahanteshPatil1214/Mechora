@@ -92,6 +92,57 @@ def test_validation_update():
     assert updated is not None and updated.validation == "validated"
 
 
+def test_delete_observation_removes_row():
+    pipeline = AnalysisPipeline(get_ontology(), get_settings())
+    obs = repos.create_observation(_analyze(pipeline, NARR1))
+    assert repos.count_observations() == 1
+    assert repos.delete_observation(obs.id) is True
+    assert repos.count_observations() == 0
+    assert repos.get_observation(obs.id) is None
+
+
+def test_delete_observation_missing_id_returns_false():
+    assert repos.delete_observation("OBS-DOES-NOT-EXIST") is False
+
+
+def test_delete_observation_endpoint_204():
+    from app.api.routes import observations as obs_route
+
+    pipeline = AnalysisPipeline(get_ontology(), get_settings())
+    obs = repos.create_observation(_analyze(pipeline, NARR1))
+    assert obs_route.delete_observation(obs.id) is None
+    assert repos.get_observation(obs.id) is None
+
+
+def test_delete_observation_endpoint_404_for_unknown_id():
+    from fastapi import HTTPException
+
+    from app.api.routes import observations as obs_route
+
+    try:
+        obs_route.delete_observation("OBS-NOPE")
+    except HTTPException as exc:
+        assert exc.status_code == 404
+    else:
+        raise AssertionError("expected 404 HTTPException")
+
+
+def test_delete_observation_rebuilds_families():
+    pipeline = AnalysisPipeline(get_ontology(), get_settings())
+    o1 = repos.create_observation(pipeline.to_observation("RPT-D1", NARR1))
+    o2 = repos.create_observation(pipeline.to_observation("RPT-D2", NARR1))
+    fam = next(f for f in repos.list_families() if o1.id in f.observation_ids)
+    assert o2.id in fam.observation_ids and len(fam.observation_ids) == 2
+    assert repos.delete_observation(o1.id) is True
+    all_ids = set().union(*(f.observation_ids for f in repos.list_families()))
+    assert o1.id not in all_ids
+    remaining = repos.get_observation(o2.id)
+    assert remaining is not None and remaining.precursor_family_id is not None
+    assert remaining.precursor_family_id in {
+        f.id for f in repos.list_families() if o2.id in f.observation_ids
+    }
+
+
 def test_evaluation_persisted_and_round_trips():
     repos.save_evaluation(
         run_id="eval-regression",

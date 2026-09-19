@@ -999,6 +999,30 @@ potential_consequence:
     }
   },
 
+  // Delete an observation. Families are rebuilt server-side so cluster
+  // membership and the family_id back-reference stay consistent.
+  deleteObservation: async (obsId) => {
+    const res = await fetch(`${base}/observations/${encodeURIComponent(obsId)}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      let detail = res.statusText;
+      try {
+        const err = await res.json();
+        detail = err.detail || detail;
+      } catch {
+        /* surface raw status text */
+      }
+      throw new Error(detail);
+    }
+    // Demo fallback: remove the local record so the browser stays consistent
+    if (res.status === 204) {
+      const idx = DEMO_OBSERVATIONS.findIndex((o) => o.id === obsId || o.report_id === obsId);
+      if (idx >= 0) DEMO_OBSERVATIONS.splice(idx, 1);
+    }
+    return { deleted: true };
+  },
+
   families: async (recurringOnly = false, limit = 200, includeControls = false) => {
     const precursorFamilies = (f) => includeControls || f.family_type !== "controlled";
     const recurringFamilies = DEMO_FAMILIES.filter((f) => f.recurring);

@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { Flame, Eye, EyeOff, Lock, User, ArrowRight, ShieldCheck, AlertCircle } from "lucide-react";
+import { Flame, Eye, EyeOff, Lock, User, ArrowRight, ShieldCheck, AlertCircle, Sun, Moon } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useTheme } from "../context/ThemeContext.jsx";
 
 export default function Login() {
   const { login, loading } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -39,7 +41,18 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans relative">
+      {/* Dark / Light Theme Toggle */}
+      <button
+        type="button"
+        onClick={toggleTheme}
+        className="absolute top-4 right-4 z-10 rounded-lg border border-slate-800 bg-slate-900 p-2 text-slate-300 hover:border-slate-700 hover:text-white transition-colors"
+        title={isDark ? "Switch to light theme" : "Switch to dark theme"}
+        aria-label="Toggle color theme"
+      >
+        {isDark ? <Sun size={15} /> : <Moon size={15} />}
+      </button>
+
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-2.5">
         <Link to="/" className="inline-flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500 text-slate-950 font-bold">

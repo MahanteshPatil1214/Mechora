@@ -263,6 +263,19 @@ def get_observation_by_report_id(report_id: str) -> Observation | None:
         return _row_to_obs(row) if row else None
 
 
+def delete_observation(obs_id: str) -> bool:
+    """Delete an observation and rebuild families so family membership and the
+    ``precursor_family_id`` back-reference stay consistent."""
+    with get_session() as s:
+        row = s.get(ObservationRow, obs_id)
+        if row is None:
+            return False
+        s.delete(row)
+        s.commit()
+    recompute_families()
+    return True
+
+
 def list_observations(
     filters: ObservationFilters | None = None,
 ) -> list[Observation]:

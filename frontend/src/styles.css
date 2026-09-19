@@ -30,7 +30,7 @@ html.light {
   --color-slate-300: #334155;
   --color-slate-400: #475569;
   --color-slate-500: #64748b;
-  --color-slate-600: #94a3b8;
+  --color-slate-600: #475569;
   --color-slate-700: #cbd5e1;
   --color-slate-800: #e2e8f0;
   --color-slate-900: #ffffff;
@@ -45,4 +45,16 @@ html.light {
   --color-emerald-300: #047857;
   --color-emerald-400: #10b981;
   --color-sky-400: #0284c7;
+}
+
+/* Dark on-slate-950 text (text-slate-950) is used for text sitting on solid
+ * amber buttons (white/"light" forced-grays stay dark there). Scoping the
+ * --color-slate-950 token back to near-black on amber surfaces keeps those
+ * button labels legible in light mode without touching the light page
+ * surfaces that use slate-950 as their background. */
+html.light .bg-amber-300,
+html.light .bg-amber-400,
+html.light .bg-amber-500,
+html.light .bg-amber-600 {
+  --color-slate-950: #020617;
 }

@@ -1,8 +1,10 @@
 import React from "react";
 import { Link, Outlet } from "react-router-dom";
-import { Flame, ArrowRight, ShieldCheck, Lock } from "lucide-react";
+import { Flame, ArrowRight, ShieldCheck, Lock, Sun, Moon } from "lucide-react";
+import { useTheme } from "../context/ThemeContext.jsx";
 
 export default function PublicLayout() {
+  const { isDark, toggleTheme } = useTheme();
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-black">
       {/* Top Navigation */}
@@ -38,6 +40,17 @@ export default function PublicLayout() {
           </nav>
 
           <div className="flex items-center gap-3">
+            {/* Dark / Light Theme Toggle */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="rounded-lg border border-slate-800 bg-slate-900 p-2 text-slate-300 hover:border-slate-700 hover:text-white transition-colors"
+              title={isDark ? "Switch to light theme" : "Switch to dark theme"}
+              aria-label="Toggle color theme"
+            >
+              {isDark ? <Sun size={15} /> : <Moon size={15} />}
+            </button>
+
             <Link
               to="/login"
               className="flex items-center gap-1.5 rounded-lg bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 hover:bg-amber-400 transition-colors shadow-sm"

@@ -10,6 +10,7 @@ import {
   FileCheck2,
   Shield,
   Layers,
+  Trash2,
 } from "lucide-react";
 import { api, label } from "../api.js";
 import { PageHeader } from "../components/common/PageHeader.jsx";
@@ -26,6 +27,7 @@ export default function ObservationDetail() {
   const [family, setFamily] = useState(null);
   const [loading, setLoading] = useState(true);
   const [validating, setValidating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [actionSuccess, setActionSuccess] = useState("");
 
   useEffect(() => {
@@ -56,6 +58,24 @@ export default function ObservationDetail() {
       /* ignore */
     } finally {
       setValidating(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Delete observation "${obs.report_id}"? This permanently removes the record and rebuilds precursor families.`)) {
+      return;
+    }
+    setDeleting(true);
+    try {
+      await api.deleteObservation(obs.id);
+      navigate("/app/observations", {
+        state: { deleted: obs.report_id, _t: Date.now() },
+      });
+    } catch {
+      setActionSuccess("Failed to delete observation. Please try again.");
+      setTimeout(() => setActionSuccess(""), 4000);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -313,6 +333,20 @@ export default function ObservationDetail() {
                 >
                   <XCircle size={14} />
                   <span>Reject / Separate</span>
+                </button>
+              </div>
+              <div className="border-t border-slate-800 pt-3 flex items-center justify-between gap-2">
+                <span className="text-[11px] text-slate-500 italic">
+                  Permanently removes this record and rebuilds precursor families.
+                </span>
+                <button
+                  type="button"
+                  disabled={deleting}
+                  onClick={() => handleDelete()}
+                  className="flex items-center gap-1.5 rounded-lg border border-rose-500/30 bg-slate-900 px-3 py-1.5 text-[11px] font-bold text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/50 disabled:opacity-40 transition-colors"
+                >
+                  <Trash2 size={13} />
+                  <span>{deleting ? "Deleting…" : "Delete Observation"}</span>
                 </button>
               </div>
             </div>

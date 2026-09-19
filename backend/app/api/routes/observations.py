@@ -76,6 +76,14 @@ def get_observation(obs_id: str) -> ObservationOut:
     return _to_out(obs)
 
 
+@router.delete("/observations/{obs_id}", status_code=204)
+def delete_observation(obs_id: str) -> None:
+    """Delete an observation. Precursor families are rebuilt afterwards so
+    membership lists and ``precursor_family_id`` back-references stay in sync."""
+    if not repos.delete_observation(obs_id):
+        raise HTTPException(status_code=404, detail="observation not found")
+
+
 @router.patch("/observations/{obs_id}/validation", response_model=ObservationOut)
 def update_validation(obs_id: str, body: ValidationUpdate) -> ObservationOut:
     obs = repos.update_validation(
