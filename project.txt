@@ -1700,3 +1700,11 @@ any earlier prose where the two disagree.
   liquid pump report stays its own candidate family PFAM-781A4.
   NOTE: negation-engine cue ''removed'' floored PJ state to ABSENT, so demo
   narratives avoid it (use ''unbolted'').
+
+- Demo consistency (SIH demo review #2): overview relationship map is now generated
+  from the SAME authoritative family data (family.observation_ids -> observations)
+  instead of hardcoded 3-card content: shows 'all 4 reports' with live narrative
+  snippets, live grouping_evidence rows (energy/barrier/state/exposure/task phase
+  at their real coverage%) and 'Recurrence: 4 reports >= 2 report threshold'.
+  Families page relabels 'N families' -> 'N patterns · N recurring · N emerging'
+  (Overview 'View all N patterns'). Empty/low-data states handle no family.

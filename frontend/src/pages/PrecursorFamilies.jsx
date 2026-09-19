@@ -55,15 +55,22 @@ export default function PrecursorFamilies() {
     setRecOnly(false);
   };
 
+  const recurringCount = families.filter((f) => f.recurring).length;
+  const patternBadge = recOnly
+    ? `${families.length} recurring pattern${families.length === 1 ? "" : "s"}`
+    : families.length > 0
+      ? `${families.length} pattern${families.length === 1 ? "" : "s"} · ${recurringCount} recurring · ${families.length - recurringCount} emerging`
+      : "No patterns";
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* 1. Page Header */}
       <PageHeader
-        title="Precursor Families"
-        description="Catalog of recurring safety mechanisms identified across disparate reporting phrasing, locations, and equipment types."
+        title="Precursor Patterns"
+        description="Catalog of structural safety mechanisms identified across disparate reporting phrasing, locations, and equipment types."
         badge={
           <span className="rounded bg-slate-800 px-2.5 py-0.5 text-xs font-mono font-semibold text-slate-300">
-            {families.length} families
+            {patternBadge}
           </span>
         }
         actions={

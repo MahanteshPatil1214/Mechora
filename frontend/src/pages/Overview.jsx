@@ -22,6 +22,7 @@ export default function Overview() {
   const [dashboard, setDashboard] = useState(null);
   const [recentObs, setRecentObs] = useState([]);
   const [families, setFamilies] = useState([]);
+  const [featuredObs, setFeaturedObs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,7 +33,15 @@ export default function Overview() {
     ]).then(([dashData, obsData, famData]) => {
       setDashboard(dashData);
       setRecentObs(obsData?.observations || []);
-      setFamilies(famData?.families || []);
+      const fams = famData?.families || [];
+      setFamilies(fams);
+      const featured = fams.find((f) => f.recurring) || fams[0] || null;
+      if (featured?.id) {
+        api
+          .observations({ family_id: featured.id, limit: 200 })
+          .then((o) => setFeaturedObs(o?.observations || []))
+          .catch(() => {});
+      }
       setLoading(false);
     });
   }, []);
@@ -52,6 +61,37 @@ export default function Overview() {
 
   const topAttentionFamilies = families.slice(0, 2);
   const featuredFamily = families.find((f) => f.recurring) || families[0] || null;
+
+  // Authoritative family-member set for the relationship map: the SAME
+  // observations listed on the family record, never a separately-typed list.
+  const featuredCount =
+    featuredObs.length || featuredFamily?.observation_ids?.length || 0;
+  const mechanismRows = (() => {
+    if (!featuredFamily) return [];
+    const geo = featuredFamily.grouping_evidence || [];
+    if (geo.length) {
+      return geo
+        .filter((g) => g.status === "same" && g.dimension !== "activity")
+        .map((g) => ({
+          dim: g.dimension,
+          value: g.value || g.note,
+          coverage: g.coverage ?? 1,
+        }));
+    }
+    return [
+      ["energy", featuredFamily.common_energy],
+      ["barrier", featuredFamily.common_barrier],
+      ["barrier_state", featuredFamily.common_barrier_state],
+      ["exposure", featuredFamily.common_exposure],
+    ]
+      .filter(([, v]) => v && v !== "unknown")
+      .map(([dim, value]) => ({ dim, value, coverage: 1 }));
+  })();
+  const snippet = (n) => {
+    if (!n) return "";
+    const t = n.replace(/\s+/g, " ").trim();
+    return t.length > 84 ? `${t.slice(0, 84).replace(/ ?\S*$/, "")}…` : t;
+  };
 
   return (
     <div className="space-y-6">
@@ -157,7 +197,7 @@ export default function Overview() {
             to="/app/families"
             className="text-xs font-medium text-amber-400 hover:text-amber-300 flex items-center gap-1"
           >
-            <span>View all {totalFamilies} families</span>
+            <span>View all {totalFamilies} patterns</span>
             <ChevronRight size={14} />
           </Link>
         </div>
@@ -246,31 +286,34 @@ export default function Overview() {
                 1. Safety Observations (Different Stories)
               </div>
               <p className="text-xs text-slate-400 mt-2 mb-3">
-                Disparate reports logged across separate teams and assets:
+                {featuredCount
+                  ? `${featuredCount} independent reports logged across separate teams and assets:`
+                  : "Disparate reports logged across separate teams and assets:"}
               </p>
 
-              <div className="space-y-2">
-                <div className="rounded border border-slate-800/90 bg-slate-900/60 p-2.5 text-xs">
-                  <div className="font-semibold text-slate-200">Pipeline Maintenance</div>
-                  <div className="text-slate-400 italic mt-0.5">
-                    “Flange opened before depressurization confirmation.”
-                  </div>
+              {featuredObs.length > 0 ? (
+                <div className="space-y-2">
+                  {featuredObs.slice(0, 4).map((obs) => (
+                    <div
+                      key={obs.id}
+                      className="rounded border border-slate-800/90 bg-slate-900/60 p-2.5 text-xs"
+                    >
+                      <div className="font-semibold text-slate-200">
+                        {label(obs.event?.activity) || "Maintenance"}
+                      </div>
+                      <div className="text-slate-400 italic mt-0.5">
+                        “{snippet(obs.narrative)}”
+                      </div>
+                    </div>
+                  ))}
                 </div>
-
-                <div className="rounded border border-slate-800/90 bg-slate-900/60 p-2.5 text-xs">
-                  <div className="font-semibold text-slate-200">Compressor Servicing</div>
-                  <div className="text-slate-400 italic mt-0.5">
-                    “Work started before zero-pressure verification.”
-                  </div>
+              ) : (
+                <div className="rounded border border-dashed border-slate-800 p-3 text-center text-[11px] text-slate-500">
+                  {featuredFamily
+                    ? "Family members not loaded."
+                    : "No precursor families yet."}
                 </div>
-
-                <div className="rounded border border-slate-800/90 bg-slate-900/60 p-2.5 text-xs">
-                  <div className="font-semibold text-slate-200">Valve Replacement</div>
-                  <div className="text-slate-400 italic mt-0.5">
-                    “Isolation verification skipped during replacement.”
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
 
             <div className="text-[11px] text-slate-400 border-t border-slate-800/80 pt-2 text-center">
@@ -285,38 +328,40 @@ export default function Overview() {
                 2. Common Safety Mechanism (Ontology Match)
               </div>
               <p className="text-xs text-slate-400 mt-2 mb-3">
-                Extracted canonical concepts match across all 3 reports:
+                Extracted canonical concepts match across all {featuredCount || "the"} reports:
               </p>
 
-              <div className="space-y-2">
-                <div className="rounded border border-slate-800 bg-slate-900/60 p-2.5 text-xs flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold">Hazardous Energy</span>
-                    <div className="font-medium text-slate-200">Pressurized Gas</div>
-                  </div>
-                  <span className="text-rose-400 font-bold">100%</span>
+              {mechanismRows.length > 0 ? (
+                <div className="space-y-2">
+                  {mechanismRows.map((row) => (
+                    <div
+                      key={row.dim}
+                      className="rounded border border-slate-800 bg-slate-900/60 p-2.5 text-xs flex items-center justify-between"
+                    >
+                      <div>
+                        <span className="text-[10px] text-slate-400 uppercase font-semibold">
+                          {label(row.dim)}
+                        </span>
+                        <div className="font-medium text-slate-200 capitalize">
+                          {label(row.value)}
+                        </div>
+                      </div>
+                      <span className="text-rose-400 font-bold">
+                        {Math.round((row.coverage || 0) * 100)}%
+                      </span>
+                    </div>
+                  ))}
                 </div>
-
-                <div className="rounded border border-slate-800 bg-slate-900/60 p-2.5 text-xs flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold">Required Barrier</span>
-                    <div className="font-medium text-slate-200">Energy Isolation (LOTO)</div>
-                  </div>
-                  <span className="text-sky-400 font-bold">100%</span>
+              ) : (
+                <div className="rounded border border-dashed border-slate-800 p-3 text-center text-[11px] text-slate-500">
+                  No family data yet.
                 </div>
-
-                <div className="rounded border border-slate-800 bg-slate-900/60 p-2.5 text-xs flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold">Barrier State</span>
-                    <div className="font-medium text-rose-400">Not Verified</div>
-                  </div>
-                  <span className="text-rose-400 font-bold">100%</span>
-                </div>
-              </div>
+              )}
             </div>
 
             <div className="text-[11px] text-emerald-400 border-t border-slate-800/80 pt-2 text-center font-medium">
-              ✓ Structural Similarity: 0.94 (Threshold: 0.65)
+              ✓ Mechanism invariant across all {featuredCount || 0} report
+              {featuredCount === 1 ? "" : "s"} — activity is allowed to differ
             </div>
           </div>
 
@@ -353,6 +398,13 @@ export default function Overview() {
                                 .map((a) => label(a).charAt(0).toUpperCase() + label(a).slice(1))
                                 .join(", ")}`
                             : "Cross-equipment mechanism"}
+                        </span>
+                      </li>
+                      <li className="flex items-center gap-1.5">
+                        <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
+                        <span>
+                          Recurrence: {featuredCount} reports ≥{" "}
+                          {featuredFamily.recurring_threshold || 2} report threshold
                         </span>
                       </li>
                       {featuredFamily.common_exposure &&
