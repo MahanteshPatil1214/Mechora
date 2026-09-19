@@ -893,7 +893,7 @@ potential_consequence:
         ),
       ).toString();
       const res = await request(`/observations${qs ? `?${qs}` : ""}`);
-      if (res && res.observations && res.observations.length > 0) {
+      if (res && Array.isArray(res.observations)) {
         return res;
       }
       return { total: DEMO_OBSERVATIONS.length, observations: DEMO_OBSERVATIONS };
@@ -964,7 +964,7 @@ potential_consequence:
       const res = await request(
         `/families?recurring_only=${recurringOnly}&limit=${limit}&include_controls=${includeControls}`,
       );
-      if (res && res.families && res.families.length > 0) {
+      if (res && Array.isArray(res.families)) {
         return res;
       }
       return demofind(recurringOnly);

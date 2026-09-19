@@ -330,48 +330,66 @@ export default function Overview() {
                 Grouped into a single persistent precursor intelligence entity:
               </p>
 
-              <div className="rounded-lg border border-rose-500/30 bg-rose-500/5 p-3 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs font-bold text-amber-400">
-                    {featuredFamily?.id || "PFAM-001"}
-                  </span>
-                  <span className="rounded bg-rose-500/20 px-1.5 py-0.2 text-[10px] font-bold text-rose-300">
-                    Recurring (≥ 2)
-                  </span>
-                </div>
-                <h4 className="text-sm font-bold text-white">
-                  {featuredFamily?.name || "Energy Isolation Verification Failure"}
-                </h4>
-                <ul className="text-xs text-slate-300 space-y-1">
-                  <li className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
-                    <span>
-                      {featuredFamily?.activities?.length
-                        ? `Cross-equipment: ${featuredFamily.activities
-                            .map((a) => label(a).charAt(0).toUpperCase() + label(a).slice(1))
-                            .join(", ")}`
-                        : "Cross-equipment: Pipeline, Compressor, Valve, Pump"}
-                    </span>
-                  </li>
-                  <li className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
-                    <span>SIF Exposure: Uncontrolled release under pressure</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
+              {featuredFamily ? (
+                <>
+                  <div className="rounded-lg border border-rose-500/30 bg-rose-500/5 p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-xs font-bold text-amber-400">
+                        {featuredFamily.id}
+                      </span>
+                      {featuredFamily.recurring && (
+                        <span className="rounded bg-rose-500/20 px-1.5 py-0.2 text-[10px] font-bold text-rose-300">
+                          Recurring (≥ {featuredFamily.recurring_threshold || 2})
+                        </span>
+                      )}
+                    </div>
+                    <h4 className="text-sm font-bold text-white">{featuredFamily.name}</h4>
+                    <ul className="text-xs text-slate-300 space-y-1">
+                      <li className="flex items-center gap-1.5">
+                        <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
+                        <span>
+                          {featuredFamily.activities?.length
+                            ? `Cross-equipment: ${featuredFamily.activities
+                                .map((a) => label(a).charAt(0).toUpperCase() + label(a).slice(1))
+                                .join(", ")}`
+                            : "Cross-equipment mechanism"}
+                        </span>
+                      </li>
+                      {featuredFamily.common_exposure &&
+                        featuredFamily.common_exposure !== "unknown" && (
+                          <li className="flex items-center gap-1.5">
+                            <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
+                            <span className="capitalize">
+                              Exposure: {label(featuredFamily.common_exposure)}
+                            </span>
+                          </li>
+                        )}
+                    </ul>
+                  </div>
 
-            <div className="border-t border-slate-800/80 pt-2 flex items-center justify-between">
-              <span className="text-xs text-slate-400">
-                Attention: {featuredFamily ? featuredFamily.attention_signal.toFixed(1) : "84.7"}
-              </span>
-              <Link
-                to={`/app/families/${featuredFamily?.id || "PFAM-001"}`}
-                className="text-xs font-semibold text-amber-400 hover:text-amber-300 flex items-center gap-1 hover:underline"
-              >
-                <span>View Family Record</span>
-                <ArrowRight size={12} />
-              </Link>
+                  <div className="border-t border-slate-800/80 pt-2 flex items-center justify-between">
+                    <span className="text-xs text-slate-400">
+                      Attention: {featuredFamily.attention_signal.toFixed(1)}
+                    </span>
+                    <Link
+                      to={`/app/families/${featuredFamily.id}`}
+                      className="text-xs font-semibold text-amber-400 hover:text-amber-300 flex items-center gap-1 hover:underline"
+                    >
+                      <span>View Family Record</span>
+                      <ArrowRight size={12} />
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <div className="rounded-lg border border-dashed border-slate-700 p-4 text-center">
+                  <p className="text-xs font-semibold text-slate-300 mb-1">
+                    No precursor families yet
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    Submit a real observation to start identifying recurring barrier mechanisms.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
