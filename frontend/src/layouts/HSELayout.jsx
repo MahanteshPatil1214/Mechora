@@ -18,12 +18,16 @@ import {
   Flame,
   CheckCircle2,
   AlertTriangle,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useTheme } from "../context/ThemeContext.jsx";
 import { api } from "../api.js";
 
 export default function HSELayout() {
   const { user, logout } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -147,6 +151,17 @@ export default function HSELayout() {
 
         {/* Right Status & User Menu */}
         <div className="flex items-center gap-2.5">
+          {/* Dark / Light Theme Toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="rounded-lg border border-slate-800 bg-slate-900 p-1.5 text-slate-300 hover:border-slate-700 hover:text-white transition-colors"
+            title={isDark ? "Switch to light theme" : "Switch to dark theme"}
+            aria-label="Toggle color theme"
+          >
+            {isDark ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+
           {/* AI Engine Status Pill */}
           <div className="hidden sm:flex items-center gap-1.5 rounded border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[11px] text-emerald-300 font-medium">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />

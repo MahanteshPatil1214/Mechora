@@ -13,6 +13,8 @@ import {
   Play,
   Copy,
   ExternalLink,
+  UploadCloud,
+  X,
 } from "lucide-react";
 import { api, label } from "../api.js";
 import { PageHeader } from "../components/common/PageHeader.jsx";
@@ -52,7 +54,10 @@ export default function Analyze() {
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
   const [familyData, setFamilyData] = useState(null);
+  const [attachedFile, setAttachedFile] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
   const textareaRef = useRef(null);
+  const fileInputRef = useRef(null);
   const resultRef = useRef(null);
 
   const handleAutoGenerateId = () => {
@@ -75,6 +80,72 @@ export default function Analyze() {
     setError("");
     setResult(null);
     setFamilyData(null);
+    setAttachedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const readTextIntoNarrative = (file) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result;
+      if (text && typeof text === "string" && !narrative.trim()) {
+        setNarrative(text.slice(0, 1500));
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const isReadableTextFile = (file) =>
+    file.type.includes("text") ||
+    file.name.endsWith(".txt") ||
+    file.name.endsWith(".csv") ||
+    file.name.endsWith(".md");
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (isReadableTextFile(file)) {
+      readTextIntoNarrative(file);
+    }
+    setAttachedFile({
+      name: file.name,
+      size: (file.size / 1024).toFixed(1) + " KB",
+      type: file.type || "application/octet-stream",
+    });
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    if (isReadableTextFile(file)) {
+      readTextIntoNarrative(file);
+    }
+    setAttachedFile({
+      name: file.name,
+      size: (file.size / 1024).toFixed(1) + " KB",
+      type: file.type || "application/octet-stream",
+    });
+  };
+
+  const handleRemoveFile = () => {
+    setAttachedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -207,6 +278,74 @@ export default function Analyze() {
               placeholder="Paste or write the safety observation narrative here (e.g., 'During routine flange maintenance on the gas line, the fitter opened the flange before verifying zero energy, resulting in a small gas release...')"
               className="w-full rounded-lg border border-slate-800 bg-slate-950 p-3 text-sm text-slate-100 placeholder-slate-500 focus:border-amber-500 focus:outline-none leading-relaxed transition-colors"
             />
+          </div>
+
+          {/* File / Report Attachment */}
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+              Attach Report File (Optional)
+            </label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              accept=".pdf,.docx,.txt,.csv,.md,.jpg,.jpeg,.png"
+              onChange={handleFileChange}
+              disabled={busy}
+            />
+            {attachedFile ? (
+              <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <FileText size={15} className="text-amber-400 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <div className="text-xs font-medium text-slate-200 truncate">{attachedFile.name}</div>
+                    <div className="text-[10px] font-mono text-slate-400">{attachedFile.size}</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRemoveFile}
+                  className="rounded p-1 text-slate-400 hover:bg-slate-800 hover:text-rose-400 transition-colors flex-shrink-0"
+                  aria-label="Remove attached file"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => fileInputRef.current?.click()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    fileInputRef.current?.click();
+                  }
+                }}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`flex flex-col items-center justify-center rounded-lg border border-dashed border-slate-700 bg-slate-950/60 px-4 py-4 text-center cursor-pointer transition-colors ${
+                  isDragging
+                    ? "border-amber-500 bg-slate-900"
+                    : "hover:border-slate-600 hover:bg-slate-900/60"
+                }`}
+              >
+                <UploadCloud
+                  size={18}
+                  className={`mb-1.5 ${isDragging ? "text-amber-400" : "text-slate-400"}`}
+                />
+                <div className="text-xs text-slate-300">
+                  Drag & drop a report file here, or{" "}
+                  <span className="text-amber-400 font-medium underline underline-offset-2">browse</span>
+                </div>
+                <div className="text-[11px] font-mono text-slate-500 mt-1">
+                  Supported formats: PDF, DOCX, TXT, CSV, JPG, PNG (Max 15MB)
+                </div>
+              </div>
+            )}
+            <p className="mt-1 text-[10px] text-slate-500">
+              TXT/CSV content is loaded into the narrative automatically; PDF/DOCX/IMG are attached as supporting reference.
+            </p>
           </div>
 
           {/* Sample Scenarios Buttons */}

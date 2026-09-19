@@ -1,9 +1,24 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MECHORA · Precursor Attention Signal</title>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("mechora_theme");
+          var dark = t !== "light";
+          var el = document.documentElement;
+          el.classList.toggle("dark", dark);
+          el.classList.toggle("light", !dark);
+          el.style.colorScheme = dark ? "dark" : "light";
+          el.setAttribute("data-theme", dark ? "dark" : "light");
+        } catch (e) {
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
