@@ -360,7 +360,19 @@ export default function ObservationDetail() {
                 basis={family.attention_basis}
               />
               {family.grouping_evidence && (
-                <GroupingBreakdown evidence={family.grouping_evidence} />
+                <GroupingBreakdown
+                  evidence={family.grouping_evidence}
+                  title={
+                    family.recurring
+                      ? "WHY THESE OBSERVATIONS ARE GROUPED (Structural Commonalities)"
+                      : "WHY THIS REPORT QUALIFIES AS A PRECURSOR CANDIDATE"
+                  }
+                  subtitle={
+                    family.recurring
+                      ? "Per-dimension comparison over family members"
+                      : "Single-report structural profile"
+                  }
+                />
               )}
               {family.exclusions && (
                 <ExclusionList exclusions={family.exclusions} />

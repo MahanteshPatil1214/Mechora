@@ -191,7 +191,8 @@ class RuleBasedExtractor:
                 matched["task_phase"] = self._verbatim_first(narrative, post_words)
 
         exposure, ex_span = self._exposure_for(narrative, norm)
-        matched["exposure"] = self._extract_verbatim_span(narrative, ex_span) if ex_span else ""
+        ex_evidence = self._extract_verbatim_span(narrative, ex_span) if ex_span else ""
+        matched["exposure"] = self._exposure_event_phrase(narrative, ex_evidence)
 
         barrier, bar_span, inferred = self._detect_barrier(
             narrative, norm, energy_codes
@@ -329,6 +330,22 @@ class RuleBasedExtractor:
             expanded = sent[start:keep_end]
             if len(expanded) > len(span):
                 return expanded
+        return span
+
+    def _exposure_event_phrase(self, narrative: str, span: str) -> str:
+        """Lift exposure evidence from the bare release verb to the full
+        describing sentence. ``"sprayed onto"`` alone does not tell the
+        reviewer WHAT was released; the full sentence ("A trapped slurry of
+        warm crude and sour water sprayed onto the drip pan...") carries the
+        hazard->release->exposure chain. Always verbatim; falls back to the
+        bare span when no containing sentence is found.
+        """
+        if not span or not narrative:
+            return span
+        target = re.escape(span)
+        for sent in split_sentences(narrative):
+            if re.search(r"(?<!\w)" + target + r"(?!\w)", sent, re.IGNORECASE):
+                return sent
         return span
 
     @staticmethod

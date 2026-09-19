@@ -587,7 +587,19 @@ export default function Analyze() {
 
                   {/* WHY GROUPED */}
                   {familyData.grouping_evidence && (
-                    <GroupingBreakdown evidence={familyData.grouping_evidence} />
+                    <GroupingBreakdown
+                      evidence={familyData.grouping_evidence}
+                      title={
+                        familyData.recurring
+                          ? "WHY THESE OBSERVATIONS ARE GROUPED (Structural Commonalities)"
+                          : "WHY THIS REPORT QUALIFIES AS A PRECURSOR CANDIDATE"
+                      }
+                      subtitle={
+                        familyData.recurring
+                          ? "Per-dimension comparison over family members"
+                          : "Single-report structural profile"
+                      }
+                    />
                   )}
 
                   {/* WHY NOT GROUPED */}

@@ -4,6 +4,7 @@ import { label } from "../../api.js";
 export function GroupingBreakdown({
   evidence = [],
   title = "WHY THESE OBSERVATIONS ARE GROUPED (Structural Commonalities)",
+  subtitle = "Per-dimension comparison over family members",
 }) {
   if (!evidence || evidence.length === 0) return null;
 
@@ -14,7 +15,7 @@ export function GroupingBreakdown({
           {title}
         </h3>
         <span className="text-xs text-slate-400">
-          Per-dimension comparison over family members
+          {subtitle}
         </span>
       </div>
 

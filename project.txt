@@ -1684,3 +1684,19 @@ any earlier prose where the two disagree.
   test-pinned short spans ('zero-energy', '') are untouched. Frontend shows
   ''Candidate Precursor / Pending Family Assignment'' for single-report families
   instead of ''Associated Precursor Family''.
+
+- Exposure evidence lifts to the FULL release sentence (''A trapped slurry of warm
+  crude and sour water sprayed onto the drip pan and the technician''s face
+  shield.'') instead of the bare verb (''sprayed onto''): verbatim, whole
+  sentence carrying hazard->release->exposure chain.
+- Single-report (candidate) families now read ''WHY THIS REPORT QUALIFIES AS A
+  PRECURSOR CANDIDATE'' with subtitle ''Single-report structural profile'';
+  recurring (>=2) families keep ''WHY THESE OBSERVATIONS ARE GROUPED''.
+- X-factor proof (live DB): 4 synthetic reports on 4 operations (pipeline/
+  compressor/pump/valve maintenance) with the same mechanism (energy isolation
+  not verified + pressurized gas + gas release) cluster into ONE recurring
+  family PFAM-A7CC6 (n=4, attention 83.2) — activity is the only DISTINCT
+  dimension (''differing activity allowed: mechanism is invariant''). The real
+  liquid pump report stays its own candidate family PFAM-781A4.
+  NOTE: negation-engine cue ''removed'' floored PJ state to ABSENT, so demo
+  narratives avoid it (use ''unbolted'').
