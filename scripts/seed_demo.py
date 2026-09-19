@@ -1,12 +1,17 @@
-"""Seed the demo database with representative precursor narratives.
+"""Seed the demo database with the curated SIH demo dataset.
 
-Deterministic, curateilded: combines realistic observation narratives that
-exercise the differentiator — "different stories, same failed barrier,
-recurring precursor" — plus verified positives (hard negatives), a similar
-wording / different mechanism pair (WHY NOT GROUPED), and watch-list items.
+Thin CLI over the curated-demo service. Deterministic: resets observation and
+precursor-family tables, then loads the 7-report curated dataset (segments
+plus the excluded NON-REPORT block) through the same pipeline/document path
+used by uploaded files. The dataset is SYNTHETIC / representative (not
+production OIL data) and is labelled as such in the UI.
 
-The dataset is SYNTHETIC / representative (not production OIL data). It is
-labelled as such in the UI. No evaluation metrics are produced here.
+Optional flags:
+  --no-reset   keep existing observations (skips the explicit reset step)
+  --counts     print only the deterministic summary counts (for scripting)
+
+Usage:
+    .\\.venv\\Scripts\\python scripts\\seed_demo.py
 """
 
 from __future__ import annotations
@@ -18,92 +23,48 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "backend"))
 
 from app.config import get_settings  # noqa: E402
-from app.database import repos  # noqa: E402
-from app.database.engine import backend_name, dispose, init_db  # noqa: E402
-from app.services.normalization.ontology import get_ontology  # noqa: E402
-from app.services.pipeline import AnalysisPipeline  # noqa: E402
-
-DEMO_NARRATIVES: list[tuple[str, str, str]] = [
-    # -- Group A: same failed barrier, different equipment / wording ----
-    ("A1", "FLANGE-01",
-     "During routine flange tightening on the gas line, the fitter did not "
-     "confirm zero energy before loosening the joint and a small gas release "
-     "occurred."),
-    ("A2", "COMP-01",
-     "Compressor servicing: the crew opened the casing without zero-energy "
-     "verification; isolation had not been done and a small gas release was "
-     "observed."),
-    ("A3", "VALVE-01",
-     "Valve replacement: zero energy was never checked before the joint was "
-     "opened and leaking was noticed."),
-    ("A4", "PUMP-01",
-     "Pump maintenance near the transfer station: no one verified isolation "
-     "before the flange was disconnected; a small hydrocarbon release was "
-     "noticed."),
-    # -- Group B: hot work / gas testing not completed ---------------------
-    ("B1", "HOTW-01",
-     "Hot work area: gas testing had not been completed before grinding "
-     "started; a flash fire ignited nearby rags."),
-    ("B2", "HOTW-02",
-     "Grinding operations over the tank opening: the flammable gas test was "
-     "skipped and sparks could have ignited the vapours."),
-    # -- Group C: verified positives (hard negatives) ----------------------
-    ("C1", "VER-01",
-     "Pipeline maintenance: zero pressure was confirmed and isolation "
-     "verified before the joint was opened. No issue."),
-    ("C2", "VER-02",
-     "Compressor maintenance: lockout was checked and the system proven "
-     "depressurized before work. Everything was safe."),
-    # -- Group D: mechanical barrier failure (verified != failed) ----------
-    ("D1", "FAIL-01",
-     "During hydrotest pump maintenance, the high-pressure isolation valve "
-     "ruptured and failed to hold pressure, releasing gas to atmosphere."),
-    # -- Group E: similar wording / different mechanism (WHY NOT GROUPED) --
-    ("E1", "GASLN-01",
-     "Pipeline repair: energy isolation was NOT verified before the joint "
-     "was opened; a gas leak was observed."),
-    ("E2", "GASLN-02",
-     "Pipeline repair: the preliminary flammable gas test was skipped before "
-     "the line was cracked open; a flash could occur."),
-    # -- Group F: ambiguous watch-list (NEEDS_REVIEW) -----------------------
-    ("F1", "WATCH-01",
-     "An area watch noted a strange noise near the compressor during a "
-     "routine meeting; no work was in progress."),
-]
+from app.services.demo.seed import (  # noqa: E402
+    demo_summary,
+    reset_demo,
+    seed_curated_demo,
+)
 
 
 def main() -> int:
+    args = [a for a in sys.argv[1:]]
+    reset = "--no-reset" not in args
+    counts_only = "--counts" in args
+
     settings = get_settings()
+    if reset:
+        reset_demo()
+    result = seed_curated_demo(settings)
 
-    # Reset the backing store for a deterministic demo. In auto/sqlite mode
-    # the SQLite fallback file is the backing store: remove it before the
-    init_db()
+    if counts_only:
+        print(f"seeded {result['observations_seeded']} observations -> "
+              f"{demo_summary()['observations']} in store "
+              f"({result['backend']})")
+        summary = demo_summary()
+        print(f"precursor families: {summary['precursor_families']} "
+              f"(recurring {summary['recurring_families']})")
+        for fam in summary["families"]:
+            print(f"  {fam['id']}  {fam['name']:<42} n={fam['n']} "
+                  f"recurring={fam['recurring']} type={fam['family_type']} "
+                  f"attention={fam['attention_signal']:5.2f}")
+        return 0
 
-    from sqlalchemy import delete
-    from app.database.engine import get_session
-    from app.database.tables import ObservationRow, PrecursorFamilyRow
-    with get_session() as s:
-        s.execute(delete(PrecursorFamilyRow))
-        s.execute(delete(ObservationRow))
-        s.commit()
-
-    pipeline = AnalysisPipeline(get_ontology(), settings)
-    observations = []
-    for _tag, report_id, narrative in DEMO_NARRATIVES:
-        obs = pipeline.to_observation(report_id, narrative)
-        obs.id = repos.new_observation_id(report_id)
-        observations.append(obs)
-
-    repos.bulk_create_observations(observations)
-
-    print(f"seeded {len(observations)} observations -> "
-          f"{repos.count_observations()} in store ({backend_name()})")
-    summary = repos.dashboard_summary()
+    print(f"seeded {result['observations_seeded']} observations -> "
+          f"{demo_summary()['observations']} in store ({result['backend']})")
+    summary = demo_summary()
     print(f"precursor families: {summary['precursor_families']} "
-          f"(recurring {summary['recurring_precursor_families']})")
-    for fam in repos.list_families(limit=20):
-        print(f"  {fam.id}  {fam.name:<42} n={len(fam.observation_ids)} "
-              f"recurring={fam.recurring} attention={fam.attention_signal:5.2f}")
+          f"(recurring {summary['recurring_families']})")
+    for doc in result["documents"]:
+        print(f"  {doc['report_segment_id']:<24} "
+              f"({doc['heading']:<35}) {doc['character_count']} chars")
+    for fam in summary["families"]:
+        print(f"  {fam['id']}  {fam['name']:<42} n={fam['n']} "
+              f"recurring={fam['recurring']} type={fam['family_type']} "
+              f"attention={fam['attention_signal']:5.2f}")
     return 0
 
 

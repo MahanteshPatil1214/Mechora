@@ -229,7 +229,7 @@ class RuleBasedExtractor:
             bar_evidence = state_span
         elif (not bar_evidence) and state_span:
             bar_evidence = state_span
-        matched["barrier"] = bar_evidence
+        matched["barrier"] = self._barrier_evidence_phrase(narrative, bar_evidence)
         matched["barrier_state"] = (
             sentence_containing(narrative, state_span) if state_span else ""
         )
@@ -386,6 +386,34 @@ class RuleBasedExtractor:
         return ""
 
     @staticmethod
+    def _barrier_evidence_phrase(narrative: str, span: str) -> str:
+        """Widen a bare barrier span to its complete 'before/prior to' clause.
+
+        A barrier mention that matched a short synonym ("isolation of", "zero
+        energy") becomes the whole verification clause that establishes the
+        control ("before confirming complete isolation of the pressurized gas
+        line"), always verbatim from the narrative and never crossing a
+        sentence boundary. Idempotent: a span that already IS that clause
+        ("before cracking the bleeder needle valve to confirm depressurization")
+        is returned unchanged, and spans without a leading 'before/prior to'
+        marker fall back to the original span."""
+        if not span or not narrative:
+            return span or ""
+        target = re.escape(span)
+        for sent in split_sentences(narrative):
+            m = re.search(r"(?<!\w)" + target + r"(?!\w)", sent, re.IGNORECASE)
+            if not m:
+                continue
+            for marker in ("prior to", "before"):
+                idx = sent[: m.start()].rfind(marker)
+                if idx == -1:
+                    continue
+                phrase = sent[idx:].strip().rstrip(".!?;")
+                if len(phrase) > len(span):
+                    return phrase
+        return span
+
+    @staticmethod
     def _verbatim_first(narrative: str, phrases: list[str]) -> str:
         """Return the longest verbatim narrative span matching any phrase.
 
@@ -463,8 +491,8 @@ class RuleBasedExtractor:
             ) if st.evidence_span else ""
             if (st_span and len(st_span) > len(span)
                     and span.lower() in st_span.lower()):
-                return st_span
-        return span
+                return self._barrier_evidence_phrase(narrative, st_span)
+        return self._barrier_evidence_phrase(narrative, span)
 
     @staticmethod
     def _primary_energy_priority(span: str) -> int:

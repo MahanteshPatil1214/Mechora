@@ -40,6 +40,17 @@ _RE_INSTRUCTIONAL_HEADING = re.compile(
     r"for demonstration|this document|example.?only|sample)", 
     re.IGNORECASE,
 )
+# Explicit document boundary markers: everything from such a heading onward is
+# non-report material. Matches the "NON-REPORT" heading used in uploaded demo
+# documents ("NON-REPORT / Expected Test Signals / instructions") as well as
+# other "excluded section" phrasings.
+_RE_NON_REPORT_HEADING = re.compile(
+    r"^\s*(?:non[- ]?report|non[- ]?relevant|not part of(?: the)? report|"
+    r"not a report|excluded|excluded content|excluded material|"
+    r"do not analyze|not for analysis|unrelated|appendix)"
+    r"[:\s.]?(?:$|[A-Z0-9])",
+    re.IGNORECASE,
+)
 _RE_METADATA_LABEL = re.compile(
     r"^\s*label\s*:\s+.*$", re.IGNORECASE,
 )
@@ -147,6 +158,37 @@ def _split_metadata_lines(paragraph: list[str]) -> list[Block]:
     return blocks
 
 
+def _opens_non_report(line: str) -> bool:
+    """True if ``line`` is a NON-REPORT marker or an instructional heading."""
+    return bool(
+        _RE_NON_REPORT_HEADING.match(line) or _RE_INSTRUCTIONAL_HEADING.match(line))
+
+def _split_non_report_boundaries(block: Block) -> list[Block]:
+    """Split a REPORT block at any NON-report marker.
+
+    A NON-REPORT marker or instructional heading anywhere inside a report
+    paragraph terminates the report run: the lines up to the marker stay part
+    of the report, the marker line and everything after it in the paragraph
+    become a single non-report block.
+    """
+    sub: list[Block] = []
+    run: list[str] = []
+    for i, line in enumerate(block.lines):
+        if _opens_non_report(line):
+            if run:
+                sub.append(Block(kind="report", lines=tuple(run)))
+            sub.append(Block(
+                kind="non_report",
+                heading=line,
+                lines=tuple(block.lines[i:]),
+            ))
+            return sub
+        run.append(line)
+    if run:
+        sub.append(Block(kind="report", lines=tuple(run)))
+    return sub
+
+
 class ReportSegmenter:
     """Structural segmentation of one extracted document into reports."""
 
@@ -158,15 +200,16 @@ class ReportSegmenter:
                 if blk.kind == "non_report":
                     blocks.append(blk)
                     continue
-                first = blk.lines[0] if blk.lines else ""
-                if _RE_INSTRUCTIONAL_HEADING.match(first):
-                    blocks.append(Block(
-                        kind="non_report", heading=first, lines=blk.lines))
-                elif _RE_REPORT_HEADING.match(first):
-                    blocks.append(Block(
-                        kind="report", heading=first, lines=blk.lines))
-                else:
-                    blocks.append(blk)
+                for sub in _split_non_report_boundaries(blk):
+                    if sub.kind == "non_report":
+                        blocks.append(sub)
+                        continue
+                    first = sub.lines[0] if sub.lines else ""
+                    if _RE_REPORT_HEADING.match(first):
+                        blocks.append(Block(
+                            kind="report", heading=first, lines=sub.lines))
+                    else:
+                        blocks.append(Block(kind="report", lines=sub.lines))
         return blocks
 
     def segment(self, text: str) -> list[ReportSegment]:
@@ -182,7 +225,10 @@ class ReportSegmenter:
         current: dict | None = None
         for blk in blocks:
             if blk.kind == "non_report":
-                if blk.heading and _RE_INSTRUCTIONAL_HEADING.match(blk.heading):
+                if blk.heading:
+                    # boundary marker (NON-REPORT section / instructional
+                    # heading): close any open report and swallow everything
+                    # after it up to the next report heading.
                     if current is not None:
                         segments.append(_finish(current, index=len(segments)))
                         current = None

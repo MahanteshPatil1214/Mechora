@@ -1,0 +1,23 @@
+REPORT 1 - PIPELINE MAINTENANCE
+During routine maintenance on a gas pipeline, the technician opened a flange before confirming complete isolation and zero-energy verification. A small quantity of pressurized gas escaped. No injury was reported.
+
+REPORT 2 - COMPRESSOR MAINTENANCE
+During maintenance of a nearby gas compressor, a technician began opening a valve before confirming complete isolation of the pressurized gas line. The isolation point had been identified, but zero-energy verification had not been completed. A small quantity of gas escaped. No injury was reported.
+
+REPORT 3 - PUMP MAINTENANCE
+During maintenance of a process pump, the technician loosened a connection before confirming complete isolation and zero-energy verification. Residual pressurized gas escaped from the connection. No injury was reported.
+
+REPORT 4 - VALVE REPLACEMENT
+During valve replacement on a gas service line, the worker started loosening the valve connection before verifying zero energy. Residual pressurized gas was released. No injury occurred.
+
+REPORT 5 - PUMP MAINTENANCE (LIQUID)
+During replacement of the suction strainer on crude pump P-204B, the mechanical technician loosened the bonnet studs before cracking the bleeder needle valve to confirm depressurization. A trapped slurry of warm crude and sour water sprayed onto the drip pan and the technician's face shield. No injury occurred and no medical treatment was required.
+
+REPORT 6 - VERIFIED CONTROL
+During pipeline maintenance, the isolation points were identified and locked out. Zero-energy verification was completed before work started, and pressure was confirmed at zero. No release occurred and no personnel were exposed.
+
+REPORT 7 - FAILED BARRIER
+During maintenance of a gas line, isolation was attempted but was not effective. Residual pressure remained in the line after isolation, and gas escaped when the connection was opened.
+
+NON-REPORT
+Expected Test Signals / instructions

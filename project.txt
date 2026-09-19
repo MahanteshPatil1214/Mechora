@@ -1756,3 +1756,42 @@ COMMIT: pending
   Report 2 (gas compressor) analyzed independently (never merged). "Expected Test Signals"
   block excluded from every narrative/evidence. 17 segmentation tests + updated extraction
   tests; FULL SUITE = 158 passing (SQLite, .venv).
+
+--- FINAL SIH DEMO DATASET & DEMO HARDENING ---
+- New curated demo dataset = SINGLE source of truth: data/demo/demo_reports_7.txt
+  (exactly 7 logical reports + trailing NON-REPORT / Expected Test Signals footer
+  that demos exclusion; ReportSegmenter reports() yields exactly 7). New thin CLI
+  scripts/seed_demo.py (--no-reset / --counts) -> backend/app/services/demo/seed.py:
+  curated_documents() + seed_curated_demo() + reset_demo() + demo_summary();
+  document_id=DEMO-CURATED, report_segment_id=DEMO-CURATED-SEG<n>, provider=rules
+  (deterministic). dispose() before init_db() avoids Windows SQLite file-lock on
+  repeat seed. FULL SUITE = 176 passing (163 prior + 13 new test_demo_dataset.py).
+- Ontology/extractor hardening (both rules + LLM paths):
+  * activities.json += "gas pipeline"->pipeline_maintenance, "gas compressor"->
+    compressor_maintenance, "process pump"->pump_maintenance (fix trailing comma);
+  * negation_cues.json failed group += "was not effective"/"not effective" ->
+    Report 7 (bare "was not") now FAILED not NOT_VERIFIED (no temporal_match hit,
+    failed p10 > negated p7; "not required" guard untouched = still UNKNOWN);
+  * rule_extractor._barrier_evidence_phrase(): widen bare barrier span to whole
+    verbatim "before/prior to" clause in same sentence, strip trailing .!?;,
+    idempotent for already-clause spans -> Report 2 ev="before confirming complete
+    isolation of the pressurized gas line", Report 4 ev="before verifying zero
+    energy", R1/R3/R5 unchanged (R5 still "before cracking the bleeder needle
+    valve to confirm depressurization"). Used in extract() and verbatim_span_for_code().
+- Live Postgres results (auto provider on /documents/analyze upload smoke):
+  SEG1-4 gas not_verified x4 -> PFAM-A7CC6 recurring n=4 attention=83.22
+  (WHY GROUPED: energy/barrier/barrier_state/exposure/task_phase 100% same,
+  activity distinct 4; WHY NOT GROUPED: vs F36C4 failed barrier_state, vs 418BD
+  verified, vs 781A4 liquid energy); SEG5 liquid -> PFAM-781A4 n=1;
+  SEG6 verified (exposure Unknown, "No release occurred" never a release,
+  potential Unknown) -> PFAM-418BD type=controlled excluded from precursors;
+  SEG7 "was not effective" -> PFAM-F36C4 n=1 failed. precursor families 3
+  (recurring 1). Re-run scripts/seed_demo.py after any manual upload to keep the
+  pristine 7-observation state.
+- UI wording (frontend, builds clean): GroupingBreakdown default + 3 call sites
+  (Analyze, ObservationDetail, PrecursorFamilyDetail) recurring title = "WHY THESE
+  REPORTS FORM ONE PRECURSOR PATTERN" (non-recurring stays "WHY THIS REPORT
+  QUALIFIES AS A PRECURSOR CANDIDATE"); Analyze.jsx badge now conditional
+  Recurring Precursor (rose) vs Precursor Candidate (amber); Home.jsx example
+  "Activity: 4 distinct activities". docs/DEMO_FLOW.md rewritten for 7-report
+  dataset + reset + walkthrough + dataset map + don't-demo rules.

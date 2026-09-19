@@ -80,6 +80,97 @@ def test_metadata_and_expected_signals_excluded_from_reports():
         assert "these signals indicate" not in seg.text.lower()
 
 
+NON_REPORT_TOKENS = (
+    "Expected Test Signals",
+    "Expected Signals",
+    "instructions",
+    "bubbling",
+    "hisssing",
+    "whistling",
+    "only for validation",
+    "NON-REPORT",
+)
+
+
+def _assert_zero_non_report_tokens(text: str) -> None:
+    low = text.lower()
+    for token in NON_REPORT_TOKENS:
+        assert token.lower() not in low, f"non-report token leaked: {token!r}"
+
+
+def test_report2_contains_zero_expected_signals_tokens():
+    segments = ReportSegmenter().reports(MULTI_DOC)
+    assert len(segments) == 2
+    _assert_zero_non_report_tokens(segments[1].text)
+
+
+def test_nonreport_marker_heading_terminates_report_segment():
+    # The uploaded demo document: REPORT 1 / REPORT 2 / NON-REPORT block.
+    doc = (
+        "REPORT 1\n"
+        "Pump maintenance \u2192 pressurized liquid \u2192 isolation NOT VERIFIED\n"
+        "\n"
+        "REPORT 2\n"
+        "Compressor maintenance \u2192 pressurized gas \u2192 isolation "
+        "NOT VERIFIED\n"
+        "\n"
+        "NON-REPORT\n"
+        "Expected Test Signals / instructions\n"
+    )
+    segments = ReportSegmenter().segment(doc)
+    assert [s.kind for s in segments] == ["report", "report", "non_report"]
+    assert [s.heading for s in segments] == [
+        "REPORT 1", "REPORT 2", "NON-REPORT"]
+    # Report 2 carries zero characters from the non-report block.
+    _assert_zero_non_report_tokens(segments[1].text)
+    assert segments[1].character_count == len(segments[1].text)
+    # The NON-REPORT block is one segment holding the marker + instructions.
+    assert "Expected Test Signals / instructions" in segments[2].text
+    # Character totals must not include the NON-REPORT block.
+    report_chars = sum(s.character_count for s in segments if s.kind == "report")
+    assert report_chars < len(doc)
+
+
+def test_instructional_heading_glued_to_report2_body_terminates_segment():
+    # No blank line between REPORT 2's body and the instructional block: the
+    # boundary heading must still terminate the report segment.
+    doc = (
+        "Report 2 - Gas Compressor Narrative\n"
+        f"{REPORT2}\n"
+        f"{EXPECTED_SIGNALS}\n"
+    )
+    segments = ReportSegmenter().segment(doc)
+    assert [s.kind for s in segments] == ["report", "non_report"]
+    # REPORT 2 is clean: zero tokens from the instructional block.
+    _assert_zero_non_report_tokens(segments[0].text)
+    assert "Expected Test Signals" in segments[1].text
+    assert segments[1].kind == "non_report"
+
+
+def test_nonreport_content_never_appears_in_evidence():
+    # Full pipeline (rules path) over a segmented document: non-report tokens
+    # must never surface in narrative or any field_evidence value.
+    doc = (
+        "Report 1\n"
+        f"{REPORT1}\n"
+        "\n"
+        "Report 2\n"
+        f"{REPORT2}\n"
+        f"{EXPECTED_SIGNALS}\n"
+    )
+    segments = ReportSegmenter().reports(doc)
+    assert len(segments) == 2
+    for seg in segments:
+        event = AnalysisPipeline(get_ontology(), get_settings()).analyze(
+            "R2", seg.text, provider="rules"
+        ).event
+        _assert_zero_non_report_tokens(seg.text)
+        assert "NON-REPORT" not in event.narrative
+        for evidence in event.field_evidence.values():
+            if evidence:
+                _assert_zero_non_report_tokens(evidence)
+
+
 def test_heading_not_included_in_report_narrative():
     segments = ReportSegmenter().reports(MULTI_DOC)
     assert not segments[0].text.startswith("Report 1")

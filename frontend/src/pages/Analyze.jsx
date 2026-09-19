@@ -942,8 +942,14 @@ export default function Analyze() {
                     <span className="font-mono text-xs font-bold text-amber-400">
                       {result.precursor_family_id}
                     </span>
-                    <span className="rounded bg-rose-500/15 border border-rose-500/30 px-1.5 py-0.2 text-[10px] font-bold text-rose-300 uppercase">
-                      Recurring Precursor
+                    <span
+                      className={
+                        familyData?.recurring
+                          ? "rounded bg-rose-500/15 border border-rose-500/30 px-1.5 py-0.2 text-[10px] font-bold text-rose-300 uppercase"
+                          : "rounded bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.2 text-[10px] font-bold text-amber-300 uppercase"
+                      }
+                    >
+                      {familyData?.recurring ? "Recurring Precursor" : "Precursor Candidate"}
                     </span>
                   </div>
                   <h3 className="mt-1 text-base font-bold text-white">
@@ -974,7 +980,7 @@ export default function Analyze() {
                       evidence={familyData.grouping_evidence}
                       title={
                         familyData.recurring
-                          ? "WHY THESE OBSERVATIONS ARE GROUPED (Structural Commonalities)"
+                          ? "WHY THESE REPORTS FORM ONE PRECURSOR PATTERN"
                           : "WHY THIS REPORT QUALIFIES AS A PRECURSOR CANDIDATE"
                       }
                       subtitle={

@@ -370,7 +370,7 @@ export default function PrecursorFamilyDetail() {
               evidence={family.grouping_evidence}
               title={
                 family.recurring
-                  ? "WHY THESE OBSERVATIONS ARE GROUPED (Structural Commonalities)"
+                  ? "WHY THESE REPORTS FORM ONE PRECURSOR PATTERN"
                   : "WHY THIS REPORT QUALIFIES AS A PRECURSOR CANDIDATE"
               }
               subtitle={

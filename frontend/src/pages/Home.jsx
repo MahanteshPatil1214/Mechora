@@ -239,7 +239,7 @@ export default function Home() {
               <div>✓ Energy: Pressurized Gas (100% agreement)</div>
               <div>✓ Barrier: Energy Isolation (100% agreement)</div>
               <div>✓ Barrier State: Not Verified (100% agreement)</div>
-              <div>△ Activity: 3 distinct activities (Cross-equipment divergence)</div>
+              <div>△ Activity: 4 distinct activities (Cross-equipment divergence)</div>
             </div>
           </div>
 

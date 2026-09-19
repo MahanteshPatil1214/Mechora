@@ -3,7 +3,7 @@ import { label } from "../../api.js";
 
 export function GroupingBreakdown({
   evidence = [],
-  title = "WHY THESE OBSERVATIONS ARE GROUPED (Structural Commonalities)",
+  title = "WHY THESE REPORTS FORM ONE PRECURSOR PATTERN",
   subtitle = "Per-dimension comparison over family members",
 }) {
   if (!evidence || evidence.length === 0) return null;
