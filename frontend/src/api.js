@@ -779,6 +779,29 @@ export const api = {
     }
   },
 
+  // Upload a PDF/DOCX/TXT report; the backend extracts plain text and returns
+  // { filename, file_type, text, character_count }. Uses raw multipart so the
+  // browser can set the FormData boundary.
+  extractDocument: async (file) => {
+    const form = new FormData();
+    form.append("file", file);
+    const res = await fetch(`${base}/documents/extract`, {
+      method: "POST",
+      body: form,
+    });
+    if (!res.ok) {
+      let detail = res.statusText;
+      try {
+        const err = await res.json();
+        detail = err.detail || detail;
+      } catch {
+        /* surface raw status text */
+      }
+      throw new Error(detail);
+    }
+    return res.json();
+  },
+
   analyze: async (payload) => {
     try {
       return await request("/analyze", {

@@ -45,6 +45,13 @@ class Settings(BaseSettings):
 
     report_id_prefix: str = "OBS"
 
+    # --- Document upload ---
+    # Uploaded report files (PDF/DOCX/TXT) are validated against these caps.
+    # The character budget aligns with the AnalyzeRequest.narrative max_length so
+    # extracted text always fits the existing single analysis path.
+    max_upload_bytes: int = 15 * 1024 * 1024  # max raw upload size (15 MB)
+    max_document_characters: int = 3000  # max extracted text given to the analyzer
+
     @property
     def sqlite_fallback_url(self) -> str:
         return f"sqlite:///{Path(self.sqlite_fallback_path).as_posix()}"

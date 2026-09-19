@@ -373,3 +373,22 @@ class AnalysisPipeline:
             })
         from app.models.safety_event import Evidence
         return [Evidence(**r) for r in evidence_records]
+
+
+# Shared lazily-initialized pipeline. Every analysis route (manual JSON input or
+# uploaded documents) funnels through this single instance so extraction,
+# evidence grounding and persistence behave identically everywhere.
+_pipeline_instance: AnalysisPipeline | None = None
+
+
+def get_pipeline(settings=None) -> AnalysisPipeline:
+    """Return the shared :class:`AnalysisPipeline` (created on first call)."""
+    global _pipeline_instance
+    if _pipeline_instance is None:
+        from app.config import get_settings
+        from app.services.normalization.ontology import get_ontology
+
+        _pipeline_instance = AnalysisPipeline(
+            get_ontology(), settings or get_settings()
+        )
+    return _pipeline_instance

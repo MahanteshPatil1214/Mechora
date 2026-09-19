@@ -1,43 +1,40 @@
-"""Narrative analysis endpoint (extract + validate + persist)."""
+"""Narrative analysis endpoint (extract + validate + persist).
+
+The single analysis path: every route that analyses text (manual JSON input or
+an uploaded document) funnels through :func:`run_analysis_and_save`, which runs
+:class:`AnalysisPipeline` and persists one observation.
+"""
 
 from __future__ import annotations
+
+import uuid
 
 from fastapi import APIRouter, HTTPException
 
 from app.config import get_settings
 from app.database import repos
 from app.schemas.api import AnalyzeRequest, AnalyzeResponse
-from app.services.normalization.ontology import get_ontology
-from app.services.pipeline import AnalysisPipeline
+from app.services.pipeline import get_pipeline
 
 router = APIRouter(tags=["analyze"])
 
-_pipeline: AnalysisPipeline | None = None
 
-
-def _get_pipeline() -> AnalysisPipeline:
-    global _pipeline
-    if _pipeline is None:
-        _pipeline = AnalysisPipeline(get_ontology(), get_settings())
-    return _pipeline
-
-
-import uuid
-
-
-@router.post("/analyze", response_model=AnalyzeResponse)
-def analyze(req: AnalyzeRequest) -> AnalyzeResponse:
-    raw_id = (req.report_id or "REPORT-UNASSIGNED").strip()[:100]
-    report_id = f"{raw_id}-{uuid.uuid4().hex[:6]}" if (not raw_id or raw_id == "REPORT-UNASSIGNED") else raw_id
-    pipeline = _get_pipeline()
+def run_analysis_and_save(
+    report_id: str | None, narrative: str, provider: str | None = None
+) -> AnalyzeResponse:
+    raw_id = (report_id or "REPORT-UNASSIGNED").strip()[:100]
+    report_id = (
+        f"{raw_id}-{uuid.uuid4().hex[:6]}"
+        if (not raw_id or raw_id == "REPORT-UNASSIGNED")
+        else raw_id
+    )
+    pipeline = get_pipeline(get_settings())
     try:
-        result = pipeline.analyze(report_id, req.narrative, provider=req.provider)
+        result = pipeline.analyze(report_id, narrative, provider=provider)
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=500, detail=f"analysis failed: {exc}") from exc
 
-    obs = pipeline.to_observation(
-        report_id, req.narrative, provider=req.provider
-    )
+    obs = pipeline.to_observation(report_id, narrative, provider=provider)
     saved = repos.create_observation(obs)
 
     return AnalyzeResponse(
@@ -52,3 +49,8 @@ def analyze(req: AnalyzeRequest) -> AnalyzeResponse:
         event=saved.event.model_dump(),
         precursor_family_id=saved.precursor_family_id,
     )
+
+
+@router.post("/analyze", response_model=AnalyzeResponse)
+def analyze(req: AnalyzeRequest) -> AnalyzeResponse:
+    return run_analysis_and_save(req.report_id, req.narrative, req.provider)

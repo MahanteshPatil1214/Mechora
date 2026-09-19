@@ -56,9 +56,14 @@ export default function Analyze() {
   const [familyData, setFamilyData] = useState(null);
   const [attachedFile, setAttachedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [extracting, setExtracting] = useState(false);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
   const resultRef = useRef(null);
+
+  const isUploadError =
+    typeof error === "string" &&
+    /upload|extract|file type|size limit|limit|document/i.test(error);
 
   const handleAutoGenerateId = () => {
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
@@ -81,39 +86,49 @@ export default function Analyze() {
     setResult(null);
     setFamilyData(null);
     setAttachedFile(null);
+    setExtracting(false);
+    setIsDragging(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
-  const readTextIntoNarrative = (file) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const text = event.target?.result;
-      if (text && typeof text === "string" && !narrative.trim()) {
-        setNarrative(text.slice(0, 1500));
+  const extractFile = async (file) => {
+    setError("");
+    setIsDragging(false);
+    setExtracting(true);
+    try {
+      const body = await api.extractDocument(file);
+      if (body?.text) {
+        setNarrative((prev) => (prev.trim() ? prev : body.text));
       }
-    };
-    reader.readAsText(file);
+      setAttachedFile({
+        name: body.filename,
+        chars: body.character_count,
+        fileType: body.file_type,
+      });
+    } catch (err) {
+      setError(`File upload failed: ${err.message}`);
+      setAttachedFile(null);
+    } finally {
+      setExtracting(false);
+    }
   };
 
-  const isReadableTextFile = (file) =>
-    file.type.includes("text") ||
-    file.name.endsWith(".txt") ||
-    file.name.endsWith(".csv") ||
-    file.name.endsWith(".md");
+  const isSupportedUpload = (filename) =>
+    /\.(pdf|docx|txt)$/i.test(filename || "");
+
+  const extractUploadedFile = (file) => {
+    if (!file) return;
+    if (!isSupportedUpload(file.name)) {
+      setError("Unsupported file type — please upload a .pdf, .docx, or .txt report.");
+      return;
+    }
+    extractFile(file);
+  };
 
   const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (isReadableTextFile(file)) {
-      readTextIntoNarrative(file);
-    }
-    setAttachedFile({
-      name: file.name,
-      size: (file.size / 1024).toFixed(1) + " KB",
-      type: file.type || "application/octet-stream",
-    });
+    extractUploadedFile(e.target.files?.[0]);
   };
 
   const handleDragOver = (e) => {
@@ -129,16 +144,7 @@ export default function Analyze() {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (!file) return;
-    if (isReadableTextFile(file)) {
-      readTextIntoNarrative(file);
-    }
-    setAttachedFile({
-      name: file.name,
-      size: (file.size / 1024).toFixed(1) + " KB",
-      type: file.type || "application/octet-stream",
-    });
+    extractUploadedFile(e.dataTransfer.files?.[0]);
   };
 
   const handleRemoveFile = () => {
@@ -289,9 +295,9 @@ export default function Analyze() {
               ref={fileInputRef}
               type="file"
               className="hidden"
-              accept=".pdf,.docx,.txt,.csv,.md,.jpg,.jpeg,.png"
+              accept=".pdf,.docx,.txt"
               onChange={handleFileChange}
-              disabled={busy}
+              disabled={busy || extracting}
             />
             {attachedFile ? (
               <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2">
@@ -299,7 +305,9 @@ export default function Analyze() {
                   <FileText size={15} className="text-amber-400 flex-shrink-0" />
                   <div className="min-w-0">
                     <div className="text-xs font-medium text-slate-200 truncate">{attachedFile.name}</div>
-                    <div className="text-[10px] font-mono text-slate-400">{attachedFile.size}</div>
+                    <div className="text-[10px] font-mono text-slate-400">
+                      {attachedFile.fileType?.toUpperCase()} · {attachedFile.chars} characters extracted
+                    </div>
                   </div>
                 </div>
                 <button
@@ -315,37 +323,55 @@ export default function Analyze() {
               <div
                 role="button"
                 tabIndex={0}
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => {
+                  if (!busy && !extracting) {
+                    fileInputRef.current?.click();
+                  }
+                }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
-                    fileInputRef.current?.click();
+                    if (!busy && !extracting) {
+                      fileInputRef.current?.click();
+                    }
                   }
                 }}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                className={`flex flex-col items-center justify-center rounded-lg border border-dashed border-slate-700 bg-slate-950/60 px-4 py-4 text-center cursor-pointer transition-colors ${
+                className={`flex flex-col items-center justify-center rounded-lg border border-dashed px-4 py-4 text-center transition-colors ${
                   isDragging
                     ? "border-amber-500 bg-slate-900"
-                    : "hover:border-slate-600 hover:bg-slate-900/60"
-                }`}
+                    : "border-slate-700 bg-slate-950/60 hover:border-slate-600 hover:bg-slate-900/60"
+                } ${busy || extracting ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
               >
                 <UploadCloud
                   size={18}
                   className={`mb-1.5 ${isDragging ? "text-amber-400" : "text-slate-400"}`}
                 />
                 <div className="text-xs text-slate-300">
-                  Drag & drop a report file here, or{" "}
-                  <span className="text-amber-400 font-medium underline underline-offset-2">browse</span>
+                  {extracting ? (
+                    <>Extracting text…</>
+                  ) : (
+                    <>
+                      Drag & drop a report file here, or{" "}
+                      <span className="text-amber-400 font-medium underline underline-offset-2">browse</span>
+                    </>
+                  )}
                 </div>
                 <div className="text-[11px] font-mono text-slate-500 mt-1">
-                  Supported formats: PDF, DOCX, TXT, CSV, JPG, PNG (Max 15MB)
+                  Supported formats: PDF, DOCX, TXT (Max 15MB)
                 </div>
               </div>
             )}
             <p className="mt-1 text-[10px] text-slate-500">
-              TXT/CSV content is loaded into the narrative automatically; PDF/DOCX/IMG are attached as supporting reference.
+              Extracted text is loaded into the narrative box below — review and edit it before analyzing.
             </p>
+            {isUploadError && (
+              <p className="mt-2 flex items-start gap-1.5 text-[11px] text-rose-300">
+                <AlertTriangle size={13} className="text-rose-400 mt-0.5 flex-shrink-0" />
+                <span>{error}</span>
+              </p>
+            )}
           </div>
 
           {/* Sample Scenarios Buttons */}
@@ -421,7 +447,9 @@ export default function Analyze() {
         <div className="rounded-lg border border-rose-500/30 bg-rose-500/10 p-4 text-xs text-rose-300 flex items-start gap-2">
           <AlertTriangle size={16} className="text-rose-400 mt-0.5 flex-shrink-0" />
           <div>
-            <div className="font-semibold">Analysis Failed</div>
+            <div className="font-semibold">
+              {isUploadError ? "File Upload Failed" : "Analysis Failed"}
+            </div>
             <p className="mt-0.5 text-rose-300/80">{error}</p>
           </div>
         </div>
