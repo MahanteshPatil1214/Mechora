@@ -3,7 +3,7 @@
   "exposures": [
     {
       "code": "uncontrolled_gas_release",
-      "label": "Uncontrolled Gas / Liquid Release",
+      "label": "Uncontrolled Gas Release",
       "severity_rank": 4,
       "synonyms": [
         "gas release",
@@ -37,21 +37,32 @@
         "pressure present",
         "residual pressure",
         "releasing gas",
-        "releasing gas to atmosphere",
-        "sprayed",
+        "releasing gas to atmosphere"
+      ]
+    },
+    {
+      "code": "uncontrolled_liquid_release",
+      "label": "Uncontrolled Hazardous Liquid Release",
+      "severity_rank": 4,
+      "synonyms": [
+        "hazardous liquid release",
+        "liquid release",
+        "hazardous fluid release",
+        "liquid splash",
         "sprayed onto",
         "sprayed out",
         "sprayed across",
+        "sprayed",
+        "slurry was released",
+        "slurry released",
+        "splashed",
+        "fluid splashed",
+        "was sprayed",
+        "released onto",
         "spurted",
         "spurting",
         "spewed",
-        "spewing",
-        "liquid splash",
-        "splashed",
-        "fluid splashed",
-        "slurry was released",
-        "released onto",
-        "was sprayed"
+        "spewing"
       ]
     },
     {

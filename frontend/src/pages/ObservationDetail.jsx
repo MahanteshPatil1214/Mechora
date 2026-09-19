@@ -327,12 +327,20 @@ export default function ObservationDetail() {
             <div>
               <div className="flex items-center gap-2">
                 <Network size={16} className="text-amber-400" />
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                  Associated Precursor Family: {family?.name || obs.precursor_family_id}
-                </h3>
+                {family?.recurring ? (
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                    Associated Precursor Family: {family?.name || obs.precursor_family_id}
+                  </h3>
+                ) : (
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                    Candidate Precursor / Pending Family Assignment
+                  </h3>
+                )}
               </div>
               <p className="text-xs text-slate-400 mt-0.5">
-                Grouped based on identical failed barrier ({label(event.barrier)}) and hazardous energy.
+                {family?.recurring
+                  ? `Grouped based on identical failed barrier (${label(event.barrier)}) and hazardous energy.`
+                  : `Only one report so far — a recurring precursor family needs ${"\u2265"}2 structurally compatible reports sharing this failed barrier (${label(event.barrier)}) and energy.`}
               </p>
             </div>
             <Link

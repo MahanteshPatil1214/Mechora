@@ -1671,3 +1671,16 @@ any earlier prose where the two disagree.
   `maintenance`, killing the spurious `pre_job` inference); primary energy
   prefers a SUBSTANCE-marked span over generic pressure-state wording; the
   "work progressed before before ..." double-word bug is fixed.
+
+- Evidence-span refinements (liquid release): exposures split into a dedicated
+  \uncontrolled_liquid_release\ code (Label ''Uncontrolled Hazardous Liquid
+  Release'', rank 4, liquid-splash/spray verbs); \uncontrolled_gas_release\ is back
+  to pure gas wording. Energy evidence expands to its full descriptive noun
+  phrase (''sour water'' -> ''A trapped slurry of warm crude and sour water'',
+  capped by a continuation lexicon so it never crosses an action/release verb).
+  Barrier evidence upgrades to the state/verification phrase ONLY when that
+  phrase verbatim-wraps the direct barrier word ('before cracking the bleeder
+  needle valve to confirm depressurization' > bare ''depressurization'') so
+  test-pinned short spans ('zero-energy', '') are untouched. Frontend shows
+  ''Candidate Precursor / Pending Family Assignment'' for single-report families
+  instead of ''Associated Precursor Family''.

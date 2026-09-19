@@ -95,6 +95,21 @@ _GENERIC_PRESSURE_MARKERS = (
     "pressure", "pressurized system", "pressurised system",
 )
 
+# Energy evidence is the noun phrase naming the CONTAINED HAZARD, so the
+# matched substance word is expanded to its full descriptive phrase ("warm
+# crude and sour water" -> "trapped slurry of warm crude and sour water") but
+# never across an action/release verb ("sprayed onto the drip pan...").
+_HAZARD_CONTINUE_WORDS = {
+    "a", "an", "the", "of", "and", "or", "in", "on", "at", "from", "within",
+    "with", "trapped", "contained", "stored", "captured", "residual",
+    "remaining", "retained", "pressurized", "pressurised", "hazardous",
+    "flammable", "combustible", "toxic", "corrosive", "hot", "warm", "cold",
+    "wet", "stagnant", "slurry", "crude", "oil", "water", "sour", "acid",
+    "gas", "vapour", "vapor", "hydrocarbon", "liquid", "condensate", "sludge",
+    "mud",
+}
+_WORD = re.compile(r"[A-Za-z0-9]+(?:['-][A-Za-z0-9]+)*")
+
 
 class RuleBasedExtractor:
     """Extracts structured safety attributes with deterministic rules."""
@@ -128,9 +143,12 @@ class RuleBasedExtractor:
             energies = ["flammable_atmosphere"]
             en_spans = {"flammable_atmosphere": "hot work"}
         primary_energy = self._pick_primary(energies, en_spans, "energy")
-        matched["energy"] = self._extract_verbatim_span(
-            narrative, en_spans.get(primary_energy, "")
-        ) if primary_energy in en_spans else ""
+        matched["energy"] = self._expand_hazard_span(
+            narrative,
+            self._extract_verbatim_span(
+                narrative, en_spans.get(primary_energy, "")
+            ) if primary_energy in en_spans else "",
+        )
         energy_codes = [e for e in energies]
 
         # Task-phase inference: a known activity always implies an active job
@@ -183,9 +201,28 @@ class RuleBasedExtractor:
         # Barrier state: negation engine is authoritative.
         state_result = self.negation.classify_barrier(barrier, narrative)
         barrier_state = state_result.state
-        matched["barrier_state"] = self._extract_verbatim_span(
+        state_span = self._extract_verbatim_span(
             narrative, state_result.evidence_span
         ) if state_result.evidence_span else ""
+        # Attachment: when the verification phrase that grounds the barrier
+        # STATE literally wraps the bare barrier word AND is verbatim in the
+        # narrative, attach the state phrase — it names the specific control so
+        # it is better evidence than the bare barrier synonym. In "before
+        # cracking the bleeder needle valve to confirm depressurization", the
+        # phrase contains the direct barrier mention "depressurization", so the
+        # full phrase is attached; "Zero-energy was never confirmed" keeps
+        # "zero-energy" because the state span ("never confirmed") does NOT
+        # contain it.
+        bar_evidence = matched["barrier"]
+        if (
+            bar_evidence
+            and state_span
+            and len(state_span) > len(bar_evidence)
+            and bar_evidence.lower() in state_span.lower()
+        ):
+            bar_evidence = state_span
+        matched["barrier"] = bar_evidence
+        matched["barrier_state"] = state_span
         state_confidence = state_result.confidence
 
         consequence, c_span = self._detect_category2(narrative, "consequence")
@@ -256,6 +293,43 @@ class RuleBasedExtractor:
                 codes.append(c_code)
                 spans[c_code] = c_span
         return codes, spans
+
+    def _expand_hazard_span(self, narrative: str, span: str) -> str:
+        """Expand a matched hazard word to its full descriptive phrase.
+
+        Example: the energy evidence "sour water" becomes "trapped slurry of
+        warm crude and sour water" by absorbing the descriptive noun phrase
+        that precedes it, but the expansion is capped by a curated continuation
+        lexicon so it never crosses an action/release verb ("sprayed onto the
+        drip pan..."). The expanded span is always verbatim in the narrative.
+        """
+        if not span or not narrative:
+            return span
+        target = re.escape(span)
+        for sent in split_sentences(narrative):
+            m = re.search(r"(?<!\w)" + target + r"(?!\w)", sent, re.IGNORECASE)
+            if not m:
+                continue
+            before = sent[: m.start()]
+            after = sent[m.end() :]
+            words_left = [(w.group(0), w.start()) for w in _WORD.finditer(before)]
+            words_right = [(w.group(0), w.start()) for w in _WORD.finditer(after)]
+            start = m.start()
+            for i in range(len(words_left) - 1, -1, -1):
+                if normalize_text(words_left[i][0]) in _HAZARD_CONTINUE_WORDS:
+                    start = words_left[i][1]
+                else:
+                    break
+            keep_end = m.end()
+            for w, pos in words_right:
+                if normalize_text(w) in _HAZARD_CONTINUE_WORDS:
+                    keep_end = pos + len(w)
+                else:
+                    break
+            expanded = sent[start:keep_end]
+            if len(expanded) > len(span):
+                return expanded
+        return span
 
     @staticmethod
     def _extract_verbatim_span(narrative: str, phrase: str) -> str:
