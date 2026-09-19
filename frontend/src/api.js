@@ -779,13 +779,41 @@ export const api = {
     }
   },
 
-  // Upload a PDF/DOCX/TXT report; the backend extracts plain text and returns
-  // { filename, file_type, text, character_count }. Uses raw multipart so the
-  // browser can set the FormData boundary.
+  // Upload a PDF/DOCX/TXT report; the backend extracts plain text, SEGMENTS it,
+  // and returns { filename, file_type, text, character_count, report_count,
+  // segments:[{index, kind, heading, text, character_count}] }. Non-report
+  // segments (kind "non_report") are excluded from analysis.
   extractDocument: async (file) => {
     const form = new FormData();
     form.append("file", file);
     const res = await fetch(`${base}/documents/extract`, {
+      method: "POST",
+      body: form,
+    });
+    if (!res.ok) {
+      let detail = res.statusText;
+      try {
+        const err = await res.json();
+        detail = err.detail || detail;
+      } catch {
+        /* surface raw status text */
+      }
+      throw new Error(detail);
+    }
+    return res.json();
+  },
+
+  // Upload then ANALYZE each report segment independently. Every report
+  // segment in the document gets its own observation (report_id=<doc>-SEG<n>).
+  // Returns { document_id, report_count, analyses:[{report_segment_id,
+  // segment_index, heading, analysis, error}], observations_created }.
+  analyzeDocument: async (file, { reportId = "", provider = "" } = {}) => {
+    const form = new FormData();
+    form.append("file", file);
+    const qs = new URLSearchParams();
+    if (reportId) qs.set("report_id", reportId);
+    if (provider) qs.set("provider", provider);
+    const res = await fetch(`${base}/documents/analyze${qs.toString() ? `?${qs}` : ""}`, {
       method: "POST",
       body: form,
     });

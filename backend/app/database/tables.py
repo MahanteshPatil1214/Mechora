@@ -37,6 +37,10 @@ class ObservationRow(Base):
 
     id: Mapped[str] = mapped_column(String(40), primary_key=True)
     report_id: Mapped[str] = mapped_column(String(40), unique=True, index=True)
+    # Document segmentation traceability (see Observation model).
+    document_id: Mapped[str] = mapped_column(String(100), default="", index=True)
+    report_segment_id: Mapped[str] = mapped_column(String(40), default="", index=True)
+    segment_index: Mapped[int | None] = mapped_column(Integer, default=None, index=False)
     narrative: Mapped[str] = mapped_column(Text, default="")
     provider: Mapped[str] = mapped_column(String(12), default="rules")
     requested_provider: Mapped[str] = mapped_column(String(12), default="auto")

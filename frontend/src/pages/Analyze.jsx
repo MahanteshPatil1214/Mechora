@@ -15,6 +15,7 @@ import {
   ExternalLink,
   UploadCloud,
   X,
+  Layers,
 } from "lucide-react";
 import { api, label } from "../api.js";
 import { PageHeader } from "../components/common/PageHeader.jsx";
@@ -57,6 +58,8 @@ export default function Analyze() {
   const [attachedFile, setAttachedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [extracting, setExtracting] = useState(false);
+  const [segments, setSegments] = useState([]);
+  const [batch, setBatch] = useState(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
   const resultRef = useRef(null);
@@ -88,6 +91,8 @@ export default function Analyze() {
     setAttachedFile(null);
     setExtracting(false);
     setIsDragging(false);
+    setSegments([]);
+    setBatch(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -97,19 +102,31 @@ export default function Analyze() {
     setError("");
     setIsDragging(false);
     setExtracting(true);
+    setBatch(null);
     try {
       const body = await api.extractDocument(file);
-      if (body?.text) {
-        setNarrative((prev) => (prev.trim() ? prev : body.text));
-      }
+      const segs = Array.isArray(body?.segments) ? body.segments : [];
+      setSegments(segs);
+      setBatch(null);
       setAttachedFile({
         name: body.filename,
         chars: body.character_count,
         fileType: body.file_type,
+        file,
+        reportCount: body.report_count || 0,
       });
+      const reportSegs = segs.filter((s) => s.kind === "report");
+      if (reportSegs.length === 1) {
+        setNarrative(reportSegs[0].text);
+      } else if (reportSegs.length > 1) {
+        setNarrative("");
+      } else if (!narrative.trim()) {
+        setNarrative(body?.text || "");
+      }
     } catch (err) {
       setError(`File upload failed: ${err.message}`);
       setAttachedFile(null);
+      setSegments([]);
     } finally {
       setExtracting(false);
     }
@@ -149,10 +166,80 @@ export default function Analyze() {
 
   const handleRemoveFile = () => {
     setAttachedFile(null);
+    setSegments([]);
+    setBatch(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
+
+  const loadSegmentIntoNarrative = (seg) => {
+    setNarrative(seg.text);
+    setError("");
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  };
+
+  const loadBatchResult = async (item) => {
+    setResult(item?.analysis || null);
+    setFamilyData(null);
+    if (item?.analysis?.precursor_family_id) {
+      try {
+        const fam = await api.family(item.analysis.precursor_family_id);
+        setFamilyData(fam);
+      } catch {
+        /* ignore */
+      }
+    }
+    setTimeout(() => {
+      resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 60);
+  };
+
+  const handleBatchAnalyze = async () => {
+    const file = attachedFile?.file;
+    if (!file || busy) return;
+    setBusy(true);
+    setError("");
+    setResult(null);
+    setFamilyData(null);
+    try {
+      const res = await api.analyzeDocument(file, {
+        reportId: reportId.trim(),
+        provider,
+      });
+      const items = (res.analyses || [])
+        .filter((a) => a.analysis)
+        .map((a) => ({ segment: a, analysis: a.analysis }));
+      const errored = (res.analyses || []).filter((a) => a.error);
+      setBatch({
+        documentId: res.document_id,
+        items,
+        errored,
+      });
+      const first = items[0]?.analysis || null;
+      setResult(first);
+      if (first?.precursor_family_id) {
+        try {
+          const fam = await api.family(first.precursor_family_id);
+          setFamilyData(fam);
+        } catch {
+          /* ignore */
+        }
+      }
+      setTimeout(() => {
+        resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    } catch (err) {
+      setError(err.message || "Document analysis failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const reportSegments = segments.filter((s) => s.kind === "report");
+  const nonReportCount = segments.length - reportSegments.length;
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
@@ -364,7 +451,8 @@ export default function Analyze() {
               </div>
             )}
             <p className="mt-1 text-[10px] text-slate-500">
-              Extracted text is loaded into the narrative box below — review and edit it before analyzing.
+              Each report segment in the document is analyzed independently; headings, metadata and
+              "Expected Test Signals" blocks are excluded from analysis and evidence.
             </p>
             {isUploadError && (
               <p className="mt-2 flex items-start gap-1.5 text-[11px] text-rose-300">
@@ -373,6 +461,96 @@ export default function Analyze() {
               </p>
             )}
           </div>
+
+          {/* Segmented Document Panel */}
+          {segments.length > 0 && (
+            <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Layers size={14} className="text-amber-400" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                    Segmented Document
+                  </span>
+                </div>
+                <span className="text-[11px] font-mono text-slate-400">
+                  {reportSegments.length} report{reportSegments.length === 1 ? "" : "s"}
+                  {nonReportCount > 0 ? ` · ${nonReportCount} non-report block${nonReportCount === 1 ? "" : "s"} excluded` : ""}
+                </span>
+              </div>
+
+              <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
+                {segments.map((seg) => (
+                  <div
+                    key={seg.index}
+                    className={`flex items-center justify-between gap-2 rounded border px-2 py-1.5 ${
+                      seg.kind === "report"
+                        ? "border-amber-500/25 bg-amber-500/5"
+                        : "border-slate-800 bg-slate-900/50 opacity-70"
+                    }`}
+                  >
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                            seg.kind === "report"
+                              ? "bg-amber-500/15 text-amber-300"
+                              : "bg-slate-700 text-slate-400"
+                          }`}
+                        >
+                          {seg.kind}
+                        </span>
+                        {seg.heading ? (
+                          <span className="text-[11px] font-medium text-slate-200 truncate">
+                            {seg.heading}
+                          </span>
+                        ) : (
+                          <span className="text-[11px] text-slate-500 font-mono">
+                            block {seg.index}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[10px] font-mono text-slate-500 truncate mt-0.5">
+                        {seg.text.trim().slice(0, 120)}
+                        {seg.text.trim().length > 120 ? "…" : ""}
+                      </div>
+                    </div>
+                    {seg.kind === "report" && (
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <span className="text-[10px] font-mono text-slate-500">
+                          {seg.character_count}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => loadSegmentIntoNarrative(seg)}
+                          className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-[10px] font-semibold text-slate-300 hover:text-amber-400 hover:border-amber-500/40 transition-colors"
+                        >
+                          Load
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {reportSegments.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleBatchAnalyze}
+                  disabled={busy}
+                  className="flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-2 text-xs font-bold text-slate-950 hover:bg-amber-500 disabled:opacity-40 transition-colors shadow-sm w-full justify-center"
+                >
+                  {busy ? (
+                    <span>Analyzing All Reports…</span>
+                  ) : (
+                    <>
+                      <Play size={13} className="fill-current" />
+                      <span>Analyze all {reportSegments.length} report{reportSegments.length === 1 ? "" : "s"}</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Sample Scenarios Buttons */}
           <div className="space-y-1.5">
@@ -475,6 +653,44 @@ export default function Analyze() {
       {/* 3. Results Section (Rendered directly below the form) */}
       {result && (
         <div ref={resultRef} className="space-y-6 pt-2">
+          {/* Batch Segment Switcher */}
+          {batch && batch.items.length > 0 && (
+            <div className="rounded-lg border border-slate-800 bg-slate-900 p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 flex items-center gap-1.5">
+                  <Layers size={12} className="text-amber-400" />
+                  Document {batch.documentId} — {batch.items.length} independent analysis
+                  {batch.items.length === 1 ? "" : "ies"}
+                </span>
+                {batch.errored.length > 0 && (
+                  <span className="text-[10px] font-mono text-rose-400">
+                    {batch.errored.length} failed
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {batch.items.map((item, idx) => (
+                  <button
+                    key={item.segment.report_segment_id}
+                    type="button"
+                    onClick={() => loadBatchResult(item)}
+                    className={`flex items-center gap-1.5 rounded border px-2.5 py-1.5 text-[11px] font-semibold transition-colors ${
+                      result?.id === item.analysis?.id
+                        ? "border-amber-500/50 bg-amber-500/10 text-amber-300"
+                        : "border-slate-700 bg-slate-950 text-slate-300 hover:text-white hover:bg-slate-850"
+                    }`}
+                  >
+                    <span className="font-mono text-[10px] text-slate-400">#{idx + 1}</span>
+                    <span className="truncate max-w-[220px]">
+                      {item.segment.heading ||
+                        `Report ${item.segment.segment_index}`}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Section Header */}
           <div className="flex items-center justify-between border-b border-slate-800 pb-2">
             <div>

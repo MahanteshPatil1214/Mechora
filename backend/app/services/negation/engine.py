@@ -57,6 +57,26 @@ _NEGATED_OUTCOME_REGEXES = (
     _RE_NEGATED_OUTCOME_NOAUX,
 )
 
+# Negated HARM / consequence statements: "no injury occurred", "no medical
+# treatment was required", "no injuries were sustained", "nobody was hurt".
+# Like a negated outcome, a negated consequence is a NON-consequence: it must
+# NEVER be converted back into a positive actual-consequence value ("no
+# medical treatment" is not evidence that medical treatment happened).
+_RE_NEGATED_CONSEQUENCE = re.compile(
+    r"\b(?:no|nothing|never|without|not)\s+(?:[\w-]+\s+){0,4}"
+    r"(?:injur\w*|accident\w*|harm\w*|damag\w*|fatalit\w*|death\w*|"
+    r"treatment\w*|first\s+aid\w*|hospital\w*|burn\w*|cut\w*|event\w*)\b"
+)
+_RE_NEGATED_CONSEQUENCE_NOUN = re.compile(
+    r"\b(?:no|nothing|never|without)\s+(?:[\w-]+\s+){0,4}"
+    r"(?:injury|injuries|harm|damage|fatality|fatalities|death|" 
+    r"medical\s+treatment|first\s+aid|hospitalisation|hospitalization|burn|cut)\b"
+)
+_NEGATED_CONSEQUENCE_REGEXES = (
+    _RE_NEGATED_CONSEQUENCE,
+    _RE_NEGATED_CONSEQUENCE_NOUN,
+)
+
 # Explicit POSITIVE verification of a control/barrier: "was/were verified",
 # "was confirmed", "has been checked", "fully verified", "was applied". Only
 # matches when the verification verb is un-negated ("was NOT verified",
@@ -124,6 +144,26 @@ class NegationEngine:
         if not span_norm or not norm:
             return False
         for _rx in _NEGATED_OUTCOME_REGEXES:
+            for m in _rx.finditer(norm):
+                start, end = m.span()
+                pos = norm.find(span_norm)
+                while pos != -1:
+                    if pos < end and (pos + len(span_norm)) > start:
+                        return True
+                    pos = norm.find(span_norm, pos + 1)
+        return False
+
+    def negates_consequence_span(self, norm: str, span_norm: str) -> bool:
+        """True when a negated-harm statement overlaps a consequence span.
+
+        Region-scoped (like :meth:`negates_outcome_span`) so "No injury
+        occurred and no medical treatment was required." marks BOTH 'injury'
+        and 'medical treatment' as non-consequences while a genuine "a worker
+        sustained a minor cut" sentence that never states a negation keeps the
+        positive span."""
+        if not span_norm or not norm:
+            return False
+        for _rx in _NEGATED_CONSEQUENCE_REGEXES:
             for m in _rx.finditer(norm):
                 start, end = m.span()
                 pos = norm.find(span_norm)
@@ -399,6 +439,24 @@ class NegationEngine:
 def split_sentences(text: str) -> list[str]:
     parts = re.split(r"(?<=[.!?])\s+|\n+", text.strip())
     return [p.strip() for p in parts if p.strip()]
+
+
+def sentence_containing(narrative: str, span: str) -> str:
+    """Return the full sentence that contains ``span`` (verbatim), or ``span``
+    when no containing sentence is found.
+
+    Used so barrier-STATE evidence carries the whole causal sentence
+    ("the technician loosened the bonnet studs before cracking the bleeder
+    needle valve to confirm depressurization.") while the barrier VALUE's
+    evidence stays the narrower verification phrase ("before cracking the
+    bleeder needle valve to confirm depressurization")."""
+    if not span or not narrative:
+        return span or ""
+    span_norm = normalize_text(span)
+    for sent in split_sentences(narrative):
+        if span_norm and span_norm in normalize_text(sent):
+            return sent
+    return span
 
 
 def barrier_mentioned(barrier: str, norm_sentence: str, context_terms: list[str]) -> bool:

@@ -165,20 +165,23 @@ def _upload(filename: str, data: bytes, content_type: str = "application/octet-s
     )
 
 
-def test_extract_endpoint_returns_text():
+def test_extract_endpoint_returns_text_segments():
     body = documents.extract_document(
         _upload("report.txt", NARRATIVE.encode("utf-8"), "text/plain")
     )
-    assert body["filename"] == "report.txt"
-    assert body["file_type"] == "txt"
-    assert body["text"] == NARRATIVE
-    assert body["character_count"] == len(NARRATIVE)
+    assert body.filename == "report.txt"
+    assert body.file_type == "txt"
+    assert body.text == NARRATIVE
+    assert body.character_count == len(NARRATIVE)
+    assert body.report_count == 1
+    assert [s.kind for s in body.segments] == ["report"]
+    assert body.segments[0].text == NARRATIVE
 
 
 def test_extract_pdf_endpoint():
     body = documents.extract_document(_upload("report.pdf", _pdf_bytes(), "application/pdf"))
-    assert body["file_type"] == "pdf"
-    assert NARRATIVE in _flatten(body["text"])
+    assert body.file_type == "pdf"
+    assert NARRATIVE in _flatten(body.text)
 
 
 def test_extract_unsupported_extension_415():
@@ -211,11 +214,18 @@ def test_extract_size_limit_413(monkeypatch):
 
 def test_analyze_document_endpoint_runs_pipeline():
     res = documents.analyze_document(_upload("report.docx", _docx_bytes()))
-    assert res.id
-    assert res.report_id.startswith("DOC-DOCX")
-    assert res.event["barrier"] == "energy_isolation"
-    assert res.event["barrier_state"] == "not_verified"
-    assert res.event["narrative"] == extract_text("report.docx", _docx_bytes()).text
+    assert res.report_count == 1
+    seg = res.analyses[0]
+    assert seg.analysis is not None
+    analysis = seg.analysis
+    assert analysis.id
+    assert analysis.report_id.startswith("DOC-REPORT-SEG")
+    assert analysis.event["barrier"] == "energy_isolation"
+    assert analysis.event["barrier_state"] == "not_verified"
+    assert analysis.document_id == "DOC-REPORT"
+    assert analysis.report_segment_id == analysis.report_id
+    # Metadata ("Location: flange area") is EXCLUDED from the segment narrative.
+    assert "flange area" not in analysis.event["narrative"]
 
 
 def test_analyze_document_too_little_text_422():

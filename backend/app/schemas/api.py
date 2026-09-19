@@ -36,6 +36,9 @@ class AnalyzeResponse(BaseModel):
     warnings: list[str] = Field(default_factory=list)
     event: Any
     precursor_family_id: str | None = None
+    document_id: str = ""
+    report_segment_id: str = ""
+    segment_index: int | None = None
 
 
 class ObservationOut(BaseModel):
@@ -55,12 +58,61 @@ class ObservationOut(BaseModel):
     validation_reviewer: str = ""
     validation_reason: str = ""
     validated_at: str | None = None
+    document_id: str = ""
+    report_segment_id: str = ""
+    segment_index: int | None = None
     created_at: str
 
 
 class ObservationList(BaseModel):
     total: int
     observations: list[ObservationOut]
+
+
+# ---------------------------------------------------------------------------
+# Document extraction & segmentation
+# ---------------------------------------------------------------------------
+
+
+class DocumentSegment(BaseModel):
+    """One classified block of an extracted document.
+
+    ``kind`` is ``report`` (analyzed, persisted separately) or ``non_report``
+    (headings, metadata, "Expected Test Signals", page furniture — excluded
+    from analysis, evidence and traceability).
+    """
+
+    index: int
+    kind: str
+    heading: str = ""
+    text: str = ""
+    character_count: int = 0
+
+
+class ExtractionResponse(BaseModel):
+    filename: str
+    file_type: str
+    text: str
+    character_count: int
+    report_count: int
+    segments: list[DocumentSegment] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+
+
+class SegmentAnalysis(BaseModel):
+    report_segment_id: str
+    segment_index: int
+    heading: str = ""
+    analysis: AnalyzeResponse | None = None
+    error: str = ""
+
+
+class DocumentAnalysisResponse(BaseModel):
+    document_id: str
+    report_count: int
+    analyses: list[SegmentAnalysis] = Field(default_factory=list)
+    observations_created: int = 0
+    warnings: list[str] = Field(default_factory=list)
 
 
 class FamilyOut(BaseModel):

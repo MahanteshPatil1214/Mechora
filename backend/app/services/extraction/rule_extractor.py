@@ -18,7 +18,11 @@ from app.models.safety_event import (
     UNKNOWN_CODE,
 )
 from app.services.evidence.evidence import EvidenceGrounder
-from app.services.negation.engine import NegationEngine, split_sentences
+from app.services.negation.engine import (
+    NegationEngine,
+    sentence_containing,
+    split_sentences,
+)
 from app.services.normalization.canonical import Canonicalizer
 from app.services.normalization.ontology import Ontology, normalize_text
 
@@ -199,21 +203,22 @@ class RuleBasedExtractor:
         )
         matched["barrier"] = self._extract_verbatim_span(narrative, bar_span) if bar_span else ""
 
-        # Barrier state: negation engine is authoritative.
+# Barrier state: negation engine is authoritative.
         state_result = self.negation.classify_barrier(barrier, narrative)
         barrier_state = state_result.state
         state_span = self._extract_verbatim_span(
             narrative, state_result.evidence_span
         ) if state_result.evidence_span else ""
-        # Attachment: when the verification phrase that grounds the barrier
-        # STATE literally wraps the bare barrier word AND is verbatim in the
-        # narrative, attach the state phrase — it names the specific control so
-        # it is better evidence than the bare barrier synonym. In "before
-        # cracking the bleeder needle valve to confirm depressurization", the
-        # phrase contains the direct barrier mention "depressurization", so the
-        # full phrase is attached; "Zero-energy was never confirmed" keeps
-        # "zero-energy" because the state span ("never confirmed") does NOT
-        # contain it.
+        # Barrier evidence vs barrier-STATE evidence stay distinct:
+        #   barrier evidence = the most specific phrase that NAMES the control
+        #   (the verification phrase when it verbatim-wraps the bare barrier
+        #   mention, e.g. "before cracking the bleeder needle valve to confirm
+        #   depressurization" > bare "depressurization");
+        #   barrier_state evidence = the FULL causal sentence carrying that
+        #   verification phrase ("the mechanical technician loosened the
+        #   bonnet studs before cracking the bleeder needle valve to confirm
+        #   depressurization."). The two are never conflated, and the barrier
+        #   VALUE (e.g. energy_isolation) is never presented as evidence.
         bar_evidence = matched["barrier"]
         if (
             bar_evidence
@@ -222,11 +227,15 @@ class RuleBasedExtractor:
             and bar_evidence.lower() in state_span.lower()
         ):
             bar_evidence = state_span
+        elif (not bar_evidence) and state_span:
+            bar_evidence = state_span
         matched["barrier"] = bar_evidence
-        matched["barrier_state"] = state_span
+        matched["barrier_state"] = (
+            sentence_containing(narrative, state_span) if state_span else ""
+        )
         state_confidence = state_result.confidence
 
-        consequence, c_span = self._detect_category2(narrative, "consequence")
+        consequence, c_span = self._detect_actual_consequence(narrative)
         matched["actual_consequence"] = self._extract_verbatim_span(narrative, c_span) if c_span else ""
 
         location, l_span = self.canonicalizer.map(narrative, "location")
@@ -367,7 +376,10 @@ class RuleBasedExtractor:
         if not tokens:
             return ""
         sep = r"[\s\-/]+"
-        pattern = r"\b" + sep.join(re.escape(w) for w in tokens) + r"\b"
+        # Trailing look-ahead instead of a hard word boundary: a phrase that
+        # ends with sentence punctuation ("No injury was reported.") is still
+        # matched verbatim at end-of-string or before other punctuation.
+        pattern = r"\b" + sep.join(re.escape(w) for w in tokens) + r"(?!\w)"
         m = re.search(pattern, narrative, re.IGNORECASE)
         if m:
             return m.group(0)
@@ -416,7 +428,9 @@ class RuleBasedExtractor:
         provenance are re-derived deterministically from the narrative so a
         field is only ever 'explicit' when real text supports it. Exposure is
         filtered so a negated non-event ('no gas was released') is never
-        attached as evidence for a positive exposure.
+        attached as evidence for a positive exposure. Barrier evidence follows
+        the SAME phrase-wrapping rule used on the rules path so both providers
+        attribute identical spans for the identical narrative.
         """
         if not code or code == UNKNOWN_CODE:
             return ""
@@ -432,7 +446,24 @@ class RuleBasedExtractor:
             if not non_negated:
                 return ""
             return max(non_negated, key=len)
+        if category == "consequence":
+            spans = self._all_synonym_spans(narrative, concept.synonyms)
+            if not spans:
+                return ""
+            non_negated = [sp for sp in spans
+                           if not self._consequence_negated(narrative, sp)]
+            if not non_negated:
+                return ""
+            return max(non_negated, key=len)
         _, span = self._best_synonym_match(narrative, category, code)
+        if category == "barrier" and span:
+            st = self.negation.classify_barrier(code, narrative)
+            st_span = self._extract_verbatim_span(
+                narrative, st.evidence_span
+            ) if st.evidence_span else ""
+            if (st_span and len(st_span) > len(span)
+                    and span.lower() in st_span.lower()):
+                return st_span
         return span
 
     @staticmethod
@@ -532,6 +563,82 @@ class RuleBasedExtractor:
                 best_span = c_span
                 best_len = len(c_span)
         return best, best_span
+
+    def _consequence_negated(self, narrative: str, span: str) -> bool:
+        """True when EVERY sentence containing the consequence span negates it
+        ("No injury occurred", "no medical treatment was required"). A span
+        also present in a positive clause keeps the positive reading."""
+        if not span:
+            return False
+        span_norm = normalize_text(span)
+        if not span_norm:
+            return False
+        occurrences: list[bool] = []
+        for sent in split_sentences(narrative):
+            if span_norm in normalize_text(sent):
+                occurrences.append(
+                    self.negation.negates_consequence_span(
+                        normalize_text(sent), span_norm
+                    )
+                )
+        return bool(occurrences) and all(occurrences)
+
+    def detect_actual_consequence(self, narrative: str) -> tuple[str, str]:
+        """Public (non-negation-filtered) actual-consequence detection.
+
+        Identical semantics to :meth:`_detect_actual_consequence`; used by the
+        pipeline on EVERY provider path so an "no injury occurred and no
+        medical treatment was required" narrative yields ``none_identified``
+        with the full negated sentence as evidence regardless of provider.
+        """
+        return self._detect_actual_consequence(narrative)
+
+    def _detect_actual_consequence(self, narrative: str) -> tuple[str, str]:
+        """Negation-aware ACTUAL consequence detection.
+
+        Only NON-negated consequence statements count as a positive actual
+        consequence. A negated statement ("No injury occurred and no medical
+        treatment was required.") is a NON-consequence and must NEVER be read
+        back as "medical treatment happened". When EVERY consequence statement
+        in the narrative is negated, the honest value is ``none_identified``
+        with the full negated sentence as evidence. A narrative stating no
+        consequence at all stays ``unknown``.
+        """
+        positives: list[tuple[str, str]] = []
+        negated_spans: list[str] = []
+        for concept in self.ontology.concepts("consequence"):
+            if concept.code == UNKNOWN_CODE:
+                continue
+            for span in self._all_synonym_spans(narrative, concept.synonyms):
+                span_norm = normalize_text(span)
+                if not span_norm:
+                    continue
+                occurrences: list[bool] = []
+                for sent in split_sentences(narrative):
+                    if span_norm in normalize_text(sent):
+                        occurrences.append(
+                            not self.negation.negates_consequence_span(
+                                normalize_text(sent), span_norm
+                            )
+                        )
+                if not occurrences:
+                    continue
+                if any(occurrences):
+                    positives.append((concept.code, span))
+                else:
+                    negated_spans.append(span)
+        if positives:
+            # Longest non-negated verbatim span wins. The span itself may be a
+            # negated-word synonym of none_identified ("no injury") but only
+            # when it appears in POSITIVE context — those are handled above.
+            return max(positives, key=lambda p: len(p[1]))
+        if negated_spans:
+            longest = max(negated_spans, key=len)
+            for sent in split_sentences(narrative):
+                if normalize_text(longest) in normalize_text(sent):
+                    return "none_identified", sent
+            return "none_identified", longest
+        return UNKNOWN_CODE, ""
 
     def _detect_barrier(self, narrative: str, norm: str,
                         energy_codes: list[str]) -> tuple[str, str, bool]:

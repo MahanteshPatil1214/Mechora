@@ -20,7 +20,12 @@ router = APIRouter(tags=["analyze"])
 
 
 def run_analysis_and_save(
-    report_id: str | None, narrative: str, provider: str | None = None
+    report_id: str | None,
+    narrative: str,
+    provider: str | None = None,
+    document_id: str = "",
+    report_segment_id: str = "",
+    segment_index: int | None = None,
 ) -> AnalyzeResponse:
     raw_id = (report_id or "REPORT-UNASSIGNED").strip()[:100]
     report_id = (
@@ -34,7 +39,14 @@ def run_analysis_and_save(
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=500, detail=f"analysis failed: {exc}") from exc
 
-    obs = pipeline.to_observation(report_id, narrative, provider=provider)
+    obs = pipeline.to_observation(
+        report_id,
+        narrative,
+        provider=provider,
+        document_id=document_id,
+        report_segment_id=report_segment_id,
+        segment_index=segment_index,
+    )
     saved = repos.create_observation(obs)
 
     return AnalyzeResponse(
@@ -48,6 +60,9 @@ def run_analysis_and_save(
         warnings=result.warnings,
         event=saved.event.model_dump(),
         precursor_family_id=saved.precursor_family_id,
+        document_id=saved.document_id,
+        report_segment_id=saved.report_segment_id,
+        segment_index=saved.segment_index,
     )
 
 

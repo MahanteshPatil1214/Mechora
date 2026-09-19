@@ -1708,3 +1708,51 @@ any earlier prose where the two disagree.
   at their real coverage%) and 'Recurrence: 4 reports >= 2 report threshold'.
   Families page relabels 'N families' -> 'N patterns · N recurring · N emerging'
   (Overview 'View all N patterns'). Empty/low-data states handle no family.
+
+## ROUND: document segmentation layer (ReportSegmenter) + Bug2 + Bug3 (reviewer #3)
+COMMIT: pending
+- Pipeline is now explicit  Extraction -> Document Segmentation -> Evidence-grounded
+  analysis. New backend/app/services/document_segmentation/segmenter.py: splits one
+  extracted document into independent REPORT SEGMENTS (each observation analyzed and
+  persisted separately) and drops NON-REPORT material from analysis/evidence/
+  traceability: report heading runs, metadata "Label:"/known-key lines (Plant/Date/
+  Shift/Location/...), page headers/footers + bare digits, and "Expected Test Signals"
+  instructional blocks (heading + following body swallowed up to the next report
+  heading, so bullets/fragments never leak into any report). UTF-8 BOM stripped.
+  Structural cues only (blank-line paragraphs, heading regexes, metadata labels),
+  no NLP. Metadata blocks are transparent (do not split an open report segment), so
+  "Report 1 -> Plant: -> body" is ONE segment with heading + body (heading text not
+  part of narrative/evidence).
+- /documents/extract now returns {filename, file_type, text, character_count,
+  report_count, segments:[{index,kind,heading,text,character_count}], warnings}.
+  /documents/analyze now segments then runs run_analysis_and_save EACH report
+  independently: report_id = DOC-<DOCID>-SEG<n> (master segment index); returns
+  DocumentAnalysisResponse {document_id, report_count, analyses:[{report_segment_id,
+  segment_index, heading, analysis|error}], observations_created, warnings}.
+- Traceability: Observation + ObservationRow gain document_id / report_segment_id /
+  segment_index; init_db() ALTER-TABLE migration adds columns to existing Postgres/SQLite;
+  AnalyzeResponse/ObservationOut carry them; frontend api.analyzeDocument() + Analyze.jsx
+  segmented panel (kind badge, heading, chars, Load into textarea, "Analyze all N reports"
+  batch) with a per-segment switcher above results.
+- Bug2 FIXED (actual-consequence negation): rule_extractor now uses negated-consequence
+  detection (negation engine + _RE_NEGATED_CONSEQUENCE family + sentence_containing):
+  every consequence statement scanned, negated ones dropped ("No injury occurred and no
+  medical treatment was required." is a NON-consequence), all-negated -> actual_consequence
+  = none_identified with the FULL negated sentence as evidence (never "medical treatment").
+  _extract_verbatim_span() trailing \b -> (?!\w) so full-sentence spans ending in '.' match.
+  LLM path mirrors it (det_consequence/det_span grounded deterministically; a model-proposed
+  positive consequence gets non-negated verbatim evidence via verbatim_span_for_code + new
+  _consequence_negated filter) - provider-independent (test_llm_path_negated_consequence_...).
+- Bug3 FIXED (barrier vs barrier-state evidence): barrier (energy_isolation) evidence = the
+  verification phrase that wraps the bare barrier word ("before cracking the bleeder needle
+  valve to confirm depressurization"); barrier_state (not_verified) evidence = the FULL causal
+  sentence (sentence_containing) - identical on rules & LLM paths (verbatim_span_for_code
+  reuses the same wrap rule).
+- Verified (rules + live LLM auto-provider against Postgres): Report 1 crude-pump
+  suction-strainer narrative -> activity pump_maintenance, energy pressurized_liquid,
+  barrier energy_isolation, barrier_state not_verified, exposure uncontrolled_liquid_release,
+  location pump_station, actual_consequence none_identified (ev "No injury occurred and no
+  medical treatment was required."), potential serious_injury_or_fatality, LSR energy_isolation.
+  Report 2 (gas compressor) analyzed independently (never merged). "Expected Test Signals"
+  block excluded from every narrative/evidence. 17 segmentation tests + updated extraction
+  tests; FULL SUITE = 158 passing (SQLite, .venv).

@@ -91,6 +91,17 @@ def init_db() -> None:
                 for col_name, col_def in needed_cols:
                     if col_name not in existing_cols:
                         conn.execute(text(f"ALTER TABLE precursor_families ADD COLUMN {col_name} {col_def}"))
+        if "observations" in inspector.get_table_names():
+            existing_cols = {col["name"] for col in inspector.get_columns("observations")}
+            needed_cols = [
+                ("document_id", "VARCHAR(100) DEFAULT ''"),
+                ("report_segment_id", "VARCHAR(40) DEFAULT ''"),
+                ("segment_index", "INTEGER"),
+            ]
+            with _engine.begin() as conn:
+                for col_name, col_def in needed_cols:
+                    if col_name not in existing_cols:
+                        conn.execute(text(f"ALTER TABLE observations ADD COLUMN {col_name} {col_def}"))
     except Exception as exc:  # pragma: no cover
         logger.warning("Auto-migration check skipped or failed: %s", exc)
 

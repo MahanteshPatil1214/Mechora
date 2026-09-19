@@ -46,6 +46,9 @@ def _obs_to_row(obs: Observation) -> ObservationRow:
     return ObservationRow(
         id=obs.id,
         report_id=obs.report_id,
+        document_id=obs.document_id,
+        report_segment_id=obs.report_segment_id,
+        segment_index=obs.segment_index,
         narrative=obs.narrative,
         provider=obs.provider,
         requested_provider=obs.requested_provider,
@@ -89,6 +92,9 @@ def _row_to_obs(row: ObservationRow) -> Observation:
         validation_reviewer=getattr(row, "validation_reviewer", "") or "",
         validation_reason=getattr(row, "validation_reason", "") or "",
         validated_at=getattr(row, "validated_at", None),
+        document_id=getattr(row, "document_id", "") or "",
+        report_segment_id=getattr(row, "report_segment_id", "") or "",
+        segment_index=getattr(row, "segment_index", None),
         created_at=row.created_at,
     )
 

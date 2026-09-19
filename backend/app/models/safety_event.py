@@ -365,6 +365,12 @@ class Observation(BaseModel):
     event: SafetyEvent = Field(default_factory=SafetyEvent)
     precursor_family_id: str | None = None
     validation: Literal["pending", "validated", "rejected"] = "pending"
+    # Document segmentation traceability: which extracted document (and which
+    # report segment inside it) produced this observation. Empty for ad-hoc
+    # analyses pasted directly into the analyzer.
+    document_id: str = ""
+    report_segment_id: str = ""
+    segment_index: int | None = None
     # HSE human-in-the-loop audit trail. Empty until an HSE reviewer acts.
     validation_reviewer: str = ""
     validation_reason: str = ""

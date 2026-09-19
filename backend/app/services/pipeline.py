@@ -26,7 +26,11 @@ from app.services.extraction.rule_extractor import (
     inferred_potential_consequence,
 )
 from app.services.lsr.lsr import LSRMapper
-from app.services.negation.engine import NegationEngine, split_sentences
+from app.services.negation.engine import (
+    NegationEngine,
+    sentence_containing,
+    split_sentences,
+)
 from app.services.normalization.canonical import Canonicalizer
 from app.services.normalization.ontology import Ontology
 from app.services.precursor.similarity import build_signature
@@ -118,7 +122,10 @@ class AnalysisPipeline:
         )
 
     def to_observation(self, report_id: str, narrative: str,
-                       provider: str | None = None) -> Observation:
+                       provider: str | None = None,
+                       document_id: str = "",
+                       report_segment_id: str = "",
+                       segment_index: int | None = None) -> Observation:
         result = self.analyze(report_id, narrative, provider=provider)
         return Observation(
             report_id=report_id,
@@ -128,6 +135,9 @@ class AnalysisPipeline:
             fallback_used=result.fallback_used,
             fallback_reason=result.fallback_reason,
             event=result.event,
+            document_id=document_id,
+            report_segment_id=report_segment_id,
+            segment_index=segment_index,
         )
 
     # --------------------------------------------------------------- internal
@@ -166,7 +176,11 @@ class AnalysisPipeline:
             state_result = self.negation.classify_barrier(event.barrier, narrative)
             event.barrier_state = state_result.state
             event.confidence = state_result.confidence
-            barrier_state_span = state_result.evidence_span or ""
+            # Barrier-state evidence = FULL causal sentence carrying the
+            # verification phrase (same attribution rule as the rules path).
+            barrier_state_span = sentence_containing(
+                narrative, state_result.evidence_span or ""
+            ) or ""
         elif raw.barrier_state != UNKNOWN_CODE:
             event.barrier_state = raw.barrier_state
             event.confidence = 0.3
@@ -208,6 +222,15 @@ class AnalysisPipeline:
         # "could have been fatal" -> serious_injury_or_fatality). When nothing
         # is stated, the value is UNKNOWN — the "none_identified" default would
         # falsely imply a consequence was considered and ruled out.
+        # Deterministic actual-consequence detection (negation-aware) is ALWAYS
+        # computed: the rules path uses it directly and the LLM path uses it to
+        # keep a negated-consequence narrative ("No injury occurred and no
+        # medical treatment was required.") grounded the SAME way — the model
+        # proposes a value, but only a verbatim non-negated / all-negated
+        # reading ever becomes explicit evidence.
+        det_consequence, det_span = (
+            self.rule_extractor.detect_actual_consequence(narrative)
+        )
         actual = raw.actual_consequence or "unknown"
         if self.ontology.is_known("consequence", actual):
             # Already-canonical code (e.g. none_identified or a code an LLM
@@ -226,10 +249,26 @@ class AnalysisPipeline:
             not _actual_span and actual_code == "none_identified"
             and actual in ("", "unknown", "none_identified", "no consequence")
         ):
-            # Unstated consequence masquerading as "no consequence identified".
-            event.actual_consequence = "unknown"
+            # "No consequence identified" is honest ONLY when the text actually
+            # negates the consequence (deterministic, negation-aware). Otherwise
+            # an unstated consequence must not masquerade as none_identified.
+            if det_consequence == "none_identified" and det_span:
+                event.actual_consequence = "none_identified"
+                _actual_span = det_span
+            else:
+                event.actual_consequence = "unknown"
         else:
             event.actual_consequence = actual_code
+        # LLM path: a model-proposed POSITIVE consequence is only explicit when
+        # a verbatim NON-negated span supports it (deterministic attribution).
+        if output is None and event.actual_consequence not in (
+            "", UNKNOWN_CODE, "none_identified"
+        ):
+            _pos_span = self.rule_extractor.verbatim_span_for_code(
+                narrative, "consequence", event.actual_consequence
+            )
+            if _pos_span and not _actual_span:
+                _actual_span = _pos_span
 
         # LSR list from LLM must be canonical & deduped; deterministic mapper
         # recomputes authoritative mapping afterwards anyway.
