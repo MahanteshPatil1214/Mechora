@@ -15,6 +15,6 @@
     "high_threshold": 9,
     "medium_threshold": 6
   },
-  "high_energy_codes": ["pressurized_gas", "electrical_energy", "flammable_atmosphere"],
+  "high_energy_codes": ["pressurized_gas", "pressurized_liquid", "electrical_energy", "flammable_atmosphere"],
   "high_exposure_codes": ["fire_or_explosion", "uncontrolled_gas_release", "electrical_shock_risk", "confined_space_atmosphere"]
 }

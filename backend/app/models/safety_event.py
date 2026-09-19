@@ -37,6 +37,7 @@ TASK_PHASE_CODES = Literal[
 
 ENERGY_CODES = Literal[
     "pressurized_gas",
+    "pressurized_liquid",
     "electrical_energy",
     "flammable_atmosphere",
     "chemical_exposure",

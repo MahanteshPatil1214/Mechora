@@ -1662,3 +1662,12 @@ any earlier prose where the two disagree.
   deterministic). `create_observation` upserts by id/report_id, so re-analyzing
   the same report updates its record instead of creating a duplicate. Seed and
   API paths both use this id scheme; caller-supplied ids (tests) are preserved.
+- Real-case extraction fixes (crude-pump strainer observation): hydraulic
+  slurries/crude/sour-water now extract `pressurized_liquid` (new energy code,
+  SIF high set) instead of being absorbed by `pressurized_gas`; liquid release
+  verbs (sprayed/spurted/spewed/slippery splash) ground `exposure` instead of
+  "unknown"; "suction strainer"/"bonnet studs"/"bleeder needle valve" map to
+  `pump_maintenance` (which flips a known-activity into task_phase
+  `maintenance`, killing the spurious `pre_job` inference); primary energy
+  prefers a SUBSTANCE-marked span over generic pressure-state wording; the
+  "work progressed before before ..." double-word bug is fixed.

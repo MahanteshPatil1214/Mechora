@@ -68,6 +68,7 @@ def inferred_potential_consequence(
 # Energy -> required barrier inference when no barrier word is mentioned.
 ENERGY_DEFAULT_BARRIER = {
     "pressurized_gas": "energy_isolation",
+    "pressurized_liquid": "energy_isolation",
     "electrical_energy": "energy_isolation",
     "stored_mechanical_energy": "energy_isolation",
     "thermal_energy": "energy_isolation",
@@ -76,6 +77,23 @@ ENERGY_DEFAULT_BARRIER = {
     "gravity": "fall_protection",
     "moving_equipment": "machinery_guarding",
 }
+
+# Tie-break markers for primary-energy selection. When several energies share
+# the same severity rank, a span that names the actual SUBSTANCE (crude,
+# slurry, gas, liquid, hydrocarbon...) is the real hazard and must beat generic
+# pressure-state wording ("depressurization", "zero pressure") that merely
+# describes a barrier check. A barrier-verification word is evidence about the
+# isolation, not about the hazard being contained.
+_SUBSTANCE_MARKERS = (
+    "gas", "liquid", "slurry", "crude", "oil", "water", "vapour", "vapor",
+    "fluid", "hydrocarbon", "acid", "caustic", "h2s", "flammable", "solvent",
+    "chemical",
+)
+_GENERIC_PRESSURE_MARKERS = (
+    "depressuriz", "depressuris", "zero pressure", "no pressure",
+    "pressure absent", "pressure present", "pressure system", "pressuris",
+    "pressure", "pressurized system", "pressurised system",
+)
 
 
 class RuleBasedExtractor:
@@ -326,6 +344,15 @@ class RuleBasedExtractor:
         _, span = self._best_synonym_match(narrative, category, code)
         return span
 
+    @staticmethod
+    def _primary_energy_priority(span: str) -> int:
+        norm = normalize_text(span)
+        if any(m in norm for m in _SUBSTANCE_MARKERS):
+            return 2
+        if any(m in norm for m in _GENERIC_PRESSURE_MARKERS):
+            return 0
+        return 1
+
     def _pick_primary(self, codes: list[str], spans: dict[str, str],
                       category: str) -> str:
         if not codes:
@@ -335,6 +362,7 @@ class RuleBasedExtractor:
                 codes,
                 key=lambda c: (
                     self.ontology.energy_rank(c),
+                    self._primary_energy_priority(spans.get(c, "")),
                     len(spans.get(c, "")),
                 ),
                 reverse=True,
@@ -491,6 +519,10 @@ class RuleBasedExtractor:
             return "unknown"
         if barrier_state in BARRIER_FAILURE_STATES:
             basis = state_span or f"{barrier.replace('_', ' ')} not established"
+            # The negation evidence span already begins with "before ..."
+            # (e.g. "before cracking the bleeder needle valve..."); never double
+            # the word in the rendered unsafe action.
+            basis = re.sub(r"^\s*before\s+", "", basis)
             return f"work progressed before {basis}"
         if barrier_state == "verified":
             return f"work performed with {barrier.replace('_', ' ')} verified"

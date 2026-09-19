@@ -37,6 +37,26 @@
       ]
     },
     {
+      "code": "pressurized_liquid",
+      "label": "Pressurized / Stored Hazardous Liquid",
+      "severity_rank": 5,
+      "synonyms": [
+        "pressurized liquid",
+        "pressurised liquid",
+        "hazardous liquid",
+        "flammable liquid",
+        "combustible liquid",
+        "hydrocarbon liquid",
+        "liquefied hydrocarbon",
+        "crude oil",
+        "slurry",
+        "sour water",
+        "hot liquid",
+        "stored liquid",
+        "liquid under pressure"
+      ]
+    },
+    {
       "code": "electrical_energy",
       "label": "Electrical Energy",
       "severity_rank": 5,
