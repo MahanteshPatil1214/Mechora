@@ -18,9 +18,14 @@ from sqlalchemy import (
     String,
     Text,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.engine import Base
+
+# Postgres stores the full payload as JSONB; SQLite transparently falls back
+# to its generic JSON text type so offline tests keep working unchanged.
+PG_JSON = JSON().with_variant(JSONB, "postgresql")
 
 
 def _now() -> str:
@@ -37,7 +42,7 @@ class ObservationRow(Base):
     requested_provider: Mapped[str] = mapped_column(String(12), default="auto")
     fallback_used: Mapped[bool] = mapped_column(Boolean, default=False)
     fallback_reason: Mapped[str] = mapped_column(Text, default="")
-    event: Mapped[dict] = mapped_column(JSON, default=dict)
+    event: Mapped[dict] = mapped_column(PG_JSON, default=dict)
 
     activity: Mapped[str] = mapped_column(String(60), default="unknown", index=True)
     task_phase: Mapped[str] = mapped_column(String(40), default="unknown", index=True)
@@ -52,7 +57,7 @@ class ObservationRow(Base):
     sif_classification: Mapped[str] = mapped_column(
         String(30), default="needs_review", index=True
     )
-    life_saving_rules: Mapped[list] = mapped_column(JSON, default=list)
+    life_saving_rules: Mapped[list] = mapped_column(PG_JSON, default=list)
     precursor_family_id: Mapped[str | None] = mapped_column(
         String(40), index=True, default=None
     )
@@ -84,21 +89,21 @@ class PrecursorFamilyRow(Base):
     )
     common_energy: Mapped[str] = mapped_column(String(60), default="unknown", index=True)
     common_exposure: Mapped[str] = mapped_column(String(60), default="unknown")
-    core_mechanism: Mapped[dict] = mapped_column(JSON, default=dict)
-    context: Mapped[dict] = mapped_column(JSON, default=dict)
-    recurrence: Mapped[dict] = mapped_column(JSON, default=dict)
+    core_mechanism: Mapped[dict] = mapped_column(PG_JSON, default=dict)
+    context: Mapped[dict] = mapped_column(PG_JSON, default=dict)
+    recurrence: Mapped[dict] = mapped_column(PG_JSON, default=dict)
     why_it_matters: Mapped[str] = mapped_column(Text, default="")
-    activities: Mapped[list] = mapped_column(JSON, default=list)
-    locations: Mapped[list] = mapped_column(JSON, default=list)
-    observation_ids: Mapped[list] = mapped_column(JSON, default=list)
+    activities: Mapped[list] = mapped_column(PG_JSON, default=list)
+    locations: Mapped[list] = mapped_column(PG_JSON, default=list)
+    observation_ids: Mapped[list] = mapped_column(PG_JSON, default=list)
     hazard: Mapped[str] = mapped_column(Text, default="")
     attention_signal: Mapped[float] = mapped_column(Float, default=0.0, index=True)
-    attention_basis: Mapped[list] = mapped_column(JSON, default=list)
-    attention_factors: Mapped[list] = mapped_column(JSON, default=list)
+    attention_basis: Mapped[list] = mapped_column(PG_JSON, default=list)
+    attention_factors: Mapped[list] = mapped_column(PG_JSON, default=list)
     sif_potential_count: Mapped[int] = mapped_column(Integer, default=0)
     recurring_threshold: Mapped[int] = mapped_column(Integer, default=2)
-    grouping_evidence: Mapped[list] = mapped_column(JSON, default=list)
-    exclusions: Mapped[list] = mapped_column(JSON, default=list)
+    grouping_evidence: Mapped[list] = mapped_column(PG_JSON, default=list)
+    exclusions: Mapped[list] = mapped_column(PG_JSON, default=list)
     created_at: Mapped[str] = mapped_column(String(40), default=_now)
 
 
@@ -110,14 +115,14 @@ class EvaluationResultRow(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     run_id: Mapped[str] = mapped_column(String(40), unique=True, index=True)
     created_at: Mapped[str] = mapped_column(String(40), default=_now)
-    metrics: Mapped[dict] = mapped_column(JSON, default=dict)
-    categories: Mapped[dict] = mapped_column(JSON, default=dict)
-    counts: Mapped[dict] = mapped_column(JSON, default=dict)
+    metrics: Mapped[dict] = mapped_column(PG_JSON, default=dict)
+    categories: Mapped[dict] = mapped_column(PG_JSON, default=dict)
+    counts: Mapped[dict] = mapped_column(PG_JSON, default=dict)
 
 
 class OntologyDocRow(Base):
     __tablename__ = "ontology"
 
     key: Mapped[str] = mapped_column(String(80), primary_key=True)
-    payload: Mapped[dict] = mapped_column(JSON, default=dict)
+    payload: Mapped[dict] = mapped_column(PG_JSON, default=dict)
     updated_at: Mapped[str] = mapped_column(String(40), default=_now)

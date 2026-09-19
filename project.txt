@@ -1654,5 +1654,7 @@ any earlier prose where the two disagree.
   does not quantify OIL likelihood, does not predict accidents, and cannot
   replace a competent-person review. Grouping is structural; irony or tacit
   knowledge in a narrative is not parsed.
-- Dev database is disposable (SQLite fallback). Schema changes require
-  reseeding the dev DB; Postgres was not available so JSONB path is untested.
+- Dev database is disposable and PostgreSQL-backed (local Postgres 18;
+  role/db `mechora` provisioned, JSONB columns verified). Tests always run
+  against their own temp SQLite file (conftest pins STORE=sqlite), so the
+  suite stays hermetic without a live server.
