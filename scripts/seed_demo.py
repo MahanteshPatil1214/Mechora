@@ -91,7 +91,7 @@ def main() -> int:
     observations = []
     for _tag, report_id, narrative in DEMO_NARRATIVES:
         obs = pipeline.to_observation(report_id, narrative)
-        obs.id = report_id
+        obs.id = repos.new_observation_id(report_id)
         observations.append(obs)
 
     repos.bulk_create_observations(observations)

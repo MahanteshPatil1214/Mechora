@@ -1658,3 +1658,7 @@ any earlier prose where the two disagree.
   role/db `mechora` provisioned, JSONB columns verified). Tests always run
   against their own temp SQLite file (conftest pins STORE=sqlite), so the
   suite stays hermetic without a live server.
+- Observation ids are canonical and uniform: `OBS-<REPORT_ID>` (sanitised,
+  deterministic). `create_observation` upserts by id/report_id, so re-analyzing
+  the same report updates its record instead of creating a duplicate. Seed and
+  API paths both use this id scheme; caller-supplied ids (tests) are preserved.

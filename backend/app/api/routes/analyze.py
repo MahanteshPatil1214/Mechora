@@ -38,13 +38,7 @@ def analyze(req: AnalyzeRequest) -> AnalyzeResponse:
     obs = pipeline.to_observation(
         report_id, req.narrative, provider=req.provider
     )
-    try:
-        saved = repos.create_observation(obs)
-    except Exception:
-        # If report_id collided with existing record, append a unique suffix
-        obs.report_id = f"{report_id}-{uuid.uuid4().hex[:6]}"
-        obs.id = ""
-        saved = repos.create_observation(obs)
+    saved = repos.create_observation(obs)
 
     return AnalyzeResponse(
         id=saved.id,

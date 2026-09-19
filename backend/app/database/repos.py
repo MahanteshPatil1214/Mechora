@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import datetime as _dt
 import json
+import re
 import uuid
 from dataclasses import dataclass, field
 from typing import Any
@@ -27,7 +28,16 @@ from app.models.safety_event import Observation, PrecursorFamily
 from app.services.precursor.engine import PrecursorEngine
 
 
-def new_observation_id() -> str:
+def new_observation_id(report_id: str | None = None) -> str:
+    """Canonical observation id: ``OBS-<REPORT_ID>`` — deterministic (the same
+    report always yields the same id) and uniform for every observation, so a
+    re-analyzed report updates its record instead of creating a duplicate.
+    Falls back to a random ``OBS-`` id when the report id is empty/quoted.
+    """
+    raw = (report_id or "").strip()[:36].upper()
+    slug = re.sub(r"[^A-Z0-9]+", "-", raw).strip("-")
+    if slug:
+        return f"OBS-{slug}"[:40]
     return "OBS-" + uuid.uuid4().hex[:10].upper()
 
 
@@ -194,17 +204,27 @@ def apply_observation_filters(stmt, filters: ObservationFilters):
 
 def create_observation(obs: Observation, recompute: bool = True) -> Observation:
     if not obs.id:
-        obs.id = new_observation_id()
+        obs.id = new_observation_id(obs.report_id)
     with get_session() as s:
-        s.add(_obs_to_row(obs))
+        existing = s.get(ObservationRow, obs.id)
+        if existing is None:
+            existing = s.query(ObservationRow).filter_by(
+                report_id=obs.report_id
+            ).first()
+        row = _obs_to_row(obs)
+        if existing is not None:
+            row.id = existing.id
+            row.report_id = existing.report_id
+            stored_id = s.merge(row).id
+        else:
+            s.add(row)
+            stored_id = row.id
         s.commit()
     if recompute:
         recompute_families()
-        # refresh family id from DB
-        with get_session() as s:
-            row = s.get(ObservationRow, obs.id)
-            return _row_to_obs(row) if row else obs
-    return obs
+    with get_session() as s:
+        row = s.get(ObservationRow, stored_id)
+        return _row_to_obs(row) if row else obs
 
 
 def bulk_create_observations(observations: list[Observation]) -> int:
@@ -218,7 +238,7 @@ def bulk_create_observations(observations: list[Observation]) -> int:
             if existing:
                 continue
             if not obs.id:
-                obs.id = new_observation_id()
+                obs.id = new_observation_id(obs.report_id)
             s.add(_obs_to_row(obs))
         s.commit()
     recompute_families()
