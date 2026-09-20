@@ -26,6 +26,7 @@ def run_analysis_and_save(
     document_id: str = "",
     report_segment_id: str = "",
     segment_index: int | None = None,
+    report_type: str | None = None,
 ) -> AnalyzeResponse:
     raw_id = (report_id or "REPORT-UNASSIGNED").strip()[:100]
     report_id = (
@@ -46,6 +47,7 @@ def run_analysis_and_save(
         document_id=document_id,
         report_segment_id=report_segment_id,
         segment_index=segment_index,
+        report_type=report_type,
     )
     saved = repos.create_observation(obs)
 
@@ -63,9 +65,12 @@ def run_analysis_and_save(
         document_id=saved.document_id,
         report_segment_id=saved.report_segment_id,
         segment_index=saved.segment_index,
+        report_type=saved.report_type,
     )
 
 
 @router.post("/analyze", response_model=AnalyzeResponse)
 def analyze(req: AnalyzeRequest) -> AnalyzeResponse:
-    return run_analysis_and_save(req.report_id, req.narrative, req.provider)
+    return run_analysis_and_save(
+        req.report_id, req.narrative, req.provider, report_type=req.report_type
+    )

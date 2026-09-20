@@ -46,6 +46,11 @@ class ObservationRow(Base):
     requested_provider: Mapped[str] = mapped_column(String(12), default="auto")
     fallback_used: Mapped[bool] = mapped_column(Boolean, default=False)
     fallback_reason: Mapped[str] = mapped_column(Text, default="")
+    # Reporter-selected classification at intake (ua_uc | near_miss | incident).
+    # Stored metadata only; never used by analysis or clustering.
+    report_type: Mapped[str] = mapped_column(
+        String(30), default="unknown", index=True
+    )
     event: Mapped[dict] = mapped_column(PG_JSON, default=dict)
 
     activity: Mapped[str] = mapped_column(String(60), default="unknown", index=True)

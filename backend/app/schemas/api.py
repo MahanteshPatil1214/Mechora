@@ -23,6 +23,10 @@ class AnalyzeRequest(BaseModel):
     provider: str | None = Field(
         default=None, description="rules | llm | auto (default from settings)."
     )
+    report_type: Literal["ua_uc", "near_miss", "incident", "unknown"] = Field(
+        default="unknown",
+        description="Reporter-selected classification at intake (metadata only).",
+    )
 
 
 class AnalyzeResponse(BaseModel):
@@ -39,6 +43,7 @@ class AnalyzeResponse(BaseModel):
     document_id: str = ""
     report_segment_id: str = ""
     segment_index: int | None = None
+    report_type: str = "ua_uc"
 
 
 class ObservationOut(BaseModel):
@@ -61,6 +66,7 @@ class ObservationOut(BaseModel):
     document_id: str = ""
     report_segment_id: str = ""
     segment_index: int | None = None
+    report_type: str = "ua_uc"
     created_at: str
 
 

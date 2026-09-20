@@ -54,6 +54,7 @@ def _obs_to_row(obs: Observation) -> ObservationRow:
         requested_provider=obs.requested_provider,
         fallback_used=obs.fallback_used,
         fallback_reason=obs.fallback_reason,
+        report_type=obs.report_type,
         event=json.loads(ev.model_dump_json()),
         activity=ev.activity,
         task_phase=ev.task_phase,
@@ -95,6 +96,7 @@ def _row_to_obs(row: ObservationRow) -> Observation:
         document_id=getattr(row, "document_id", "") or "",
         report_segment_id=getattr(row, "report_segment_id", "") or "",
         segment_index=getattr(row, "segment_index", None),
+        report_type=getattr(row, "report_type", "unknown") or "unknown",
         created_at=row.created_at,
     )
 

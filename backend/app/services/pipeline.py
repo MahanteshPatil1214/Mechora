@@ -125,7 +125,8 @@ class AnalysisPipeline:
                        provider: str | None = None,
                        document_id: str = "",
                        report_segment_id: str = "",
-                       segment_index: int | None = None) -> Observation:
+                       segment_index: int | None = None,
+    report_type: str | None = None) -> Observation:
         result = self.analyze(report_id, narrative, provider=provider)
         return Observation(
             report_id=report_id,
@@ -138,6 +139,7 @@ class AnalysisPipeline:
             document_id=document_id,
             report_segment_id=report_segment_id,
             segment_index=segment_index,
+            report_type=report_type or "unknown",
         )
 
     # --------------------------------------------------------------- internal

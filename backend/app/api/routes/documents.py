@@ -16,7 +16,7 @@ from __future__ import annotations
 import re
 import uuid
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from pydantic import ValidationError
 
 from app.api.routes.analyze import run_analysis_and_save
@@ -132,13 +132,17 @@ def analyze_document(
     file: UploadFile = File(...),
     report_id: str | None = None,
     provider: str | None = None,
+    report_type: str = Form("unknown"),
 ) -> DocumentAnalysisResponse:
     """Extract, segment, then analyze EACH report independently.
 
     Each report segment gets its own observation (``report_id=<doc>-SEG<n>``),
     so multi-observation documents never merge two events into one analysis and
-    non-report material never contaminates evidence.
+    non-report material never contaminates evidence. ``report_type`` is
+    reporter-selected metadata applied to every segment of the document.
     """
+    if not isinstance(report_type, str):  # direct-call tolerance (non-HTTP)
+        report_type = "unknown"
     text = _validated_extraction_file(file)
     file_type = (file.filename or "").rsplit(".", 1)[-1].lower() or "txt"
     doc_id = _document_id(file.filename or "", file_type, report_id)
@@ -155,6 +159,7 @@ def analyze_document(
                 document_id=doc_id,
                 report_segment_id=seg_id,
                 segment_index=seg.index,
+                report_type=report_type,
             )
             analyses.append(SegmentAnalysis(
                 report_segment_id=seg_id,

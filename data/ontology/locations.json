@@ -1,16 +1,16 @@
 {
-  "_comment": "Prototype locations used in synthetic narratives.",
+  "_comment": "Prototype locations used in synthetic narratives. Matched by label + synonyms (substring, case-insensitive). Industrial vocabulary lives here, not in code.",
   "locations": [
-    {"code": "compressor_room", "label": "Compressor Room", "synonyms": []},
-    {"code": "pipeline_section", "label": "Pipeline Section", "synonyms": []},
-    {"code": "pump_station", "label": "Pump Station", "synonyms": []},
-    {"code": "tank_farm", "label": "Tank Farm", "synonyms": []},
-    {"code": "well_site", "label": "Well Site", "synonyms": []},
-    {"code": "substation", "label": "Substation", "synonyms": []},
-    {"code": "workshop", "label": "Workshop", "synonyms": []},
-    {"code": "process_area", "label": "Process Area", "synonyms": []},
-    {"code": "storage_yard", "label": "Storage Yard", "synonyms": []},
-    {"code": "offshore_platform", "label": "Offshore Platform", "synonyms": []},
+    {"code": "compressor_room", "label": "Compressor Room", "synonyms": ["compressor hall", "compressor bay", "compressor module"]},
+    {"code": "pipeline_section", "label": "Pipeline Section", "synonyms": ["pipeline corridor", "pipe rack", "pipeline section"]},
+    {"code": "pump_station", "label": "Pump Station", "synonyms": ["pump house", "pump room", "pumping station", "pump deck"]},
+    {"code": "tank_farm", "label": "Tank Farm", "synonyms": ["storage tank farm", "tank battery"]},
+    {"code": "well_site", "label": "Well Site", "synonyms": ["well pad", "wellhead"]},
+    {"code": "substation", "label": "Substation", "synonyms": ["electrical substation", "switch room", "switchgear room"]},
+    {"code": "workshop", "label": "Workshop", "synonyms": ["mechanical workshop", "maintenance workshop", "repair workshop"]},
+    {"code": "process_area", "label": "Process Area", "synonyms": ["process module", "production module", "production area", "production deck", "production platform"]},
+    {"code": "storage_yard", "label": "Storage Yard", "synonyms": ["outdoor storage", "pipe yard"]},
+    {"code": "offshore_platform", "label": "Offshore Platform", "synonyms": ["south production module", "south production module deck level", "south production module +24m", "south module", "west production module", "north production module", "east production module", "deck level", "deck level +24m", "production platform deck", "offshore gas platform", "production platform"]},
     {"code": "unknown", "label": "Unknown", "synonyms": []}
   ]
 }

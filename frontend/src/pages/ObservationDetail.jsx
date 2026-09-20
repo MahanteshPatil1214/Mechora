@@ -12,7 +12,7 @@ import {
   Layers,
   Trash2,
 } from "lucide-react";
-import { api, label } from "../api.js";
+import { api, label, reportTypeLabel } from "../api.js";
 import { PageHeader } from "../components/common/PageHeader.jsx";
 import { StateBadge, SIFBadge, ValidationBadge, FieldItem } from "../components/common/StatusBadge.jsx";
 import { HighlightedNarrative, EvidenceChipsList } from "../components/common/EvidenceSpan.jsx";
@@ -116,7 +116,7 @@ export default function ObservationDetail() {
           </Link>
         }
         title={obs.report_id}
-        description={`Observation record ${obs.id} · Logged ${new Date(obs.created_at).toLocaleString()} · Provider: ${obs.provider || "rules"}`}
+        description={`${reportTypeLabel(obs.report_type)} · Observation record ${obs.id} · Logged ${new Date(obs.created_at).toLocaleString()} · Provider: ${obs.provider || "rules"}`}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <StateBadge value={event.barrier_state} />

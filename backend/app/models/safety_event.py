@@ -138,6 +138,16 @@ NON_FAILURE_STATES = ("verified", "unknown")
 
 UNKNOWN_CODE = "unknown"
 
+# Report classification selected by the reporter at intake ("Add Safety
+# Report"). Stored as metadata on the observation; it does NOT influence
+# extraction, SIF, LSR, barrier-state, precursor-family or clustering logic.
+REPORT_TYPE_CODES = Literal[
+    "ua_uc",
+    "near_miss",
+    "incident",
+    "unknown",
+]
+
 
 # ---------------------------------------------------------------------------
 # Evidence
@@ -371,6 +381,9 @@ class Observation(BaseModel):
     document_id: str = ""
     report_segment_id: str = ""
     segment_index: int | None = None
+    # Report classification chosen by the reporter at intake (UA/UC Observation,
+    # Near Miss or Incident). Metadata only — never used in analysis/clustering.
+    report_type: REPORT_TYPE_CODES = "ua_uc"
     # HSE human-in-the-loop audit trail. Empty until an HSE reviewer acts.
     validation_reviewer: str = ""
     validation_reason: str = ""

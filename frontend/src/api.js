@@ -4,6 +4,25 @@
 
 const base = "/api/v1";
 
+// Report classification chosen by the reporter at intake ("Add Safety
+// Report"). Stored as metadata on each observation; never used in analysis.
+export const REPORT_TYPES = [
+  { code: "ua_uc", label: "UA/UC Observation" },
+  { code: "near_miss", label: "Near Miss" },
+  { code: "incident", label: "Incident" },
+  { code: "unknown", label: "Unknown" },
+];
+export const REPORT_TYPE_CODES = REPORT_TYPES.map((t) => t.code);
+export function reportTypeLabel(value) {
+  if (!value) return "Unknown";
+  const code = String(value)
+    .trim()
+    .replace(/\s+/g, "_")
+    .toLowerCase();
+  const t = REPORT_TYPES.find((x) => x.code === code);
+  return t ? t.label : "Unknown";
+}
+
 async function request(path, options = {}) {
   const res = await fetch(`${base}${path}`, {
     headers: { "Content-Type": "application/json" },
@@ -30,6 +49,7 @@ export const DEMO_OBSERVATIONS = [
   {
     id: "OBS-DEMO01",
     report_id: "FLANGE-01",
+    report_type: "near_miss",
     narrative:
       "During routine flange tightening on the gas line, the fitter did not confirm zero energy before loosening the joint and a small gas release occurred.",
     provider: "rules",
@@ -88,6 +108,7 @@ export const DEMO_OBSERVATIONS = [
   {
     id: "OBS-DEMO02",
     report_id: "COMP-01",
+    report_type: "near_miss",
     narrative:
       "Compressor servicing: the crew opened the casing without zero-energy verification; isolation had not been done and a small gas release was observed.",
     provider: "rules",
@@ -145,6 +166,7 @@ export const DEMO_OBSERVATIONS = [
   {
     id: "OBS-DEMO03",
     report_id: "VALVE-01",
+    report_type: "near_miss",
     narrative:
       "Valve replacement: zero energy was never checked before the joint was opened and leaking was noticed.",
     provider: "rules",
@@ -200,6 +222,7 @@ export const DEMO_OBSERVATIONS = [
   {
     id: "OBS-DEMO04",
     report_id: "PUMP-01",
+    report_type: "near_miss",
     narrative:
       "Pump maintenance near the transfer station: no one verified isolation before the flange was disconnected; a small hydrocarbon release was noticed.",
     provider: "rules",
@@ -252,6 +275,7 @@ export const DEMO_OBSERVATIONS = [
   {
     id: "OBS-DEMO05",
     report_id: "HOTW-01",
+    report_type: "incident",
     narrative:
       "Hot work area: gas testing had not been completed before grinding started; a flash fire ignited nearby rags.",
     provider: "rules",
@@ -304,6 +328,7 @@ export const DEMO_OBSERVATIONS = [
   {
     id: "OBS-DEMO06",
     report_id: "VER-01",
+    report_type: "unknown",
     narrative:
       "Pipeline maintenance: zero pressure was confirmed and isolation verified before the joint was opened. No issue.",
     provider: "rules",
@@ -355,6 +380,7 @@ export const DEMO_OBSERVATIONS = [
   {
     id: "OBS-DEMO08",
     report_id: "VER-02",
+    report_type: "unknown",
     narrative:
       "Compressor maintenance: lockout was checked and the system proven depressurized before work. Everything was safe.",
     provider: "rules",
@@ -406,6 +432,7 @@ export const DEMO_OBSERVATIONS = [
   {
     id: "OBS-DEMO09",
     report_id: "HOTW-02",
+    report_type: "near_miss",
     narrative:
       "Grinding operations over the tank opening: the flammable gas test was skipped and sparks could have ignited the vapours.",
     provider: "rules",
@@ -458,6 +485,7 @@ export const DEMO_OBSERVATIONS = [
   {
     id: "OBS-DEMO07",
     report_id: "WATCH-01",
+    report_type: "ua_uc",
     narrative:
       "An area watch noted a strange vibration noise near the compressor during a routine walkdown; no work was in progress.",
     provider: "rules",
@@ -807,9 +835,10 @@ export const api = {
   // segment in the document gets its own observation (report_id=<doc>-SEG<n>).
   // Returns { document_id, report_count, analyses:[{report_segment_id,
   // segment_index, heading, analysis, error}], observations_created }.
-  analyzeDocument: async (file, { reportId = "", provider = "" } = {}) => {
+  analyzeDocument: async (file, { reportId = "", provider = "", reportType = "unknown" } = {}) => {
     const form = new FormData();
     form.append("file", file);
+    form.append("report_type", reportType);
     const qs = new URLSearchParams();
     if (reportId) qs.set("report_id", reportId);
     if (provider) qs.set("provider", provider);
@@ -872,6 +901,7 @@ export const api = {
         id: mockId,
         report_id: payload.report_id || `REPORT-${Date.now().toString().slice(-4)}`,
         provider: "rules (client fallback)",
+        report_type: payload.report_type || "ua_uc",
         warnings: [
           "Live backend unreachable; deterministic browser fallback analysis presented.",
         ],

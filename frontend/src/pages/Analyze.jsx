@@ -17,7 +17,7 @@ import {
   X,
   Layers,
 } from "lucide-react";
-import { api, label } from "../api.js";
+import { api, label, REPORT_TYPES } from "../api.js";
 import { PageHeader } from "../components/common/PageHeader.jsx";
 import { StateBadge, SIFBadge, FieldItem } from "../components/common/StatusBadge.jsx";
 import { AttentionBar } from "../components/common/AttentionBar.jsx";
@@ -51,6 +51,7 @@ export default function Analyze() {
   const [narrative, setNarrative] = useState("");
   const [reportId, setReportId] = useState("");
   const [provider, setProvider] = useState("rules");
+  const [reportType, setReportType] = useState("unknown");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
@@ -208,6 +209,7 @@ export default function Analyze() {
       const res = await api.analyzeDocument(file, {
         reportId: reportId.trim(),
         provider,
+        reportType,
       });
       const items = (res.analyses || [])
         .filter((a) => a.analysis)
@@ -256,6 +258,7 @@ export default function Analyze() {
         report_id: curReportId,
         narrative: narrative.trim(),
         provider: provider,
+        report_type: reportType,
       });
 
       setResult(res);
@@ -348,6 +351,29 @@ export default function Analyze() {
                 <option value="llm">Gemini LLM (requires configured API key)</option>
                 <option value="auto">Auto — Gemini if key is set, else rules</option>
               </select>
+            </div>
+          </div>
+
+          {/* Report Type Selector */}
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+              Report Type
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {REPORT_TYPES.filter((t) => t.code !== "unknown").map((t) => (
+                <button
+                  key={t.code}
+                  type="button"
+                  onClick={() => setReportType(t.code)}
+                  className={`flex-1 min-w-[150px] rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
+                    reportType === t.code
+                      ? "border-amber-500 bg-amber-500/10 text-amber-400"
+                      : "border-slate-800 bg-slate-950 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
             </div>
           </div>
 

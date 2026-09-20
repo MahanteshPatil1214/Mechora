@@ -46,10 +46,26 @@ def curated_documents(segmenter: ReportSegmenter | None = None) -> list[dict]:
             "report_segment_id": seg_id,
             "report_id": seg_id,
             "heading": seg.heading,
+            "report_type": _intended_report_type(seg.heading),
             "text": seg.text,
             "character_count": seg.character_count,
         })
     return documents
+
+
+def _intended_report_type(heading: str) -> str:
+    """Ground-truth report type carried by each curated demo narrative.
+
+    The curated dataset itself encodes the intent (narratives/headings are the
+    source of truth — never inferred from the segment id):
+      * ``REPORT 6 - VERIFIED CONTROL`` is a positive/compliance report with no
+        hazard event -> ``unknown``.
+      * every other curated report describes an actual gas/hydrocarbon release
+        or escape with no injury -> ``near_miss``.
+    """
+    if "VERIFIED" in (heading or "").upper() or "VERIFIED CONTROL" in (heading or "").upper():
+        return "unknown"
+    return "near_miss"
 
 
 def seed_curated_demo(settings=None, ontology=None,
@@ -83,6 +99,7 @@ def seed_curated_demo(settings=None, ontology=None,
             document_id=doc["document_id"],
             report_segment_id=doc["report_segment_id"],
             segment_index=doc["index"],
+            report_type=doc["report_type"],
         )
         obs.id = repos.new_observation_id(doc["report_id"])
         observations.append(obs)

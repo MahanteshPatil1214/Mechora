@@ -10,7 +10,7 @@ import {
   RotateCcw,
   Trash2,
 } from "lucide-react";
-import { api, label } from "../api.js";
+import { api, label, reportTypeLabel } from "../api.js";
 import { PageHeader } from "../components/common/PageHeader.jsx";
 import { StateBadge, SIFBadge, ValidationBadge } from "../components/common/StatusBadge.jsx";
 
@@ -233,6 +233,7 @@ export default function Observations() {
             <thead className="border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-400 bg-slate-950">
               <tr>
                 <th className="py-3 px-3.5 font-semibold">Observation</th>
+                <th className="py-3 px-3.5 font-semibold">Type</th>
                 <th className="py-3 px-3.5 font-semibold">Activity</th>
                 <th className="py-3 px-3.5 font-semibold">Hazard / Energy</th>
                 <th className="py-3 px-3.5 font-semibold">Barrier State</th>
@@ -245,13 +246,13 @@ export default function Observations() {
             <tbody className="divide-y divide-slate-800/70">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-500 text-xs">
+                  <td colSpan={9} className="py-12 text-center text-slate-500 text-xs">
                     Loading safety observations…
                   </td>
                 </tr>
               ) : observations.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400 text-xs">
+                  <td colSpan={9} className="py-12 text-center text-slate-400 text-xs">
                     <FileText size={24} className="mx-auto text-slate-600 mb-2" />
                     <div className="font-semibold text-slate-300">No Observations Found</div>
                     <div className="text-slate-500 text-[11px] mt-0.5">
@@ -277,6 +278,23 @@ export default function Observations() {
                         </Link>
                         <span className="font-mono text-[10px] text-slate-500 block truncate max-w-[130px]">
                           {obs.id}
+                        </span>
+                      </td>
+
+                      {/* Report Type */}
+                      <td className="py-3 px-3.5 whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
+                            obs.report_type === "incident"
+                              ? "border-rose-500/40 bg-rose-500/10 text-rose-400"
+                              : obs.report_type === "near_miss"
+                              ? "border-amber-500/40 bg-amber-500/10 text-amber-400"
+                              : obs.report_type && obs.report_type !== "unknown"
+                              ? "border-sky-500/40 bg-sky-500/10 text-sky-400"
+                              : "border-slate-700 bg-slate-800/50 text-slate-400"
+                          }`}
+                        >
+                          {reportTypeLabel(obs.report_type)}
                         </span>
                       </td>
 

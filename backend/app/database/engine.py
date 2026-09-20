@@ -97,6 +97,7 @@ def init_db() -> None:
                 ("document_id", "VARCHAR(100) DEFAULT ''"),
                 ("report_segment_id", "VARCHAR(40) DEFAULT ''"),
                 ("segment_index", "INTEGER"),
+                ("report_type", "VARCHAR(30) DEFAULT 'unknown'"),
             ]
             with _engine.begin() as conn:
                 for col_name, col_def in needed_cols:
