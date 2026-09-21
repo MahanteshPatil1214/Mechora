@@ -114,6 +114,21 @@ _HAZARD_CONTINUE_WORDS = {
 }
 _WORD = re.compile(r"[A-Za-z0-9]+(?:['-][A-Za-z0-9]+)*")
 
+# Explicit pre-job PHASE constructions name the preparation/verification step
+# itself ("...without prior zero-energy verification", "before work started",
+# "Pre-job: ..."), regardless of which activity the job belongs to. They
+# therefore outrank the activity-implied maintenance phase, which merely says a
+# job was in progress. Cues are compared against normalize_text() output, so
+# hyphenated spellings ("pre-job") appear here in normalised "pre job" form.
+_EXPLICIT_PRE_JOB_CUES = (
+    "without prior",
+    "prior to",
+    "before work started",
+    "before starting work",
+    "pre job",
+    "preparation for work",
+)
+
 
 class RuleBasedExtractor:
     """Extracts structured safety attributes with deterministic rules."""
@@ -161,8 +176,18 @@ class RuleBasedExtractor:
         # forms like "X was not confirmed").  Phrases that name specific
         # activities ("cleaning", "testing") are suppressed when activity is
         # unknown so the pre/post heuristics can take over.
+        # An EXPLICIT pre-job phase construction wins over BOTH the
+        # activity-implied "maintenance" phase and any phase the ontology
+        # matched incidentally (e.g. "maintenance" elsewhere in the sentence):
+        # the observation is about the preparation/verification step.
         # Evidence (NOT canonical value) stays the exact verbatim source span.
-        if activity and activity != UNKNOWN_CODE:
+        explicit_pre = any(t in norm for t in _EXPLICIT_PRE_JOB_CUES)
+        if explicit_pre:
+            task_phase = "pre_job"
+            matched["task_phase"] = self._verbatim_first(
+                narrative, _EXPLICIT_PRE_JOB_CUES
+            )
+        elif activity and activity != UNKNOWN_CODE:
             task_phase = "maintenance"
             mc = self.ontology.concept("task_phase", "maintenance")
             matched["task_phase"] = self._verbatim_first(
@@ -692,6 +717,13 @@ class RuleBasedExtractor:
                 st = self.negation.classify_barrier(code, narrative).state
                 weight = 2 if st in BARRIER_FAILURE_STATES else 1
                 scored.append((weight, code, span))
+            # A SPECIFIC hot-work control outranks the generic work-permit
+            # barrier when a narrative names both ("hot work controls were not
+            # in place ... and the work permit was not issued"): the control of
+            # interest is the hot-work control, not the general authorization.
+            codes = {code for _w, code, _s in scored}
+            if "hot_work_controls" in codes and "work_permit" in codes:
+                scored = [s for s in scored if s[1] != "work_permit"]
             scored.sort(key=lambda x: (x[0], -len(x[2])), reverse=True)
             return scored[0][1], scored[0][2], False
 

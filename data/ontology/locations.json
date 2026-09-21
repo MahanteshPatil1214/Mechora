@@ -10,7 +10,7 @@
     {"code": "workshop", "label": "Workshop", "synonyms": ["mechanical workshop", "maintenance workshop", "repair workshop"]},
     {"code": "process_area", "label": "Process Area", "synonyms": ["process module", "production module", "production area", "production deck", "production platform"]},
     {"code": "storage_yard", "label": "Storage Yard", "synonyms": ["outdoor storage", "pipe yard"]},
-    {"code": "offshore_platform", "label": "Offshore Platform", "synonyms": ["south production module", "south production module deck level", "south production module +24m", "south module", "west production module", "north production module", "east production module", "deck level", "deck level +24m", "production platform deck", "offshore gas platform", "production platform"]},
+    {"code": "offshore_platform", "label": "Offshore Platform", "synonyms": ["offshore platform", "offshore gas platform"]},
     {"code": "unknown", "label": "Unknown", "synonyms": []}
   ]
 }

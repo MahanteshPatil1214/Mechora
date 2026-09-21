@@ -760,6 +760,41 @@ export const DEMO_DASHBOARD = {
   backend: "SQLite (Auto fallback) / Oil India HSE",
 };
 
+// Demo-fallback aggregate scope, kept self-consistent so every percentage and
+// total the Analytics page derives from these rows adds up against the demo
+// dashboard total (sif counts sum to total_observations = 248).
+export const DEMO_AGGREGATES = {
+  barrier: [
+    { barrier: "energy_isolation", barrier_state: "not_verified", count: 28 },
+    { barrier: "energy_isolation", barrier_state: "verified", count: 22 },
+    { barrier: "hot_work_controls", barrier_state: "not_verified", count: 18 },
+    { barrier: "fall_protection", barrier_state: "absent", count: 14 },
+    { barrier: "confined_space_procedure", barrier_state: "failed", count: 12 },
+    { barrier: "machinery_guarding", barrier_state: "partially_effective", count: 9 },
+  ],
+  activity: [
+    { activity: "pipeline_maintenance", count: 48 },
+    { activity: "compressor_maintenance", count: 36 },
+    { activity: "hot_work", count: 32 },
+    { activity: "valve_replacement", count: 24 },
+    { activity: "pump_maintenance", count: 20 },
+    { activity: "working_at_height", count: 18 },
+  ],
+  sif: [
+    { classification: "high", count: 47 },
+    { classification: "medium", count: 68 },
+    { classification: "low", count: 112 },
+    { classification: "needs_review", count: 21 },
+  ],
+  lsr: [
+    { life_saving_rule: "energy_isolation", count: 52 },
+    { life_saving_rule: "hot_work", count: 34 },
+    { life_saving_rule: "working_at_height", count: 22 },
+    { life_saving_rule: "gas_testing", count: 19 },
+    { life_saving_rule: "line_of_fire", count: 16 },
+  ],
+};
+
 export const DEMO_EVALUATION = {
   run_id: "EVAL-2026-FROZEN-216",
   created_at: new Date().toISOString(),
@@ -1254,7 +1289,7 @@ export const api = {
         id: mockId,
         report_id: payload.report_id || `REPORT-${Date.now().toString().slice(-4)}`,
         provider: "rules (client fallback)",
-        report_type: payload.report_type || "ua_uc",
+        report_type: payload.report_type || "unknown",
         warnings: [
           "Live backend unreachable; deterministic browser fallback analysis presented.",
         ],
@@ -1653,44 +1688,7 @@ potential_consequence:
     try {
       return await request(`/aggregates/${kind}`);
     } catch {
-      if (kind === "barrier") {
-        return [
-          { barrier: "energy_isolation", barrier_state: "not_verified", count: 28 },
-          { barrier: "energy_isolation", barrier_state: "verified", count: 22 },
-          { barrier: "hot_work_controls", barrier_state: "not_verified", count: 18 },
-          { barrier: "fall_protection", barrier_state: "absent", count: 14 },
-          { barrier: "confined_space_procedure", barrier_state: "failed", count: 12 },
-          { barrier: "machinery_guarding", barrier_state: "partially_effective", count: 9 },
-        ];
-      }
-      if (kind === "activity") {
-        return [
-          { activity: "pipeline_maintenance", count: 48 },
-          { activity: "compressor_maintenance", count: 36 },
-          { activity: "hot_work", count: 32 },
-          { activity: "valve_replacement", count: 24 },
-          { activity: "pump_maintenance", count: 20 },
-          { activity: "working_at_height", count: 18 },
-        ];
-      }
-      if (kind === "sif") {
-        return [
-          { classification: "high", count: 47 },
-          { classification: "medium", count: 68 },
-          { classification: "low", count: 112 },
-          { classification: "needs_review", count: 21 },
-        ];
-      }
-      if (kind === "lsr") {
-        return [
-          { life_saving_rule: "energy_isolation", count: 52 },
-          { life_saving_rule: "hot_work", count: 34 },
-          { life_saving_rule: "working_at_height", count: 22 },
-          { life_saving_rule: "gas_testing", count: 19 },
-          { life_saving_rule: "line_of_fire", count: 16 },
-        ];
-      }
-      return [];
+      return DEMO_AGGREGATES[kind] || [];
     }
   },
 };
@@ -1731,4 +1729,32 @@ export const VALIDATION_COLORS = {
 
 export function label(value) {
   return (value || "unknown").replace(/_/g, " ");
+}
+
+// ---------------------------------------------------------------------------
+// Analytics scope helpers.
+//
+// Every number rendered on the Analytics page must be derived from the SAME
+// current dataset scope that produced the page's aggregate rows. These helpers
+// keep totals, percentages, barrier/activity/IOGP tallies and the scope header
+// consistent with whatever the API actually returned (live observations or the
+// self-consistent demo-fallback scope) - never a hardcoded historical count.
+// ---------------------------------------------------------------------------
+
+// Total observation count of the current analytics scope: prefers the live
+// dashboard summary, and otherwise derives the scope from the SIF aggregate
+// (each observation carries exactly one SIF class, so its rows sum to the
+// dataset total). Empty/absent data yields 0, not a fabricated number.
+export function analyticsScopeTotal(dashboard, sifAggs = []) {
+  const live = Number(dashboard?.total_observations);
+  if (Number.isFinite(live) && live > 0) return live;
+  return sifAggs.reduce((sum, r) => sum + (Number(r?.count) || 0), 0);
+}
+
+// Round one aggregate count into a percentage of the current scope total.
+// Guarded so a zero/empty scope renders 0% instead of NaN.
+export function percentOfPart(part, total) {
+  const denominator = Number(total);
+  if (!Number.isFinite(denominator) || denominator <= 0) return 0;
+  return Math.round((Number(part) / denominator) * 100);
 }

@@ -148,6 +148,18 @@ def test_activity_and_location_extract_from_user_narrative_not_unknown():
         assert saved.report_type == report_type, report_type
 
 
+def test_user_narrative_maps_pre_job_and_process_area():
+    """The reporter's vocabulary names a PRE-JOB verification failure inside a
+    PRODUCTION MODULE (a process area). The engine must not rewrite the phase to
+    the activity's 'maintenance' default, nor promote the module/deck wording to
+    an offshore platform."""
+    obs_id = _manual("RTP-USER-MAP-1", "near_miss", USER_NARRATIVE)
+    saved = repos.get_observation(obs_id)
+    assert saved.event.activity == "pipeline_maintenance"
+    assert saved.event.task_phase == "pre_job"
+    assert saved.event.location == "process_area"
+
+
 def test_document_upload_applies_report_type_to_every_segment():
     res = documents_route.analyze_document(
         _upload("multi.txt", MULTI_REPORTS.encode("utf-8"), "text/plain"),

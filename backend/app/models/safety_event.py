@@ -73,6 +73,7 @@ BARRIER_STATE_CODES = Literal[
 
 EXPOSURE_CODES = Literal[
     "uncontrolled_gas_release",
+    "uncontrolled_steam_release",
     "uncontrolled_liquid_release",
     "electrical_shock_risk",
     "fire_or_explosion",
