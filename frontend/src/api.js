@@ -1943,7 +1943,7 @@ export function buildEvidenceChain(family = null, capa = null) {
       detail: family
         ? `${label(family.common_barrier)} · ${label(family.common_barrier_state)}`
         : "No precursor family",
-      facts: [`${famReports} reports`, `${famSites} sites`],
+      facts: [`${famReports} reports`, famSites > 0 ? `${famSites} sites` : "Site information unavailable"],
       to: family ? `/app/families/${family.id}` : null,
     },
     capa: {

@@ -17,11 +17,14 @@ import {
   Eye,
   MapPin,
   Activity,
+  History,
 } from "lucide-react";
 import {
   api,
   label,
   pickCapaSignal,
+  capaStatusLabel,
+  effectivenessStatusLabel,
   deriveCapaPortfolio,
   deriveBarrierHealth,
   selectHighSignalObservations,
@@ -29,7 +32,6 @@ import {
   timeAgo,
 } from "../api.js";
 import { SIFBadge } from "../components/common/StatusBadge.jsx";
-import { EffectivenessBadge } from "../components/CapaEffectiveness.jsx";
 import EvidenceChain from "../components/EvidenceChain.jsx";
 
 const TONE_DOT = {
@@ -48,6 +50,13 @@ const TONE_TEXT = {
   slate: "text-slate-200",
 };
 
+const EFF_HERO_BANNER = {
+  recurrence_detected: "border-rose-500/50 bg-rose-500/15 text-rose-200",
+  improvement_observed: "border-emerald-500/50 bg-emerald-500/15 text-emerald-200",
+  under_observation: "border-amber-500/50 bg-amber-500/15 text-amber-200",
+  insufficient_evidence: "border-slate-500/50 bg-slate-500/15 text-slate-300",
+};
+
 const HEALTH_BADGE = {
   Recurrence: "border-rose-500/40 bg-rose-500/10 text-rose-300",
   Recurring: "border-rose-500/40 bg-rose-500/10 text-rose-300",
@@ -56,12 +65,17 @@ const HEALTH_BADGE = {
   Stable: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
 };
 
-function SectionTitle({ icon: Icon, title, description, to, cta }) {
+function SectionTitle({ icon: Icon, title, description, eyebrow, to, cta }) {
   return (
     <div className="flex items-start justify-between gap-3 border-b border-slate-800 pb-3">
       <div className="flex items-start gap-2">
         {Icon && <Icon size={15} className="mt-0.5 text-amber-400 flex-shrink-0" />}
         <div>
+          {eyebrow && (
+            <div className="mb-1 text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
+              {eyebrow}
+            </div>
+          )}
           <h2 className="text-sm font-semibold text-white">{title}</h2>
           {description && (
             <p className="mt-0.5 text-[11px] text-slate-400">{description}</p>
@@ -149,6 +163,38 @@ export default function Overview() {
         : null,
     [capas, topFamily],
   );
+
+  const heroReports = topFamily?.observation_ids?.length ?? 0;
+  const heroSites = topFamily?.locations?.length ?? 0;
+  const heroBaseline = topCapa?.baseline?.failure_count ?? 0;
+  const heroRecurrences = topCapa?.post_capa?.recurrence_count ?? 0;
+
+  const whatChanged = useMemo(() => {
+    return (barrierRows || [])
+      .map((row) => {
+        const capa = pickCapaSignal(capas, [row.barrier]);
+        const hasCapa = (capas || []).some(
+          (c) => c?.linked_barrier_id === row.barrier,
+        );
+        if (capa?.effectiveness_status === "recurrence_detected")
+          return { barrier: row.barrier, tone: "rose", signal: "↑", delta: "Recurrence after CAPA closure" };
+        if (capa?.effectiveness_status === "improvement_observed")
+          return { barrier: row.barrier, tone: "emerald", signal: "→", delta: "Improvement after CAPA closure" };
+        if (capa?.effectiveness_status === "under_observation")
+          return { barrier: row.barrier, tone: "amber", signal: "○", delta: "CAPA under observation" };
+        if (capa?.effectiveness_status === "insufficient_evidence")
+          return { barrier: row.barrier, tone: "slate", signal: "○", delta: "Insufficient post-CAPA evidence yet" };
+        if (row.status === "Recurring")
+          return { barrier: row.barrier, tone: "rose", signal: "↑", delta: "Barrier breakdown — no CAPA closure yet" };
+        if (row.status === "Needs Review" || row.failures > 0)
+          return { barrier: row.barrier, tone: "amber", signal: "↑", delta: `${row.failures} failures outnumber verified` };
+        if (row.status !== "Stable" || hasCapa)
+          return { barrier: row.barrier, tone: "amber", signal: "→", delta: row.status };
+        return null;
+      })
+      .filter(Boolean)
+      .slice(0, 4);
+  }, [barrierRows, capas]);
 
   const kpis = [
     {
@@ -269,8 +315,10 @@ export default function Overview() {
             Safety Intelligence Command Center
           </h1>
           <p className="mt-1 max-w-2xl text-xs leading-relaxed text-slate-400">
-            Observation → Barrier Failure → Precursor → CAPA → Post-CAPA Evidence →
-            Effectiveness → Organizational Learning.
+            From observation to verified corrective-action evidence.
+          </p>
+          <p className="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-slate-500">
+            Observation → Barrier → Precursor → CAPA → Evidence → Effectiveness
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -318,7 +366,8 @@ export default function Overview() {
           <SectionTitle
             icon={Activity}
             title="Safety Signals"
-            description="What needs attention right now."
+            description="Where attention is needed"
+            eyebrow="Before action"
             to="/app/families"
             cta="View attention"
           />
@@ -359,7 +408,8 @@ export default function Overview() {
           <SectionTitle
             icon={ClipboardCheck}
             title="CAPA Effectiveness"
-            description="What happened after we acted."
+            description="What happened after intervention"
+            eyebrow="After action"
             to="/app/capas"
             cta="View CAPA Evidence"
           />
@@ -407,41 +457,82 @@ export default function Overview() {
             <span>Key Attention Area</span>
           </div>
 
-          <div className="mt-2 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-            <div className="min-w-0 space-y-2">
-              <h2 className="text-lg font-bold text-white sm:text-xl">
+          <div className="mt-3 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div className="min-w-0 space-y-2.5">
+              {topCapa ? (
+                <span
+                  className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-black uppercase tracking-wider ${
+                    EFF_HERO_BANNER[topCapa.effectiveness_status] || EFF_HERO_BANNER.insufficient_evidence
+                  }`}
+                >
+                  <RotateCcw size={15} />
+                  {effectivenessStatusLabel(topCapa.effectiveness_status)}
+                </span>
+              ) : topFamily.recurring ? (
+                <span className="inline-flex items-center rounded border border-rose-500/40 bg-rose-500/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-rose-300">
+                  Recurring Barrier Breakdown
+                </span>
+              ) : (
+                <span className="inline-flex items-center rounded border border-slate-700 bg-slate-900 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  Precursor Candidate
+                </span>
+              )}
+
+              <h2 className="text-xl font-bold text-white sm:text-2xl">
                 {topFamily.name}
               </h2>
-              <div className="flex flex-wrap items-center gap-2">
-                {topCapa ? (
-                  <EffectivenessBadge status={topCapa.effectiveness_status} />
-                ) : topFamily.recurring ? (
-                  <span className="inline-flex items-center rounded border border-rose-500/40 bg-rose-500/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-rose-300">
-                    Recurring Barrier Breakdown
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center rounded border border-slate-700 bg-slate-900 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                    Precursor Candidate
-                  </span>
-                )}
-                <span className="rounded border border-slate-800 bg-slate-900 px-2 py-0.5 font-mono text-[10px] text-slate-400">
+
+              <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                <span className="rounded border border-slate-800 bg-slate-900 px-2 py-0.5 font-mono font-bold text-slate-300">
                   {topFamily.id}
                 </span>
-                <span className="flex items-center gap-1 text-[11px] capitalize text-slate-300">
+                <span className="flex items-center gap-1 capitalize text-slate-300">
                   <span className={`h-1.5 w-1.5 rounded-full ${TONE_DOT.rose}`} />
                   {label(topFamily.common_barrier)}
                 </span>
+                <span className="text-slate-500">
+                  {heroReports} report{heroReports === 1 ? "" : "s"}
+                  {" · "}
+                  {heroSites > 0 ? `${heroSites} sites` : "Site information unavailable"}
+                </span>
               </div>
+
               <p className="max-w-2xl text-xs leading-relaxed text-slate-300">
                 {topFamily.description}
               </p>
             </div>
           </div>
 
-          <div className="mt-4">
-            <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Evidence Chain — every step is clickable
+          {topCapa && (
+            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-slate-800 bg-slate-950/70 px-4 py-3">
+              <div className="flex flex-col">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Baseline</span>
+                <span className="font-mono text-sm font-black text-amber-300">
+                  {heroBaseline} failure{heroBaseline === 1 ? "" : "s"}
+                </span>
+              </div>
+              <ArrowRight size={16} className="flex-shrink-0 text-slate-600" />
+              <div className="flex flex-col">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">CAPA</span>
+                <span className="font-mono text-sm font-black text-sky-300">
+                  {capaStatusLabel(topCapa.status)}
+                </span>
+              </div>
+              <ArrowRight size={16} className="flex-shrink-0 text-slate-600" />
+              <div className="flex flex-col">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Post-CAPA</span>
+                <span
+                  className={`font-mono text-sm font-black ${
+                    heroRecurrences > 0 ? "text-rose-300" : "text-emerald-300"
+                  }`}
+                >
+                  {heroRecurrences} recurrence{heroRecurrences === 1 ? "" : "s"}
+                </span>
+              </div>
             </div>
+          )}
+
+          <div className="mt-4">
             <EvidenceChain family={topFamily} capa={topCapa} />
           </div>
 
@@ -462,9 +553,6 @@ export default function Overview() {
                 <ArrowRight size={13} />
               </Link>
             )}
-            <span className="text-[11px] italic text-slate-500">
-              Recurring barrier failure → CAPA → post-CAPA evidence → effectiveness verdict
-            </span>
           </div>
         </div>
       ) : (
@@ -477,6 +565,45 @@ export default function Overview() {
           </p>
         </div>
       )}
+
+      {/* What Changed */}
+      <div className="rounded-lg border border-slate-800 bg-slate-900 p-5">
+        <SectionTitle
+          icon={History}
+          title="What Changed"
+          description="How each mechanism moved since the last evidence point."
+        />
+        {whatChanged.length === 0 ? (
+          <div className="mt-3 rounded-md border border-dashed border-slate-800 p-4 text-center text-[11px] text-slate-500">
+            No change signals yet — add observations or CAPAs to see the story.
+          </div>
+        ) : (
+          <div className="mt-3 grid grid-cols-1 gap-2 lg:grid-cols-2">
+            {whatChanged.map((r) => (
+              <div
+                key={r.barrier}
+                className="flex items-center justify-between gap-3 rounded-md border border-slate-800 bg-slate-950 px-3 py-2.5"
+              >
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <span
+                    className={`w-3 flex-shrink-0 text-center font-mono text-sm font-black ${
+                      TONE_TEXT[r.tone] || "text-slate-300"
+                    }`}
+                  >
+                    {r.signal}
+                  </span>
+                  <span className="truncate text-xs font-semibold capitalize text-slate-200">
+                    {label(r.barrier)}
+                  </span>
+                </div>
+                <span className="flex-shrink-0 text-right text-[11px] text-slate-400">
+                  {r.delta}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Barrier Health */}
       <div className="rounded-lg border border-slate-800 bg-slate-900 p-5">
@@ -511,7 +638,12 @@ export default function Overview() {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="w-full">
+                    <div className="mb-1 text-[11px] text-slate-400">
+                      {r.failures} of {r.total}{" "}
+                      {r.total === 1 ? "observation" : "observations"} show barrier{" "}
+                      {r.failures === 1 ? "failure" : "failures"}
+                    </div>
                     <div className="flex h-2 w-full overflow-hidden rounded-full border border-slate-700/50 bg-slate-800">
                       {r.verified > 0 && (
                         <div
@@ -526,9 +658,10 @@ export default function Overview() {
                         />
                       )}
                     </div>
-                    <span className="w-16 flex-shrink-0 text-right font-mono text-[10px] text-slate-500">
-                      {r.failures}/{r.total} fail
-                    </span>
+                    <div className="mt-1 flex items-center justify-between font-mono text-[10px]">
+                      <span className="text-rose-400">{r.failures} failed</span>
+                      <span className="text-emerald-400">{r.verified} verified</span>
+                    </div>
                   </div>
 
                   <span
@@ -600,9 +733,9 @@ export default function Overview() {
                     </div>
                     <div className="flex flex-shrink-0 flex-col items-end gap-1">
                       <SIFBadge value={o.event?.sif?.classification} />
-                      <span className="text-[10px] text-slate-500">
-                        {timeAgo(o.created_at, now)}
-                      </span>
+                      <span className="rounded border border-slate-800 bg-slate-900 px-1.5 py-0.5 font-mono text-[9px] text-slate-500">
+                      {o.id}
+                    </span>
                     </div>
                   </div>
                 </Link>
