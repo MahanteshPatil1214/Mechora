@@ -16,6 +16,8 @@ import Observations from "./pages/Observations.jsx";
 import ObservationDetail from "./pages/ObservationDetail.jsx";
 import PrecursorFamilies from "./pages/PrecursorFamilies.jsx";
 import PrecursorFamilyDetail from "./pages/PrecursorFamilyDetail.jsx";
+import Capas from "./pages/Capas.jsx";
+import CapaDetail from "./pages/CapaDetail.jsx";
 import HSEReview from "./pages/HSEReview.jsx";
 import Analytics from "./pages/Analytics.jsx";
 import SettingsPage from "./pages/Settings.jsx";
@@ -75,6 +77,10 @@ export default function App() {
             {/* Precursor Families & Hero Screen Detail */}
             <Route path="families" element={<PrecursorFamilies />} />
             <Route path="families/:id" element={<PrecursorFamilyDetail />} />
+
+            {/* Corrective & Preventive Actions with Evidence-Based Effectiveness */}
+            <Route path="capas" element={<Capas />} />
+            <Route path="capas/:id" element={<CapaDetail />} />
 
             {/* HSE Human-in-the-loop Review Queue */}
             <Route path="review" element={<HSEReview />} />

@@ -13,7 +13,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import analyze, documents, families, health, observations, ontology
+from app.api.routes import analyze, capa, documents, families, health, observations, ontology
 from app.config import get_settings
 from app.database.engine import backend_name, init_db
 
@@ -61,6 +61,7 @@ def create_app() -> FastAPI:
     app.include_router(observations.router, prefix=prefix)
     app.include_router(families.router, prefix=prefix)
     app.include_router(ontology.router, prefix=prefix)
+    app.include_router(capa.router, prefix=prefix)
 
     @app.get("/")
     def root() -> dict:

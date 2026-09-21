@@ -13,16 +13,18 @@ import {
   Shield,
   Layers,
 } from "lucide-react";
-import { api, label } from "../api.js";
+import { api, label, pickCapaSignal, summarizeCapaForBarrier } from "../api.js";
 import { PageHeader } from "../components/common/PageHeader.jsx";
 import { StateBadge, SIFBadge } from "../components/common/StatusBadge.jsx";
 import { AttentionBar } from "../components/common/AttentionBar.jsx";
+import { CapaInsightCard } from "../components/CapaEffectiveness.jsx";
 
 export default function Overview() {
   const [dashboard, setDashboard] = useState(null);
   const [recentObs, setRecentObs] = useState([]);
   const [families, setFamilies] = useState([]);
   const [featuredObs, setFeaturedObs] = useState([]);
+  const [capas, setCapas] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,11 +32,13 @@ export default function Overview() {
       api.dashboard().catch(() => null),
       api.observations({ limit: 10 }).catch(() => ({ observations: [] })),
       api.families(true, 5).catch(() => ({ families: [] })),
-    ]).then(([dashData, obsData, famData]) => {
+      api.capas({ limit: 500 }).catch(() => ({ capas: [] })),
+    ]).then(([dashData, obsData, famData, capaData]) => {
       setDashboard(dashData);
       setRecentObs(obsData?.observations || []);
       const fams = famData?.families || [];
       setFamilies(fams);
+      setCapas(capaData?.capas || []);
       const featured = fams.find((f) => f.recurring) || fams[0] || null;
       if (featured?.id) {
         api
@@ -61,6 +65,12 @@ export default function Overview() {
 
   const topAttentionFamilies = families.slice(0, 2);
   const featuredFamily = families.find((f) => f.recurring) || families[0] || null;
+
+  // The single most important CAPA signal for the barriers on this dashboard.
+  const capaSignal = pickCapaSignal(
+    capas,
+    [...new Set(families.map((f) => f.common_barrier).filter(Boolean))],
+  );
 
   // Authoritative family-member set for the relationship map: the SAME
   // observations listed on the family record, never a separately-typed list.
@@ -262,6 +272,16 @@ export default function Overview() {
           ))}
         </div>
       </div>
+
+      {/* 3.5 CAPA Effectiveness — single compact insight (the important CAPA signal) */}
+      <CapaInsightCard
+        signal={capaSignal}
+        barrierCount={
+          capaSignal
+            ? summarizeCapaForBarrier(capas, capaSignal.linked_barrier_id).total
+            : capas.length
+        }
+      />
 
       {/* 4. Precursor Relationship Map (Clear Structural Flow) */}
       <div className="rounded-lg border border-slate-800 bg-slate-900 p-5 space-y-4">

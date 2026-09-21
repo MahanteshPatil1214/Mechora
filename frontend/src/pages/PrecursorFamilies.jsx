@@ -9,17 +9,26 @@ import {
   Shield,
   Layers,
 } from "lucide-react";
-import { api, label } from "../api.js";
+import { api, label, summarizeCapaForBarrier } from "../api.js";
 import { PageHeader } from "../components/common/PageHeader.jsx";
 import { StateBadge } from "../components/common/StatusBadge.jsx";
 import { AttentionBar } from "../components/common/AttentionBar.jsx";
+import { CapaInsightStrip } from "../components/CapaEffectiveness.jsx";
 
 export default function PrecursorFamilies() {
   const [families, setFamilies] = useState([]);
+  const [capas, setCapas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [recOnly, setRecOnly] = useState(false);
   const [barrierFilter, setBarrierFilter] = useState("");
   const [energyFilter, setEnergyFilter] = useState("");
+
+  useEffect(() => {
+    api
+      .capas({ limit: 500 })
+      .then((res) => setCapas(res.capas || []))
+      .catch(() => {});
+  }, []);
 
   const loadData = async () => {
     setLoading(true);
@@ -263,6 +272,12 @@ export default function PrecursorFamilies() {
                       compact={true}
                     />
                   </div>
+
+                  {/* CAPA / Effectiveness signal for this barrier */}
+                  <CapaInsightStrip
+                    barrier={fam.common_barrier}
+                    summary={summarizeCapaForBarrier(capas, fam.common_barrier)}
+                  />
                 </div>
 
                 <div className="pt-3 border-t border-slate-800 flex items-center justify-between">

@@ -790,6 +790,359 @@ export const DEMO_EVALUATION = {
 };
 
 // ---------------------------------------------------------------------------
+// CAPA Effectiveness labels & demo fallback data (mirrors seed_demo --capa)
+// ---------------------------------------------------------------------------
+export const EFFECTIVENESS_STATUS_LABELS = {
+  improvement_observed: "Evidence of Improvement",
+  recurrence_detected: "Recurrence Detected",
+  insufficient_evidence: "Insufficient Evidence",
+  under_observation: "Under Observation",
+};
+
+export const CAPA_STATUS_LABELS = {
+  open: "Open",
+  in_progress: "In Progress",
+  closed: "Closed",
+  cancelled: "Cancelled",
+  draft: "Draft",
+};
+
+export const EFFECTIVENESS_STYLES = {
+  improvement_observed: "bg-emerald-950/70 text-emerald-300 border-emerald-700/60",
+  recurrence_detected: "bg-rose-950/70 text-rose-300 border-rose-700/60",
+  insufficient_evidence: "bg-slate-900 text-slate-400 border-slate-700/60",
+  under_observation: "bg-amber-950/60 text-amber-300 border-amber-700/60",
+};
+
+export const CAPA_STATUS_STYLES = {
+  open: "bg-sky-950/60 text-sky-300 border-sky-700/60",
+  in_progress: "bg-amber-950/60 text-amber-300 border-amber-700/60",
+  closed: "bg-emerald-950/60 text-emerald-300 border-emerald-700/60",
+  cancelled: "bg-slate-900 text-slate-400 border-slate-700/60",
+  draft: "bg-slate-900 text-slate-400 border-slate-700/60",
+};
+
+export function effectivenessStatusLabel(value) {
+  const norm = value || "insufficient_evidence";
+  return EFFECTIVENESS_STATUS_LABELS[norm] || label(norm);
+}
+
+export function capaStatusLabel(value) {
+  const norm = value || "unknown";
+  return CAPA_STATUS_LABELS[norm] || label(norm);
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// Evaluation-period helper: how many days the baseline looked back and how many
+// days of post-closure evidence have actually been collected so far (capped at
+// the configured post window). Deterministic, matches the backend rule engine.
+export function capaEvaluationPeriod(capa) {
+  const baselineDays = Number(capa?.baseline?.window_days) || 90;
+  const postDays = Number(capa?.post_capa?.window_days) || baselineDays;
+  let postElapsed = 0;
+  let postOpen = false;
+  if (capa?.status === "closed" && capa?.closed_at) {
+    postOpen = true;
+    const closed = new Date(capa.closed_at).getTime();
+    if (Number.isFinite(closed)) {
+      postElapsed = Math.max(0, Math.floor((Date.now() - closed) / DAY_MS));
+      postElapsed = Math.min(Math.max(0, postDays), postElapsed);
+    }
+  }
+  return { baselineDays, postDays, postOpen, postElapsed };
+}
+
+// Mirrors backend seed_capa_demo() verdicts: recurrence / improvement /
+// under-observation / insufficient-evidence, with evidence snapshots frozen.
+export const DEMO_CAPAS = [
+  {
+    id: "CAPA-CAPA-RECUR-01",
+    report_id: "CAPA-RECUR-01",
+    title: "Introduce mandatory isolation verification checklist.",
+    description:
+      "Closed CAPA targeting energy isolation. A fresh energy-isolation failure inside the post-closure window indicates recurrence.",
+    linked_barrier_id: "energy_isolation",
+    location: "process_area",
+    site: "EAST",
+    status: "closed",
+    created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+    closed_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+    baseline: {
+      barrier: "energy_isolation",
+      barrier_state: "not_verified",
+      energy: "pressurized_gas",
+      exposure: "uncontrolled_gas_release",
+      location: "process_area",
+      window_days: 120,
+      from_iso: new Date(Date.now() - 86400000 * 130).toISOString(),
+      to_iso: new Date(Date.now() - 86400000 * 10).toISOString(),
+      failure_count: 3,
+      sif_potential_count: 3,
+      affected_sites: 3,
+      observation_ids: ["OBS-CAPAB-01", "OBS-CAPAB-02", "OBS-CAPAB-03"],
+    },
+    post_capa: {
+      barrier: "energy_isolation",
+      barrier_state: "not_verified",
+      window_days: 120,
+      from_iso: new Date(Date.now() - 86400000 * 5).toISOString(),
+      to_iso: new Date(Date.now() + 86400000 * 115).toISOString(),
+      recurrence_count: 1,
+      recurrence_observation_ids: ["OBS-CAPAP-01"],
+      observation_ids: ["OBS-CAPAP-01"],
+    },
+    effectiveness_status: "recurrence_detected",
+    effectiveness_basis: {
+      window_days: 120,
+      linked_barrier: "energy_isolation",
+      status_rule: ">=1 barrier-state failure recurred after CAPA closure",
+      baseline: {
+        failure_count: 3,
+        sif_potential_count: 3,
+        affected_sites: 3,
+        _counted: 3,
+      },
+      post_capa: { recurrence_count: 1, _counted: 1 },
+      derivation:
+        "Derived deterministically from persisted barrier-state observations in the baseline (pre-creation) and post-closure windows. Decision support only; not accident prediction.",
+    },
+    evidence_observation_ids: [
+      "OBS-CAPAB-01", "OBS-CAPAB-02", "OBS-CAPAB-03", "OBS-CAPAP-01",
+    ],
+  },
+  {
+    id: "CAPA-CAPA-IMPR-01",
+    report_id: "CAPA-IMPR-01",
+    title: "Mandatory gas testing before every hot work job.",
+    description:
+      "Closed CAPA targeting hot work controls. A verified post-closure control observation with zero recurrences indicates improvement.",
+    linked_barrier_id: "hot_work_controls",
+    location: "workshop",
+    site: "WEST",
+    status: "closed",
+    created_at: new Date(Date.now() - 86400000 * 8).toISOString(),
+    closed_at: new Date(Date.now() - 86400000 * 4).toISOString(),
+    baseline: {
+      barrier: "hot_work_controls",
+      barrier_state: "not_verified",
+      energy: "flammable_atmosphere",
+      exposure: "fire_or_explosion",
+      location: "workshop",
+      window_days: 120,
+      from_iso: new Date(Date.now() - 86400000 * 128).toISOString(),
+      to_iso: new Date(Date.now() - 86400000 * 8).toISOString(),
+      failure_count: 2,
+      sif_potential_count: 2,
+      affected_sites: 2,
+      observation_ids: ["OBS-CAPAB-H1", "OBS-CAPAB-H2"],
+    },
+    post_capa: {
+      barrier: "hot_work_controls",
+      barrier_state: "verified",
+      window_days: 120,
+      from_iso: new Date(Date.now() - 86400000 * 4).toISOString(),
+      to_iso: new Date(Date.now() + 86400000 * 116).toISOString(),
+      recurrence_count: 0,
+      recurrence_observation_ids: [],
+      observation_ids: ["OBS-CAPAP-H1"],
+    },
+    effectiveness_status: "improvement_observed",
+    effectiveness_basis: {
+      window_days: 120,
+      linked_barrier: "hot_work_controls",
+      status_rule:
+        "Baseline barrier failure(s) existed and post-closure evidence shows zero recurrences",
+      baseline: {
+        failure_count: 2,
+        sif_potential_count: 2,
+        affected_sites: 2,
+        _counted: 2,
+      },
+      post_capa: { recurrence_count: 0, _counted: 1 },
+      derivation:
+        "Derived deterministically from persisted barrier-state observations in the baseline (pre-creation) and post-closure windows. Decision support only; not accident prediction.",
+    },
+    evidence_observation_ids: ["OBS-CAPAB-H1", "OBS-CAPAB-H2", "OBS-CAPAP-H1"],
+  },
+  {
+    id: "CAPA-CAPA-OBS-01",
+    report_id: "CAPA-OBS-01",
+    title: "Review energy isolation training compliance across crews.",
+    description:
+      "Open CAPA with baseline evidence present. Effectiveness stays under observation until closure.",
+    linked_barrier_id: "energy_isolation",
+    location: "process_area",
+    site: "EAST",
+    status: "open",
+    created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+    closed_at: null,
+    baseline: {
+      barrier: "energy_isolation",
+      barrier_state: "not_verified",
+      energy: "pressurized_gas",
+      exposure: "uncontrolled_gas_release",
+      location: "process_area",
+      window_days: 120,
+      from_iso: new Date(Date.now() - 86400000 * 123).toISOString(),
+      to_iso: new Date(Date.now() - 86400000 * 3).toISOString(),
+      failure_count: 3,
+      sif_potential_count: 3,
+      affected_sites: 3,
+      observation_ids: ["OBS-CAPAB-01", "OBS-CAPAB-02", "OBS-CAPAB-03"],
+    },
+    post_capa: {
+      barrier: "energy_isolation",
+      barrier_state: "not_verified",
+      window_days: 120,
+      from_iso: "",
+      to_iso: "",
+      recurrence_count: 0,
+      recurrence_observation_ids: [],
+      observation_ids: [],
+    },
+    effectiveness_status: "under_observation",
+    effectiveness_basis: {
+      window_days: 120,
+      linked_barrier: "energy_isolation",
+      status_rule: "CAPA is still in progress (not closed); awaiting closure",
+      baseline: {
+        failure_count: 3,
+        sif_potential_count: 3,
+        affected_sites: 3,
+        _counted: 3,
+      },
+      post_capa: { recurrence_count: 0, _counted: 0 },
+      derivation:
+        "Derived deterministically from persisted barrier-state observations in the baseline (pre-creation) and post-closure windows. Decision support only; not accident prediction.",
+    },
+    evidence_observation_ids: ["OBS-CAPAB-01", "OBS-CAPAB-02", "OBS-CAPAB-03"],
+  },
+  {
+    id: "CAPA-CAPA-INSUF-01",
+    report_id: "CAPA-INSUF-01",
+    title: "Review machinery guarding on the transfer pumps.",
+    description:
+      "Closed CAPA with no baseline barrier evidence to compare against, so effectiveness cannot be derived.",
+    linked_barrier_id: "machinery_guarding",
+    location: "pump_station",
+    site: "WEST",
+    status: "closed",
+    created_at: new Date(Date.now() - 86400000 * 9).toISOString(),
+    closed_at: new Date(Date.now() - 86400000 * 6).toISOString(),
+    baseline: {
+      barrier: "machinery_guarding",
+      barrier_state: "unknown",
+      energy: "unknown",
+      exposure: "unknown",
+      location: "pump_station",
+      window_days: 120,
+      from_iso: new Date(Date.now() - 86400000 * 129).toISOString(),
+      to_iso: new Date(Date.now() - 86400000 * 9).toISOString(),
+      failure_count: 0,
+      sif_potential_count: 0,
+      affected_sites: 1,
+      observation_ids: [],
+    },
+    post_capa: {
+      barrier: "machinery_guarding",
+      barrier_state: "unknown",
+      window_days: 120,
+      from_iso: new Date(Date.now() - 86400000 * 6).toISOString(),
+      to_iso: new Date(Date.now() + 86400000 * 114).toISOString(),
+      recurrence_count: 0,
+      recurrence_observation_ids: [],
+      observation_ids: [],
+    },
+    effectiveness_status: "insufficient_evidence",
+    effectiveness_basis: {
+      window_days: 120,
+      linked_barrier: "machinery_guarding",
+      status_rule:
+        "No baseline barrier failure or SIF-potential evidence to compare against after closure",
+      baseline: {
+        failure_count: 0,
+        sif_potential_count: 0,
+        affected_sites: 1,
+        _counted: 0,
+      },
+      post_capa: { recurrence_count: 0, _counted: 0 },
+      derivation:
+        "Derived deterministically from persisted barrier-state observations in the baseline (pre-creation) and post-closure windows. Decision support only; not accident prediction.",
+    },
+    evidence_observation_ids: [],
+  },
+];
+
+// ---------------------------------------------------------------------------
+// CAPA Effectiveness dashboard integration helpers (pure functions, testable)
+// ---------------------------------------------------------------------------
+
+// Signal priority used to surface ONE compact CAPA card on the main dashboard.
+// A fresh post-CAPA recurrence is the loudest signal, then an open/awaiting
+// closure CAPA, then a concrete improvement, then the evidence-gap verdict.
+const CAPA_SIGNAL_ORDER = [
+  "recurrence_detected",
+  "under_observation",
+  "improvement_observed",
+  "insufficient_evidence",
+];
+
+// Pick the single highest-signal CAPA (optionally restricted to a set of
+// barrier ids, e.g. the barriers that appear on the current dashboard).
+// Tie-broken by most recently created so the newest record wins.
+export function pickCapaSignal(capas, barrierIds = null) {
+  const list =
+    Array.isArray(barrierIds) && barrierIds.length > 0
+      ? (capas || []).filter((c) => barrierIds.includes(c.linked_barrier_id))
+      : capas || [];
+  const rank = (c) => {
+    const i = CAPA_SIGNAL_ORDER.indexOf(c?.effectiveness_status);
+    return i === -1 ? CAPA_SIGNAL_ORDER.length : i;
+  };
+  return (
+    [...list].sort(
+      (a, b) =>
+        rank(a) - rank(b) ||
+        (String(a.created_at) < String(b.created_at) ? 1 : -1),
+    )[0] || null
+  );
+}
+
+// Per-barrier summary of the CAPA portfolio: linked count, open/closed counts,
+// per-verdict tallies, and the latest (most recently created) CAPA for inline
+// "View CAPA" links. Never fabricates anything — pure projection of the rows.
+export function summarizeCapaForBarrier(capas, barrierId) {
+  const linked = (capas || []).filter(
+    (c) => c.linked_barrier_id === barrierId,
+  );
+  const latest =
+    [...linked].sort((a, b) =>
+      String(a.created_at) < String(b.created_at) ? 1 : -1,
+    )[0] || null;
+  return {
+    total: linked.length,
+    capas: linked,
+    open: linked.filter((c) => c.status === "open" || c.status === "in_progress").length,
+    closed: linked.filter((c) => c.status === "closed").length,
+    cancelled: linked.filter((c) => c.status === "cancelled").length,
+    recurrenceDetected: linked.filter(
+      (c) => c.effectiveness_status === "recurrence_detected",
+    ).length,
+    improvementObserved: linked.filter(
+      (c) => c.effectiveness_status === "improvement_observed",
+    ).length,
+    underObservation: linked.filter(
+      (c) => c.effectiveness_status === "under_observation",
+    ).length,
+    insufficientEvidence: linked.filter(
+      (c) => c.effectiveness_status === "insufficient_evidence",
+    ).length,
+    latest,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Primary API Object
 // ---------------------------------------------------------------------------
 export const api = {
@@ -1049,6 +1402,183 @@ potential_consequence:
     if (res.status === 204) {
       const idx = DEMO_OBSERVATIONS.findIndex((o) => o.id === obsId || o.report_id === obsId);
       if (idx >= 0) DEMO_OBSERVATIONS.splice(idx, 1);
+    }
+    return { deleted: true };
+  },
+
+  // CAPA list, filtered by status and/or linked barrier.
+  // Demo mode is the app default: whenever the backend has no CAPA rows yet
+  // (fresh DB / demo setup), the 4 seeded demo CAPAs are surfaced so the SIH
+  // demo always opens showing all four effectiveness verdicts immediately.
+  capas: async (params = {}) => {
+    let list = [...DEMO_CAPAS];
+    try {
+      const qs = new URLSearchParams(
+        Object.fromEntries(
+          Object.entries(params).filter(([, v]) => v !== "" && v != null),
+        ),
+      ).toString();
+      const res = await request(`/capas${qs ? `?${qs}` : ""}`);
+      if (res && Array.isArray(res.capas) && res.capas.length > 0) {
+        return res;
+      }
+    } catch {
+      /* backend unreachable -> demo fallback below */
+    }
+    if (params.status) {
+      list = list.filter((c) => c.status === params.status);
+    }
+    if (params.linkedBarrierId) {
+      list = list.filter((c) => c.linked_barrier_id === params.linkedBarrierId);
+    }
+    return { total: list.length, capas: list, demo: true };
+  },
+
+  capa: async (capaId) => {
+    try {
+      return await request(`/capas/${encodeURIComponent(capaId)}`);
+    } catch {
+      const found = DEMO_CAPAS.find(
+        (c) => c.id === capaId || c.report_id === capaId,
+      );
+      if (found) return found;
+      throw new Error("CAPA not found");
+    }
+  },
+
+  // Create a CAPA targeted at one linked barrier. Effectiveness is derived
+  // server-side; demo fallback simulates the deterministic under-observation
+  // baseline state (no evidence to compare on a brand-new CAPA).
+  createCapa: async (payload) => {
+    try {
+      return await request("/capas", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+    } catch {
+      const now = new Date();
+      const windowDays = payload.window_days || 90;
+      const barrier = payload.linked_barrier_id || "unknown";
+      const mock = {
+        id: `CAPA-${Date.now()}`,
+        report_id: payload.report_id || `CAPA-${String(Date.now()).slice(-6)}`,
+        title: payload.title,
+        description: payload.description || "",
+        linked_barrier_id: barrier,
+        location: payload.location || "",
+        site: payload.site || "",
+        status: payload.status || "open",
+        created_at: payload.created_at || now.toISOString(),
+        closed_at: null,
+        baseline: {
+          barrier,
+          barrier_state: "unknown",
+          energy: "unknown",
+          exposure: "unknown",
+          location: payload.location || "",
+          window_days: windowDays,
+          from_iso: new Date(now.getTime() - windowDays * 86400000).toISOString(),
+          to_iso: now.toISOString(),
+          failure_count: 0,
+          sif_potential_count: 0,
+          affected_sites: 0,
+          observation_ids: [],
+        },
+        post_capa: {
+          barrier,
+          barrier_state: "unknown",
+          window_days: windowDays,
+          from_iso: "",
+          to_iso: "",
+          recurrence_count: 0,
+          recurrence_observation_ids: [],
+          observation_ids: [],
+        },
+        effectiveness_status: "under_observation",
+        effectiveness_basis: {
+          window_days: windowDays,
+          linked_barrier: barrier,
+          status_rule: "CAPA is still in progress (not closed); awaiting closure",
+          baseline: {
+            failure_count: 0,
+            sif_potential_count: 0,
+            affected_sites: 0,
+            _counted: 0,
+          },
+          post_capa: { recurrence_count: 0, _counted: 0 },
+          derivation:
+            "Derived deterministically from persisted barrier-state observations in the baseline (pre-creation) and post-closure windows. Decision support only; not accident prediction.",
+        },
+        evidence_observation_ids: [],
+      };
+      DEMO_CAPAS.unshift(mock);
+      return mock;
+    }
+  },
+
+  // Transit a CAPA status. Closing persists closed_at and recomputes the
+  // post-closure effectiveness window deterministically.
+  updateCapaStatus: async (capaId, status, closedAt = null) => {
+    try {
+      return await request(`/capas/${encodeURIComponent(capaId)}/status`, {
+        method: "POST",
+        body: JSON.stringify({
+          status,
+          closed_at: closedAt || undefined,
+        }),
+      });
+    } catch {
+      const found = DEMO_CAPAS.find((c) => c.id === capaId || c.report_id === capaId);
+      if (!found) throw new Error("CAPA not found");
+      if (status === "closed") {
+        found.status = "closed";
+        found.closed_at = closedAt || new Date().toISOString();
+        const hasBaseline = (found.baseline?.failure_count || 0) > 0;
+        const postIds = found.post_capa?.observation_ids || [];
+        const recurrences = found.post_capa?.recurrence_count || 0;
+        let verdict = "under_observation";
+        if (recurrences > 0) verdict = "recurrence_detected";
+        else if (hasBaseline && postIds.length > 0) verdict = "improvement_observed";
+        else if (!hasBaseline) verdict = "insufficient_evidence";
+        found.effectiveness_status = verdict;
+        found.effectiveness_basis = {
+          ...(found.effectiveness_basis || {}),
+          status_rule: {
+            recurrence_detected: ">=1 barrier-state failure recurred after CAPA closure",
+            improvement_observed:
+              "Baseline barrier failure(s) existed and post-closure evidence shows zero recurrences",
+            under_observation:
+              "CAPA not closed or post-closure window has no observations yet",
+            insufficient_evidence:
+              "No baseline barrier failure or SIF-potential evidence to compare against after closure",
+          }[verdict],
+        };
+      } else {
+        found.status = status;
+        found.closed_at = null;
+        found.effectiveness_status = "under_observation";
+      }
+      return found;
+    }
+  },
+
+  deleteCapa: async (capaId) => {
+    const res = await fetch(`${base}/capas/${encodeURIComponent(capaId)}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      let detail = res.statusText;
+      try {
+        const err = await res.json();
+        detail = err.detail || detail;
+      } catch {
+        /* surface raw status text */
+      }
+      throw new Error(detail);
+    }
+    if (res.status === 204) {
+      const idx = DEMO_CAPAS.findIndex((c) => c.id === capaId);
+      if (idx >= 0) DEMO_CAPAS.splice(idx, 1);
     }
     return { deleted: true };
   },

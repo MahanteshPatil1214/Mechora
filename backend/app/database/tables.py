@@ -132,6 +132,33 @@ class EvaluationResultRow(Base):
 class OntologyDocRow(Base):
     __tablename__ = "ontology"
 
+
     key: Mapped[str] = mapped_column(String(80), primary_key=True)
     payload: Mapped[dict] = mapped_column(PG_JSON, default=dict)
     updated_at: Mapped[str] = mapped_column(String(40), default=_now)
+
+
+class CAPARow(Base):
+    __tablename__ = "capa_actions"
+
+    id: Mapped[str] = mapped_column(String(40), primary_key=True)
+    report_id: Mapped[str] = mapped_column(String(100), default="", unique=True, index=True)
+    title: Mapped[str] = mapped_column(String(200), default="", index=True)
+    description: Mapped[str] = mapped_column(Text, default="")
+    linked_barrier_id: Mapped[str] = mapped_column(
+        String(80), default="unknown", index=True
+    )
+    location: Mapped[str] = mapped_column(String(80), default="unknown", index=True)
+    site: Mapped[str] = mapped_column(String(80), default="", index=True)
+    status: Mapped[str] = mapped_column(String(20), default="open", index=True)
+    created_at: Mapped[str] = mapped_column(String(40), default=_now, index=True)
+    closed_at: Mapped[str | None] = mapped_column(String(40), default=None, index=True)
+    baseline: Mapped[dict] = mapped_column(PG_JSON, default=dict)
+    post_capa: Mapped[dict] = mapped_column(PG_JSON, default=dict)
+    effectiveness_status: Mapped[str] = mapped_column(
+        String(40),
+        default="insufficient_evidence",
+        index=True,
+    )
+    effectiveness_basis: Mapped[dict] = mapped_column(PG_JSON, default=dict)
+    evidence_observation_ids: Mapped[list] = mapped_column(PG_JSON, default=list)

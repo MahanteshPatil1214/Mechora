@@ -19,11 +19,13 @@ from sqlalchemy.orm import Session
 
 from app.database.engine import get_session
 from app.database.tables import (
+    CAPARow,
     EvaluationResultRow,
     ObservationRow,
     OntologyDocRow,
     PrecursorFamilyRow,
 )
+from app.models.capa import CAPA
 from app.models.safety_event import Observation, PrecursorFamily
 from app.services.precursor.engine import PrecursorEngine
 
@@ -178,6 +180,8 @@ class ObservationFilters:
     sif: str | None = None
     family_id: str | None = None
     q: str | None = None
+    created_before: str | None = None
+    created_after: str | None = None
     limit: int = 100
     offset: int = 0
 
@@ -567,6 +571,197 @@ def get_ontology_snapshot(key: str) -> dict | None:
     with get_session() as s:
         doc = s.get(OntologyDocRow, key)
         return doc.payload if doc else None
+
+
+# -------------------------------------------------------------------- CAPA
+
+
+def new_capa_id(report_id: str | None = None) -> str:
+    """Deterministic CAPA id: ``CAPA-<REPORT_ID>`` (same id for the same report,
+    mirroring ``new_observation_id``). Falls back to a random ``CAPA-`` id for
+    empty/unassigned report ids so the intake path never collides."""
+    raw = (report_id or "").strip().upper()[:36]
+    slug = re.sub(r"[^A-Z0-9]+", "-", raw).strip("-")
+    if slug:
+        return f"CAPA-{slug}"[:40]
+    return "CAPA-" + uuid.uuid4().hex[:10].upper()
+
+
+def _build_capa_row(capa: CAPA) -> CAPARow:
+    return CAPARow(
+        id=capa.id,
+        report_id=capa.report_id,
+        title=capa.title,
+        description=capa.description,
+        linked_barrier_id=capa.linked_barrier_id,
+        location=capa.location,
+        site=capa.site,
+        status=capa.status,
+        created_at=capa.created_at or _now(),
+        closed_at=capa.closed_at,
+        baseline=capa.baseline.model_dump(mode="json") if capa.baseline else dict,
+        post_capa=capa.post_capa.model_dump(mode="json") if capa.post_capa else dict,
+        effectiveness_status=capa.effectiveness_status,
+        effectiveness_basis=capa.effectiveness_basis,
+        evidence_observation_ids=capa.evidence_observation_ids,
+    )
+
+
+def _row_to_capa(row: CAPARow) -> CAPA:
+    return CAPA(
+        id=row.id,
+        report_id=row.report_id,
+        title=row.title,
+        description=row.description,
+        linked_barrier_id=row.linked_barrier_id,
+        location=row.location,
+        site=row.site,
+        status=row.status,
+        created_at=row.created_at,
+        closed_at=row.closed_at,
+        baseline=row.baseline,
+        post_capa=row.post_capa,
+        effectiveness_status=row.effectiveness_status,
+        effectiveness_basis=row.effectiveness_basis,
+        evidence_observation_ids=row.evidence_observation_ids,
+    )
+
+
+def create_capa(capa: CAPA, recompute: bool = True) -> CAPA:
+    if not capa.id:
+        capa.id = new_capa_id(capa.report_id)
+    # The report_id column is unique; a CAPA without a source report cannot
+    # reuse the empty string or it would collide with a sibling record. Its own
+    # generated id is a stable, unique back-reference in that case.
+    if not capa.report_id.strip():
+        capa.report_id = capa.id
+    with get_session() as s:
+        existing = s.get(CAPARow, capa.id)
+        if existing is None:
+            existing = s.query(CAPARow).filter_by(report_id=capa.report_id).first()
+        if existing is not None:
+            keep_id = existing.id
+            replace = _build_capa_row(capa)
+            replace.id = keep_id
+            replace.report_id = existing.report_id
+            s.merge(replace)
+            stored_id = keep_id
+        else:
+            s.add(_build_capa_row(capa))
+            stored_id = capa.id
+        s.commit()
+    if recompute:
+        from app.services.capa.effectiveness import recompute_all_effectiveness
+
+        recompute_all_effectiveness()
+    with get_session() as s:
+        row = s.get(CAPARow, stored_id)
+    return _row_to_capa(row) if row else capa
+
+
+def get_capa(capa_id: str) -> CAPA | None:
+    with get_session() as s:
+        row = s.get(CAPARow, capa_id)
+        return _row_to_capa(row) if row else None
+
+
+def get_capa_by_report_id(report_id: str) -> CAPA | None:
+    with get_session() as s:
+        row = s.query(CAPARow).filter_by(report_id=report_id).first()
+        return _row_to_capa(row) if row else None
+
+
+def list_capas(
+    filters: ObservationFilters | None = None,
+    status: str | None = None,
+    barrier: str | None = None,
+    limit: int = 100,
+    offset: int = 0,
+) -> list[CAPA]:
+    with get_session() as s:
+        stmt = select(CAPARow).order_by(CAPARow.created_at.desc())
+        if status:
+            stmt = stmt.where(CAPARow.status == status)
+        if barrier:
+            stmt = stmt.where(CAPARow.linked_barrier_id == barrier)
+        rows = s.execute(stmt.limit(limit).offset(offset)).scalars().all()
+        return [_row_to_capa(r) for r in rows]
+
+
+def count_capas(status: str | None = None, barrier: str | None = None) -> int:
+    with get_session() as s:
+        stmt = select(func.count()).select_from(CAPARow)
+        if status:
+            stmt = stmt.where(CAPARow.status == status)
+        if barrier:
+            stmt = stmt.where(CAPARow.linked_barrier_id == barrier)
+        return int(s.execute(stmt).scalar_one())
+
+
+def delete_capa(capa_id: str) -> bool:
+    with get_session() as s:
+        row = s.get(CAPARow, capa_id)
+        if row is None:
+            return False
+        s.delete(row)
+        s.commit()
+    return True
+
+
+def update_capa_status(
+    capa_id: str, status: str, closed_at: str | None = None
+) -> CAPA | None:
+    with get_session() as s:
+        row = s.get(CAPARow, capa_id)
+        if row is None:
+            return None
+        row.status = status
+        if closed_at:
+            row.closed_at = closed_at
+        s.commit()
+    # Closing opens the post-CAPA evidence window; recompute the derived
+    # effectiveness immediately so the API never serves a stale status.
+    if status == "closed":
+        from app.services.capa.effectiveness import recompute_capa_effectiveness
+
+        with get_session() as s:
+            row = s.get(CAPARow, capa_id)
+        if row is not None:
+            resolved = recompute_capa_effectiveness(_row_to_capa(row))
+            if resolved is not None:
+                return resolved
+    with get_session() as s:
+        row = s.get(CAPARow, capa_id)
+        return _row_to_capa(row) if row else None
+
+
+def update_capa_effectiveness(
+    capa_id: str,
+    effectiveness_status: str,
+    effectiveness_basis: dict | None = None,
+    baseline: dict | None = None,
+    post_capa: dict | None = None,
+    evidence_observation_ids: list[str] | None = None,
+) -> CAPA | None:
+    """Persist the DERIVED effectiveness result computed by the effectiveness
+    engine (never fabrication). Keeps the DERIVED fields on the row so the
+    dashboard/API can serve precomputed values cheaply."""
+    with get_session() as s:
+        row = s.get(CAPARow, capa_id)
+        if row is None:
+            return None
+        row.effectiveness_status = effectiveness_status
+        if effectiveness_basis is not None:
+            row.effectiveness_basis = effectiveness_basis
+        if baseline is not None:
+            row.baseline = baseline
+        if post_capa is not None:
+            row.post_capa = post_capa
+        if evidence_observation_ids is not None:
+            row.evidence_observation_ids = evidence_observation_ids
+        s.commit()
+        s.refresh(row)
+    return _row_to_capa(row)
 
 
 # keep backend_name importable for dashboard summary

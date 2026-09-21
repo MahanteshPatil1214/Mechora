@@ -5,6 +5,7 @@ import {
   MessageSquareCode,
   FileText,
   Network,
+  ClipboardCheck,
   ShieldAlert,
   BarChart3,
   Settings,
@@ -80,6 +81,11 @@ export default function HSELayout() {
       to: "/app/families",
       label: "Precursor Families",
       icon: Network,
+    },
+    {
+      to: "/app/capas",
+      label: "CAPA Effectiveness",
+      icon: ClipboardCheck,
     },
     {
       to: "/app/review",

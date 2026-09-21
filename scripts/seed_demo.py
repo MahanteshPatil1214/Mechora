@@ -8,10 +8,13 @@ production OIL data) and is labelled as such in the UI.
 
 Optional flags:
   --no-reset   keep existing observations (skips the explicit reset step)
+  --capa       seed ONLY the self-contained CAPA effectiveness demo
+               (observations + families + capas are reset explicitly)
   --counts     print only the deterministic summary counts (for scripting)
 
 Usage:
     .\\.venv\\Scripts\\python scripts\\seed_demo.py
+    .\\.venv\\Scripts\\python scripts\\seed_demo.py --capa
 """
 
 from __future__ import annotations
@@ -23,6 +26,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "backend"))
 
 from app.config import get_settings  # noqa: E402
+from app.services.demo.capa_seed import seed_capa_demo  # noqa: E402
 from app.services.demo.seed import (  # noqa: E402
     demo_summary,
     reset_demo,
@@ -33,9 +37,25 @@ from app.services.demo.seed import (  # noqa: E402
 def main() -> int:
     args = [a for a in sys.argv[1:]]
     reset = "--no-reset" not in args
+    capa_only = "--capa" in args
     counts_only = "--counts" in args
 
     settings = get_settings()
+    result = None
+    if capa_only:
+        result = seed_capa_demo()
+        if counts_only:
+            for c in result["capas"]:
+                print(f"  {c['id']}  {c['title'][:44]:<46} "
+                      f"{c['status']:<8} effectiveness={c['effectiveness_status']}")
+        else:
+            print(f"capa demo: {result['observations_seeded']} observations, "
+                  f"{result['capas_seeded']} capas")
+            for c in result["capas"]:
+                print(f"  {c['id']}  {c['title'][:44]:<46} "
+                      f"{c['status']:<8} effectiveness={c['effectiveness_status']}")
+        return 0
+
     if reset:
         reset_demo()
     result = seed_curated_demo(settings)

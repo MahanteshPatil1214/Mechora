@@ -195,3 +195,79 @@ class EvaluationOut(BaseModel):
     metrics: dict[str, Any]
     categories: dict[str, Any]
     counts: dict[str, Any]
+
+
+class CapaCreate(BaseModel):
+    """Intake for creating a CAPA.
+
+    ``linked_barrier_id`` is required: a CAPA is always targeted at one
+    persisted safety barrier, because the effectiveness engine recomputes its
+    evidence windows against exactly that barrier (all deterministic, derived
+    from persisted observations -- never synthetic).
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    report_id: str = ""
+    title: str = Field(min_length=4, max_length=160)
+    description: str = Field(default="", max_length=4000)
+    linked_barrier_id: str = Field(default="unknown", max_length=60)
+    location: str = Field(default="unknown", max_length=80)
+    site: str = Field(default="unknown", max_length=80)
+    status: str = "open"
+    window_days: int = Field(default=90, ge=7, le=365)
+    created_at: str = ""
+
+
+class CapaStatusUpdate(BaseModel):
+    """Status transition for a CAPA (open -> in_progress -> closed)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: str = Field(min_length=2, max_length=20)
+    closed_at: str | None = None
+
+
+class CapaEffectivenessUpdate(BaseModel):
+    """Optional manual override of a CAPA's derived effectiveness.
+
+    Note the app's contract: effectiveness is normally DERIVED deterministically
+    by ``app.services.capa.effectiveness`` from persisted evidence. This schema
+    exists only to record a human-reviewed verdict (basis) when an operator
+    wants to supersede the machine derivation.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    effectiveness_status: str = Field(min_length=2, max_length=40)
+    effectiveness_basis: dict | None = None
+    evidence_observation_ids: list[str] = Field(default_factory=list)
+
+
+class CapaOut(BaseModel):
+    """Flat CAPA response, mirroring ``app.models.capa.CAPA`` exactly so the
+    API object-model round trip is lossless. Derived fields are served
+    precomputed (recomputed on create/close, persisted via repos)."""
+
+    id: str
+    report_id: str
+    title: str
+    description: str
+    linked_barrier_id: str
+    location: str
+    site: str
+    status: str
+    created_at: str
+    closed_at: str | None = None
+    baseline: dict[str, Any] | None = None
+    post_capa: dict[str, Any] | None = None
+    effectiveness_status: str = "insufficient_evidence"
+    effectiveness_basis: dict[str, Any] | None = None
+    evidence_observation_ids: list[str] = Field(default_factory=list)
+
+
+class CapaList(BaseModel):
+    capas: list[CapaOut]
+    total: int
+    limit: int
+    offset: int

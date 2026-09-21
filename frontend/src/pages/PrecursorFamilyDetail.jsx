@@ -17,17 +17,19 @@ import {
   Radio,
   Clock,
 } from "lucide-react";
-import { api, label } from "../api.js";
+import { api, label, summarizeCapaForBarrier } from "../api.js";
 import { PageHeader } from "../components/common/PageHeader.jsx";
 import { StateBadge, SIFBadge } from "../components/common/StatusBadge.jsx";
 import { AttentionBar } from "../components/common/AttentionBar.jsx";
 import { GroupingBreakdown, ExclusionList } from "../components/common/GroupingChips.jsx";
+import { CapaEffectivenessSection } from "../components/CapaEffectiveness.jsx";
 
 export default function PrecursorFamilyDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [family, setFamily] = useState(null);
+  const [capas, setCapas] = useState([]);
   const [observations, setObservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("mechanism"); // mechanism | observations
@@ -38,9 +40,11 @@ export default function PrecursorFamilyDetail() {
     Promise.all([
       api.family(id),
       api.observations({ family_id: id, limit: 50 }).catch(() => ({ observations: [] })),
+      api.capas({ limit: 500 }).catch(() => ({ capas: [] })),
     ])
-      .then(([famData, obsData]) => {
+      .then(([famData, obsData, capaData]) => {
         setFamily(famData);
+        setCapas(capaData?.capas || []);
         if (obsData?.observations && obsData.observations.length > 0) {
           setObservations(obsData.observations);
         } else if (famData?.observation_ids) {
@@ -226,6 +230,12 @@ export default function PrecursorFamilyDetail() {
           </div>
         </div>
       </div>
+
+      {/* CAPA / Effectiveness — evidence for this family's barrier mechanism */}
+      <CapaEffectivenessSection
+        barrier={family.common_barrier}
+        summary={summarizeCapaForBarrier(capas, family.common_barrier)}
+      />
 
       {/* CROSS-EQUIPMENT CONVERGENCE DIAGRAM */}
       <div className="rounded-xl border border-amber-500/30 bg-slate-900/80 p-5 space-y-4">
