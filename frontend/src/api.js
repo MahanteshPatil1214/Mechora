@@ -1413,9 +1413,15 @@ potential_consequence:
   capas: async (params = {}) => {
     let list = [...DEMO_CAPAS];
     try {
+      // The frontend uses camelCase filters; the API speaks snake_case.
       const qs = new URLSearchParams(
         Object.fromEntries(
-          Object.entries(params).filter(([, v]) => v !== "" && v != null),
+          Object.entries({
+            status: params.status,
+            linked_barrier_id: params.linkedBarrierId,
+            limit: params.limit,
+            offset: params.offset,
+          }).filter(([, v]) => v !== "" && v != null),
         ),
       ).toString();
       const res = await request(`/capas${qs ? `?${qs}` : ""}`);

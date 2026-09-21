@@ -383,7 +383,9 @@ class Observation(BaseModel):
     segment_index: int | None = None
     # Report classification chosen by the reporter at intake (UA/UC Observation,
     # Near Miss or Incident). Metadata only — never used in analysis/clustering.
-    report_type: REPORT_TYPE_CODES = "ua_uc"
+    # Defaults to "unknown" (honest, non-fabricated) when the reporter does not
+    # select a classification.
+    report_type: REPORT_TYPE_CODES = "unknown"
     # HSE human-in-the-loop audit trail. Empty until an HSE reviewer acts.
     validation_reviewer: str = ""
     validation_reason: str = ""

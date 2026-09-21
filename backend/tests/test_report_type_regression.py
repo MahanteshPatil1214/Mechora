@@ -172,3 +172,47 @@ def test_document_upload_persists_each_of_the_three_types():
         for seg in res.analyses:
             saved = repos.get_observation(seg.analysis.id)
             assert saved.report_type == report_type, seg.report_segment_id
+
+
+# ------------------------------------------------------ API read-back path
+
+
+def test_observation_list_api_reads_back_stored_report_type():
+    """The GET /observations serializer must surface the PERSISTED report
+    type, never a schema-default fabrication. Regression: the route previously
+    dropped report_type/document_id/report_segment_id/segment_index, so every
+    row serialized as 'ua_uc' regardless of the stored value."""
+    from app.api.routes import observations as observations_route
+    from app.schemas.api import ObservationOut
+
+    for rt, rid in (("near_miss", "RTP-LIST-1"), ("incident", "RTP-LIST-2"),
+                    ("unknown", "RTP-LIST-3")):
+        _manual(rid, rt)
+
+    rows = repos.list_observations(
+        repos.ObservationFilters(q="RTP-LIST", limit=50)
+    )
+    by_id = {o.report_id: o for o in rows if "RTP-LIST" in o.report_id}
+    assert len(by_id) == 3
+    for report_id, expected in {
+        "RTP-LIST-1": "near_miss",
+        "RTP-LIST-2": "incident",
+        "RTP-LIST-3": "unknown",
+    }.items():
+        out = ObservationOut.model_validate(
+            observations_route._to_out(by_id[report_id])
+        )
+        assert out.report_type == expected, report_id
+        assert out.document_id == ""
+        assert out.report_segment_id == ""
+
+
+def test_observation_detail_api_reads_back_stored_report_type():
+    from app.api.routes import observations as observations_route
+    from app.schemas.api import ObservationOut
+
+    obs_id = _manual("RTP-DET-1", "ua_uc")
+    saved = repos.get_observation(obs_id)
+    out = ObservationOut.model_validate(observations_route._to_out(saved))
+    assert out.id == obs_id
+    assert out.report_type == "ua_uc"

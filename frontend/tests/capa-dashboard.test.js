@@ -71,3 +71,27 @@ test("signal selection returns null when no CAPAs are linked", () => {
   assert.equal(pickCapaSignal([]), null);
   assert.equal(pickCapaSignal(DEMO_CAPAS, ["fall_protection"]), null);
 });
+
+test("capas() maps camelCase browser filters to snake_case API params", async () => {
+  const api = (await import("../src/api.js")).api;
+  const calls = [];
+  const originalFetch = global.fetch;
+  global.fetch = async (url, options) => {
+    calls.push({ url, options });
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ total: 2, capas: [], limit: 100, offset: 0 }),
+    };
+  };
+  try {
+    await api.capas({ status: "closed", linkedBarrierId: "energy_isolation", limit: 100 });
+  } finally {
+    global.fetch = originalFetch;
+  }
+  assert.equal(calls.length, 1);
+  const qs = calls[0].url.split("?")[1];
+  assert.match(qs, /linked_barrier_id=energy_isolation/);
+  assert.doesNotMatch(qs, /linkedBarrierId/);
+  assert.match(qs, /status=closed/);
+});

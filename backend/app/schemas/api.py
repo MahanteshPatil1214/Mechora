@@ -43,7 +43,7 @@ class AnalyzeResponse(BaseModel):
     document_id: str = ""
     report_segment_id: str = ""
     segment_index: int | None = None
-    report_type: str = "ua_uc"
+    report_type: str = "unknown"
 
 
 class ObservationOut(BaseModel):
@@ -66,7 +66,7 @@ class ObservationOut(BaseModel):
     document_id: str = ""
     report_segment_id: str = ""
     segment_index: int | None = None
-    report_type: str = "ua_uc"
+    report_type: str = "unknown"
     created_at: str
 
 
