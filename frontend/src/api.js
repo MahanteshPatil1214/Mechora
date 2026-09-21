@@ -1757,4 +1757,236 @@ export function percentOfPart(part, total) {
   const denominator = Number(total);
   if (!Number.isFinite(denominator) || denominator <= 0) return 0;
   return Math.round((Number(part) / denominator) * 100);
+}
+
+// ---------------------------------------------------------------------------
+// Safety Intelligence Command Center helpers.
+//
+// Pure projections of the SAME live rows the workspace already renders (the
+// dashboard summary, barrier aggregates, precursor families and CAPA rows).
+// Nothing here fabricates a number: an empty dataset yields zeroed counts and
+// honest empty states.
+// ---------------------------------------------------------------------------
+
+// Barrier states that represent a breakdown of the intended control. Mirrors
+// the backend dashboard_summary() barrier-failure predicate exactly.
+export const BARRIER_FAILURE_STATES = [
+  "not_verified",
+  "failed",
+  "absent",
+  "partially_effective",
+];
+
+// Roll the CAPA portfolio up into the four effectiveness verdicts plus the
+// open/closed lifecycle counts used by the CAPA Effectiveness card.
+export function deriveCapaPortfolio(capas = []) {
+  const list = capas || [];
+  const isOpen = (c) => c.status === "open" || c.status === "in_progress";
+  return {
+    total: list.length,
+    open: list.filter(isOpen).length,
+    closed: list.filter((c) => c.status === "closed").length,
+    underObservation: list.filter(
+      (c) => c.effectiveness_status === "under_observation",
+    ).length,
+    improvementObserved: list.filter(
+      (c) => c.effectiveness_status === "improvement_observed",
+    ).length,
+    recurrenceDetected: list.filter(
+      (c) => c.effectiveness_status === "recurrence_detected",
+    ).length,
+    insufficientEvidence: list.filter(
+      (c) => c.effectiveness_status === "insufficient_evidence",
+    ).length,
+  };
+}
+
+// Build the Barrier Health table from barrier aggregates, enriched with the
+// live precursor-family recurrence and CAPA effectiveness signals for the same
+// barrier. The status is derived in a fixed priority order so the dashboard can
+// never show a stale/black-box score:
+//   1. CAPA recurrence detected  -> "Recurrence"
+//   2. family is recurring       -> "Recurring"
+//   3. CAPA under observation    -> "Under Observation"
+//   4. failures outnumber passes -> "Needs Review"
+//   5. otherwise                 -> "Stable"
+export function deriveBarrierHealth(barrierAggs = [], families = [], capas = []) {
+  const byBarrier = new Map();
+  for (const row of barrierAggs || []) {
+    const barrier = row?.barrier;
+    if (!barrier || barrier === "unknown") continue;
+    if (!byBarrier.has(barrier)) {
+      byBarrier.set(barrier, {
+        barrier,
+        total: 0,
+        verified: 0,
+        failures: 0,
+        states: {},
+      });
+    }
+    const entry = byBarrier.get(barrier);
+    const count = Number(row.count) || 0;
+    entry.total += count;
+    entry.states[row.barrier_state] = count;
+    if (row.barrier_state === "verified") entry.verified += count;
+    else if (BARRIER_FAILURE_STATES.includes(row.barrier_state)) entry.failures += count;
+  }
+
+  const recurringBarriers = new Set(
+    (families || []).filter((f) => f?.recurring).map((f) => f?.common_barrier),
+  );
+  const withRecurrence = new Set(
+    (capas || [])
+      .filter((c) => c?.effectiveness_status === "recurrence_detected")
+      .map((c) => c?.linked_barrier_id),
+  );
+  const underObservation = new Set(
+    (capas || [])
+      .filter((c) => c?.effectiveness_status === "under_observation")
+      .map((c) => c?.linked_barrier_id),
+  );
+
+  const rows = [...byBarrier.values()].map((entry) => {
+    let status = "Stable";
+    let tone = "emerald";
+    let signal = "→";
+    if (withRecurrence.has(entry.barrier)) {
+      status = "Recurrence";
+      tone = "rose";
+      signal = "↑";
+    } else if (recurringBarriers.has(entry.barrier)) {
+      status = "Recurring";
+      tone = "rose";
+      signal = "↑";
+    } else if (underObservation.has(entry.barrier)) {
+      status = "Under Observation";
+      tone = "amber";
+      signal = "→";
+    } else if (entry.failures > entry.verified) {
+      status = "Needs Review";
+      tone = "amber";
+      signal = "↑";
+    }
+    return { ...entry, status, tone, signal };
+  });
+
+  return rows.sort(
+    (a, b) => b.failures - a.failures || b.total - a.total,
+  );
+}
+
+// The events a duty HSE lead should see first: high/medium SIF potential or an
+// explicit barrier failure, newest first. Never invents an event.
+export function selectHighSignalObservations(observations = [], limit = 4) {
+  return (observations || [])
+    .filter(
+      (o) =>
+        o?.event?.sif?.classification === "high" ||
+        o?.event?.sif?.classification === "medium" ||
+        BARRIER_FAILURE_STATES.includes(o?.event?.barrier_state),
+    )
+    .sort((a, b) =>
+      String(b.created_at || "").localeCompare(String(a.created_at || "")),
+    )
+    .slice(0, limit);
+}
+
+// Top precursor families by deterministic attention signal (highest first).
+export function selectTopFamilies(families = [], limit = 3) {
+  return [...(families || [])]
+    .sort(
+      (a, b) =>
+        (Number(b?.attention_signal) || 0) - (Number(a?.attention_signal) || 0),
+    )
+    .slice(0, limit);
+}
+
+// Human relative time for "Last updated" and recent-event rows. Deterministic
+// given (iso, now) so it is unit-testable.
+export function timeAgo(iso, now = Date.now()) {
+  if (!iso) return "";
+  const t = new Date(iso).getTime();
+  if (!Number.isFinite(t)) return "";
+  const minutes = Math.floor(Math.max(0, now - t) / 60000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hr ago`;
+  return `${Math.floor(hours / 24)} d ago`;
+}
+
+// Build the four-step evidence chain displayed in the Key Attention Area:
+//   Recurring Barrier Failure -> CAPA -> Post-CAPA Evidence -> Effectiveness
+// This is the story MECHORA tells about a mechanism: a recurring failure is
+// acted on, and the post-action evidence decides the verdict. Every field is a
+// projection of the live family + CAPA rows (never fabricated); a missing CAPA
+// yields honest "not tracked" steps.
+export function buildEvidenceChain(family = null, capa = null) {
+  const famReports = family?.observation_ids?.length ?? 0;
+  const famSites = family?.locations?.length ?? 0;
+  const baselineFailures = capa?.baseline?.failure_count ?? 0;
+  const recurrences = capa?.post_capa?.recurrence_count ?? 0;
+  const postObs = capa?.post_capa?.observation_ids?.length ?? 0;
+
+  const verdictTone = {
+    recurrence_detected: "rose",
+    improvement_observed: "emerald",
+    under_observation: "amber",
+    insufficient_evidence: "slate",
+  }[capa?.effectiveness_status] || "slate";
+
+  return {
+    failure: {
+      key: "failure",
+      label: "Recurring Barrier Failure",
+      tone: "rose",
+      detail: family
+        ? `${label(family.common_barrier)} · ${label(family.common_barrier_state)}`
+        : "No precursor family",
+      facts: [`${famReports} reports`, `${famSites} sites`],
+      to: family ? `/app/families/${family.id}` : null,
+    },
+    capa: {
+      key: "capa",
+      label: "CAPA Raised",
+      tone: "amber",
+      detail: capa
+        ? `${capa.report_id} · ${capaStatusLabel(capa.status)}`
+        : "No CAPA linked yet",
+      facts: capa
+        ? [`${baselineFailures} baseline failures`]
+        : ["Create a CAPA to begin tracking"],
+      to: capa ? `/app/capas/${capa.id}` : null,
+    },
+    evidence: {
+      key: "evidence",
+      label: "Post-CAPA Evidence",
+      tone: "sky",
+      detail: capa
+        ? recurrences > 0
+          ? "Recurrence observed"
+          : postObs > 0
+            ? "No recurrence since closure"
+            : "None collected yet"
+        : "Waiting for a linked CAPA",
+      facts: capa
+        ? [
+            `${recurrences} recurrence${recurrences === 1 ? "" : "s"}`,
+            `${postObs} post-closure obs`,
+          ]
+        : [],
+      to: capa ? `/app/capas/${capa.id}` : null,
+    },
+    verdict: {
+      key: "verdict",
+      label: "Effectiveness Verdict",
+      tone: verdictTone,
+      status: capa?.effectiveness_status || null,
+      detail: capa ? effectivenessStatusLabel(capa.effectiveness_status) : "Not yet assessed",
+      facts: capa?.effectiveness_basis?.status_rule
+        ? [capa.effectiveness_basis.status_rule]
+        : [],
+      to: capa ? `/app/capas/${capa.id}` : null,
+    },
+  };
 }

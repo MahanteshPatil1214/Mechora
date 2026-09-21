@@ -58,3 +58,23 @@ html.light .bg-amber-500,
 html.light .bg-amber-600 {
   --color-slate-950: #020617;
 }
+
+/* Smooth in-page section navigation for the public landing page. The sticky
+ * header is ~4rem tall, so anchored sections get a matching scroll offset so
+ * their headings land below the header. Reduced-motion users get instant jumps. */
+html {
+  scroll-behavior: smooth;
+}
+
+#mechanism-flow,
+#convergence,
+#explainability,
+#governance {
+  scroll-margin-top: 5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

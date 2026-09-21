@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -22,6 +22,24 @@ import {
 } from "lucide-react";
 
 export default function Home() {
+  // Direct navigation to a section ("/#governance") and anchor clicks are
+  // handled here because the sections only exist after React mounts — the
+  // browser's native fragment scroll already ran before the DOM was inserted.
+  // Respects prefers-reduced-motion like the CSS smooth-scroll rule.
+  useEffect(() => {
+    const scrollToHash = () => {
+      const id = window.location.hash.slice(1);
+      if (!id) return;
+      const el = document.getElementById(id);
+      if (!el) return;
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    };
+    scrollToHash();
+    window.addEventListener("hashchange", scrollToHash);
+    return () => window.removeEventListener("hashchange", scrollToHash);
+  }, []);
+
   return (
     <div className="space-y-16 py-10 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
       {/* 1. HERO SECTION */}
@@ -49,7 +67,7 @@ export default function Home() {
             <ArrowRight size={14} />
           </Link>
           <a
-            href="#mechanism-flow"
+            href="#convergence"
             className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900 px-5 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-800 transition-colors"
           >
             <span>See Core Mechanism</span>
@@ -119,7 +137,7 @@ export default function Home() {
       </section>
 
       {/* 3. REALISTIC REFINERY EXAMPLE & CONVERGENCE */}
-      <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 sm:p-8 space-y-6">
+      <section id="convergence" className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 sm:p-8 space-y-6">
         <div>
           <div className="text-xs font-bold uppercase tracking-wider text-amber-400">
             The MECHORA Differentiator
@@ -215,7 +233,7 @@ export default function Home() {
       </section>
 
       {/* 4. EXPLAINABILITY: WHY GROUPED / WHY NOT GROUPED */}
-      <section className="space-y-4">
+      <section id="explainability" className="space-y-4">
         <div>
           <div className="text-xs font-bold uppercase tracking-wider text-amber-400">
             Explainable Engineering Rationale
@@ -261,7 +279,7 @@ export default function Home() {
       </section>
 
       {/* 5. HSE HUMAN GOVERNANCE CTA */}
-      <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 sm:p-8 text-center max-w-3xl mx-auto space-y-4">
+      <section id="governance" className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 sm:p-8 text-center max-w-3xl mx-auto space-y-4">
         <div className="inline-flex items-center gap-1.5 rounded-md border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-xs font-semibold text-sky-300">
           <Scale size={14} />
           <span>HSE Human-in-the-Loop Governance</span>

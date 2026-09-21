@@ -60,48 +60,73 @@ export default function HSELayout() {
     }
   };
 
-  const navItems = [
+  const navGroups = [
     {
-      to: "/app",
-      label: "Overview",
-      icon: LayoutDashboard,
-      end: true,
+      label: "HSE Workspace",
+      items: [
+        {
+          to: "/app",
+          label: "Overview",
+          icon: LayoutDashboard,
+          end: true,
+        },
+        {
+          to: "/app/analyze",
+          label: "Analyze",
+          icon: FileText,
+        },
+      ],
     },
     {
-      to: "/app/analyze",
-      label: "Analyze",
-      icon: FileText,
+      label: "Safety Intelligence",
+      items: [
+        {
+          to: "/app/observations",
+          label: "Observations",
+          icon: Search,
+        },
+        {
+          to: "/app/families",
+          label: "Precursor Families",
+          icon: Network,
+        },
+        {
+          to: "/app/analytics",
+          label: "Analytics",
+          icon: BarChart3,
+        },
+      ],
     },
     {
-      to: "/app/observations",
-      label: "Observations",
-      icon: Search,
+      label: "Corrective Action",
+      items: [
+        {
+          to: "/app/capas",
+          label: "CAPA Effectiveness",
+          icon: ClipboardCheck,
+        },
+      ],
     },
     {
-      to: "/app/families",
-      label: "Precursor Families",
-      icon: Network,
+      label: "Governance",
+      items: [
+        {
+          to: "/app/review",
+          label: "HSE Review",
+          icon: ShieldAlert,
+          badge: pendingReviewCount > 0 ? pendingReviewCount : null,
+        },
+      ],
     },
     {
-      to: "/app/capas",
-      label: "CAPA Effectiveness",
-      icon: ClipboardCheck,
-    },
-    {
-      to: "/app/review",
-      label: "HSE Review",
-      icon: ShieldAlert,
-      badge: pendingReviewCount > 0 ? pendingReviewCount : null,
-    },
-    {
-      to: "/app/analytics",
-      label: "Analytics",
-      icon: BarChart3,
-    },
-    {
-      to: "/app/settings",
-      label: "Settings",
-      icon: Settings,
+      label: "System",
+      items: [
+        {
+          to: "/app/settings",
+          label: "Settings",
+          icon: Settings,
+        },
+      ],
     },
   ];
 
@@ -269,40 +294,44 @@ export default function HSELayout() {
             mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
           }`}
         >
-          <div>
-            <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Navigation
-            </div>
-            <nav className="space-y-0.5">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    end={item.end}
-                    onClick={() => setMobileOpen(false)}
-                    className={({ isActive }) =>
-                      `flex items-center justify-between rounded-md px-3 py-2 text-xs font-medium transition-colors ${
-                        isActive
-                          ? "bg-slate-900 text-amber-400 font-semibold border border-slate-800"
-                          : "text-slate-400 hover:bg-slate-900/60 hover:text-slate-200"
-                      }`
-                    }
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Icon size={15} />
-                      <span>{item.label}</span>
-                    </div>
-                    {item.badge != null && (
-                      <span className="rounded bg-rose-500/20 px-1.5 py-0.2 text-[10px] font-bold text-rose-300">
-                        {item.badge}
-                      </span>
-                    )}
-                  </NavLink>
-                );
-              })}
-            </nav>
+          <div className="space-y-3">
+            {navGroups.map((group) => (
+              <div key={group.label}>
+                <div className="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  {group.label}
+                </div>
+                <nav className="space-y-0.5">
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <NavLink
+                        key={item.to}
+                        to={item.to}
+                        end={item.end}
+                        onClick={() => setMobileOpen(false)}
+                        className={({ isActive }) =>
+                          `flex items-center justify-between rounded-md px-3 py-2 text-xs font-medium transition-colors ${
+                            isActive
+                              ? "bg-slate-900 text-amber-400 font-semibold border border-slate-800"
+                              : "text-slate-400 hover:bg-slate-900/60 hover:text-slate-200"
+                          }`
+                        }
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <Icon size={15} />
+                          <span>{item.label}</span>
+                        </div>
+                        {item.badge != null && (
+                          <span className="rounded bg-rose-500/20 px-1.5 py-0.2 text-[10px] font-bold text-rose-300">
+                            {item.badge}
+                          </span>
+                        )}
+                      </NavLink>
+                    );
+                  })}
+                </nav>
+              </div>
+            ))}
           </div>
 
           {/* Simple Bottom Workspace Note */}

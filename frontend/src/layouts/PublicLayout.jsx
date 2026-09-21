@@ -27,7 +27,10 @@ export default function PublicLayout() {
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-300">
+          <nav
+            aria-label="Product sections"
+            className="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-300"
+          >
             <a href="#mechanism-flow" className="hover:text-amber-400 transition-colors">
               Pipeline
             </a>
