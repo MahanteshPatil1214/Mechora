@@ -15,8 +15,9 @@ from __future__ import annotations
 
 import re
 import uuid
+from typing import Literal
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from pydantic import ValidationError
 
 from app.api.routes.analyze import run_analysis_and_save
@@ -27,6 +28,7 @@ from app.schemas.api import (
     ExtractionResponse,
     SegmentAnalysis,
 )
+from app.security.auth import require_auth
 from app.services.document_extractor.extractor import (
     EmptyDocumentError,
     UnsupportedDocumentTypeError,
@@ -37,7 +39,9 @@ from app.services.document_segmentation.segmenter import (
     ReportSegmenter,
 )
 
-router = APIRouter(tags=["documents"])
+router = APIRouter(tags=["documents"], dependencies=[Depends(require_auth)])
+
+_ALLOWED_PROVIDERS = ("rules", "llm", "auto")
 
 
 def _validated_extraction_file(file: UploadFile) -> str:
@@ -143,6 +147,11 @@ def analyze_document(
     """
     if not isinstance(report_type, str):  # direct-call tolerance (non-HTTP)
         report_type = "unknown"
+    if provider not in (None, *_ALLOWED_PROVIDERS):
+        raise HTTPException(
+            status_code=422,
+            detail=f"provider must be one of: {', '.join(_ALLOWED_PROVIDERS)}",
+        )
     text = _validated_extraction_file(file)
     file_type = (file.filename or "").rsplit(".", 1)[-1].lower() or "txt"
     doc_id = _document_id(file.filename or "", file_type, report_id)

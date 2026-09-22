@@ -24,18 +24,34 @@ os.environ["EXTRACTION_PROVIDER"] = "rules"
 @pytest.fixture(autouse=True)
 def _fresh_database():
     """Reset DB state before every test (offline SQLite)."""
-    if _DB_FILE.exists():
-        _DB_FILE.unlink()
+    import gc
+    import time
+
+    from app.database import engine as db_engine
+
+    def _unlink(path: pathlib.Path) -> None:
+        # On Windows, WAL file handles held by disposed SQLAlchemy connections
+        # can linger until GC; retry briefly before giving up.
+        for _ in range(20):
+            try:
+                path.unlink()
+                return
+            except FileNotFoundError:
+                return
+            except PermissionError:
+                db_engine.dispose()
+                gc.collect()
+                time.sleep(0.05)
+        path.unlink()
+
+    db_engine.dispose()
+    gc.collect()
+    _unlink(_DB_FILE)
     for suffix in ("-wal", "-shm"):
-        p = pathlib.Path(str(_DB_FILE) + suffix)
-        if p.exists():
-            p.unlink()
+        _unlink(pathlib.Path(str(_DB_FILE) + suffix))
     from app.config import get_settings
 
     get_settings.cache_clear()
-    from app.database import engine as db_engine
-
-    db_engine.dispose()
     db_engine.init_db()
     yield
     db_engine.dispose()

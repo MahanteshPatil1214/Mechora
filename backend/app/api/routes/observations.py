@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.database import repos
 from app.schemas.api import (
@@ -10,8 +10,9 @@ from app.schemas.api import (
     ObservationOut,
     ValidationUpdate,
 )
+from app.security.auth import AuthIdentity, require_auth
 
-router = APIRouter(tags=["observations"])
+router = APIRouter(tags=["observations"], dependencies=[Depends(require_auth)])
 
 
 def _to_out(obs) -> ObservationOut:
@@ -89,10 +90,23 @@ def delete_observation(obs_id: str) -> None:
 
 
 @router.patch("/observations/{obs_id}/validation", response_model=ObservationOut)
-def update_validation(obs_id: str, body: ValidationUpdate) -> ObservationOut:
+def update_validation(
+    obs_id: str,
+    body: ValidationUpdate,
+    identity: AuthIdentity = Depends(require_auth),
+) -> ObservationOut:
+    # The reviewer identity comes from the authenticated session when the
+    # client does not supply one, so the HSE audit trail cannot be forged by
+    # claiming an arbitrary reviewer name.
+    reviewer = (body.reviewer or "").strip() or identity.email
     obs = repos.update_validation(
-        obs_id, body.status, reviewer=body.reviewer or "", reason=body.reason or ""
+        obs_id, body.status, reviewer=reviewer, reason=body.reason or ""
     )
     if obs is None:
         raise HTTPException(status_code=404, detail="observation not found")
+    repos.audit_log(
+        "observation.validation",
+        actor=identity.email,
+        detail=f"{obs_id} -> {body.status} (reviewer={reviewer})",
+    )
     return _to_out(obs)

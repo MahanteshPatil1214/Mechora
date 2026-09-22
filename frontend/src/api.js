@@ -4,6 +4,85 @@
 
 const base = "/api/v1";
 
+// ---------------------------------------------------------------------------
+// Session token helpers (bearer auth against the guarded /api/v1 routes).
+//
+// Defensive: api.js must stay importable in Node (unit tests) where
+// sessionStorage does not exist.
+// ---------------------------------------------------------------------------
+const TOKEN_KEY = "mechora_token";
+const USER_KEY = "mechora_user";
+
+function _storage() {
+  try {
+    return typeof sessionStorage !== "undefined" ? sessionStorage : null;
+  } catch {
+    return null;
+  }
+}
+
+export function getToken() {
+  const s = _storage();
+  return s ? s.getItem(TOKEN_KEY) : null;
+}
+
+export function getStoredUser() {
+  const s = _storage();
+  if (!s) return null;
+  try {
+    const raw = s.getItem(USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setAuth(token, user) {
+  const s = _storage();
+  if (!s) return;
+  try {
+    if (token) s.setItem(TOKEN_KEY, token);
+    if (user) s.setItem(USER_KEY, JSON.stringify(user));
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+export function clearAuth() {
+  const s = _storage();
+  if (!s) return;
+  try {
+    s.removeItem(TOKEN_KEY);
+    s.removeItem(USER_KEY);
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+// Bounce the app to /login once the server rejects the presented session
+// (expired, revoked, or forged token). Clears local state first.
+export function notifyUnauthorized() {
+  clearAuth();
+  try {
+    window.dispatchEvent(new Event("mechora:unauthorized"));
+  } catch {
+    /* non-browser environment */
+  }
+}
+
+// Demo-session identity used when the backend is unreachable so the SIH walkthrough
+// still works offline. Never stored/refreshed as a real server token.
+function offlineDemoIdentity(email) {
+  const localPart = String(email || "").split("@")[0].replace(/[._]/g, " ").trim();
+  return {
+    name: (localPart || "HSE Analyst").toUpperCase() || "HSE Analyst",
+    email: email || "hse.analyst@oilindia.in",
+    role: "HSE Field Specialist",
+    organization: "Oil India Limited (OIL)",
+    initials: ((String(email || "H")[0] || "H").toUpperCase() + "B").trim(),
+  };
+}
+
 // Report classification chosen by the reporter at intake ("Add Safety
 // Report"). Stored as metadata on each observation; never used in analysis.
 export const REPORT_TYPES = [
@@ -24,11 +103,17 @@ export function reportTypeLabel(value) {
 }
 
 async function request(path, options = {}) {
+  const token = getToken();
   const res = await fetch(`${base}${path}`, {
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers || {}),
+    },
     ...options,
   });
   if (!res.ok) {
+    if (res.status === 401) notifyUnauthorized();
     let detail = res.statusText;
     try {
       const err = await res.json();
@@ -1181,6 +1266,53 @@ export function summarizeCapaForBarrier(capas, barrierId) {
 // Primary API Object
 // ---------------------------------------------------------------------------
 export const api = {
+  // Real bearer-token login. Returns the authenticated user profile; persists
+  // the token+user to sessionStorage. When the backend is unreachable the SIH
+  // walkthrough falls back to an offline demo session (no server token).
+  login: async ({ email, password }) => {
+    let res;
+    try {
+      res = await fetch(`${base}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+    } catch {
+      const demo = offlineDemoIdentity(email);
+      setAuth(null, demo);
+      return demo;
+    }
+    if (!res.ok) {
+      if (res.status === 401) notifyUnauthorized();
+      let detail = res.statusText;
+      try {
+        const err = await res.json();
+        detail = err.detail || detail;
+      } catch {
+        /* surface raw status text */
+      }
+      throw new Error(detail);
+    }
+    const data = await res.json();
+    setAuth(data.access_token, data.user);
+    return data.user;
+  },
+
+  // Best-effort server-side revocation; the local session is always cleared.
+  logout: async () => {
+    const token = getToken();
+    clearAuth();
+    if (!token) return;
+    try {
+      await fetch(`${base}/auth/logout`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch {
+      /* server revocation is best-effort */
+    }
+  },
+
   health: async () => {
     try {
       return await request("/health");
@@ -1202,11 +1334,14 @@ export const api = {
   extractDocument: async (file) => {
     const form = new FormData();
     form.append("file", file);
+    const token = getToken();
     const res = await fetch(`${base}/documents/extract`, {
       method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: form,
     });
     if (!res.ok) {
+      if (res.status === 401) notifyUnauthorized();
       let detail = res.statusText;
       try {
         const err = await res.json();
@@ -1230,11 +1365,14 @@ export const api = {
     const qs = new URLSearchParams();
     if (reportId) qs.set("report_id", reportId);
     if (provider) qs.set("provider", provider);
+    const token = getToken();
     const res = await fetch(`${base}/documents/analyze${qs.toString() ? `?${qs}` : ""}`, {
       method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: form,
     });
     if (!res.ok) {
+      if (res.status === 401) notifyUnauthorized();
       let detail = res.statusText;
       try {
         const err = await res.json();
@@ -1420,10 +1558,13 @@ potential_consequence:
   // Delete an observation. Families are rebuilt server-side so cluster
   // membership and the family_id back-reference stay consistent.
   deleteObservation: async (obsId) => {
+    const token = getToken();
     const res = await fetch(`${base}/observations/${encodeURIComponent(obsId)}`, {
       method: "DELETE",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     if (!res.ok) {
+      if (res.status === 401) notifyUnauthorized();
       let detail = res.statusText;
       try {
         const err = await res.json();
@@ -1604,10 +1745,13 @@ potential_consequence:
   },
 
   deleteCapa: async (capaId) => {
+    const token = getToken();
     const res = await fetch(`${base}/capas/${encodeURIComponent(capaId)}`, {
       method: "DELETE",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     if (!res.ok) {
+      if (res.status === 401) notifyUnauthorized();
       let detail = res.statusText;
       try {
         const err = await res.json();

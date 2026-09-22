@@ -52,6 +52,25 @@ class Settings(BaseSettings):
     max_upload_bytes: int = 15 * 1024 * 1024  # max raw upload size (15 MB)
     max_document_characters: int = 3000  # max extracted text given to the analyzer
 
+    # --- Security / authentication (MVP bearer-token demo auth) ---
+    # When enabled, every /api/v1 data route requires a valid bearer token
+    # issued by POST /auth/login. Credentials are demo-only; the password is
+    # verified against a PBKDF2-HMAC-SHA256 hash (never stored or logged in
+    # plaintext). AUTH_PASSWORD_HASH (format pbkdf2_sha256$rounds$salt$hash)
+    # takes precedence over AUTH_PASSWORD. AUTH_SECRET signs tokens; when left
+    # blank a random in-memory secret is generated at startup.
+    auth_enabled: bool = True
+    auth_email: str = "hse.analyst@oilindia.in"
+    auth_password: str = ""
+    auth_password_hash: str = ""
+    auth_secret: str = ""
+    auth_identity_name: str = "HSE Safety Analyst"
+    auth_identity_role: str = "HSE Field Analyst / SIH Evaluator"
+    auth_identity_organization: str = "Oil India Limited (OIL)"
+    auth_token_ttl_hours: float = 8.0
+    auth_max_attempts: int = 10
+    auth_lockout_seconds: int = 300
+
     @property
     def sqlite_fallback_url(self) -> str:
         return f"sqlite:///{Path(self.sqlite_fallback_path).as_posix()}"

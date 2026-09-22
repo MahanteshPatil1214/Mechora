@@ -1,55 +1,38 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { api, getStoredUser } from "../api.js";
 
 const AuthContext = createContext(null);
 
-const DEMO_USER = {
-  name: "HSE Safety Analyst",
-  email: "hse.analyst@oilindia.in",
-  role: "HSE Field Analyst / SIH Evaluator",
-  organization: "Oil India Limited (OIL)",
-  initials: "HB",
-};
-
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    try {
-      const saved = sessionStorage.getItem("mechora_user");
-      return saved ? JSON.parse(saved) : DEMO_USER;
-    } catch {
-      return DEMO_USER;
-    }
-  });
-
+  const [user, setUser] = useState(getStoredUser);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Server-side session invalidation (expired/revoked token) mid-session:
+    // api.js clears local auth and emits this event; we drop the user so the
+    // ProtectedRoute bounces back to /login.
+    const onUnauthorized = () => setUser(null);
+    if (typeof window !== "undefined") {
+      window.addEventListener("mechora:unauthorized", onUnauthorized);
+      return () => window.removeEventListener("mechora:unauthorized", onUnauthorized);
+    }
+    return undefined;
+  }, []);
 
   const login = async ({ email, password }) => {
     setLoading(true);
-    // Simulate brief network verification
-    await new Promise((resolve) => setTimeout(resolve, 350));
-    const authenticatedUser = {
-      name: email.split("@")[0].replace(/[._]/g, " ").toUpperCase() || "HSE Analyst",
-      email: email || "hse.analyst@oilindia.in",
-      role: "HSE Field Specialist",
-      organization: "Oil India Limited (OIL)",
-      initials: (email[0] || "H").toUpperCase() + "B",
-    };
-    setUser(authenticatedUser);
     try {
-      sessionStorage.setItem("mechora_user", JSON.stringify(authenticatedUser));
-    } catch {
-      /* ignore */
+      const authenticatedUser = await api.login({ email, password });
+      setUser(authenticatedUser);
+      return authenticatedUser;
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-    return authenticatedUser;
   };
 
-  const logout = () => {
+  const logout = async () => {
     setUser(null);
-    try {
-      sessionStorage.removeItem("mechora_user");
-    } catch {
-      /* ignore */
-    }
+    await api.logout();
   };
 
   return (

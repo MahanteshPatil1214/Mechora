@@ -7,16 +7,20 @@ an uploaded document) funnels through :func:`run_analysis_and_save`, which runs
 
 from __future__ import annotations
 
+import logging
 import uuid
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.config import get_settings
 from app.database import repos
 from app.schemas.api import AnalyzeRequest, AnalyzeResponse
+from app.security.auth import require_auth
 from app.services.pipeline import get_pipeline
 
-router = APIRouter(tags=["analyze"])
+router = APIRouter(tags=["analyze"], dependencies=[Depends(require_auth)])
+
+logger = logging.getLogger("mechora.api.analyze")
 
 
 def run_analysis_and_save(
@@ -38,7 +42,10 @@ def run_analysis_and_save(
     try:
         result = pipeline.analyze(report_id, narrative, provider=provider)
     except Exception as exc:  # noqa: BLE001
-        raise HTTPException(status_code=500, detail=f"analysis failed: {exc}") from exc
+        # Never leak internal exception text to the client: log it server-side
+        # and return a generic 500.
+        logger.exception("analysis failed for report_id=%s", report_id)
+        raise HTTPException(status_code=500, detail="analysis failed") from exc
 
     obs = pipeline.to_observation(
         report_id,

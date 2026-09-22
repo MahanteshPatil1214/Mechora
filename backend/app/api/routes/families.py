@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.database import repos
 from app.schemas.api import (
@@ -10,8 +10,9 @@ from app.schemas.api import (
     FamilyList,
     FamilyOut,
 )
+from app.security.auth import require_auth
 
-router = APIRouter(tags=["families", "dashboard"])
+router = APIRouter(tags=["families", "dashboard"], dependencies=[Depends(require_auth)])
 
 
 def _to_out(fam) -> FamilyOut:

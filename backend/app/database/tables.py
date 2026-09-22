@@ -162,3 +162,17 @@ class CAPARow(Base):
     )
     effectiveness_basis: Mapped[dict] = mapped_column(PG_JSON, default=dict)
     evidence_observation_ids: Mapped[list] = mapped_column(PG_JSON, default=list)
+
+
+class AuditEntryRow(Base):
+    """Lightweight internal audit trail for authentication events and
+    administrative state changes (who did what, when). Never stores secrets —
+    only identities, action names and short human-readable details."""
+
+    __tablename__ = "audit_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    actor: Mapped[str] = mapped_column(String(120), default="system", index=True)
+    action: Mapped[str] = mapped_column(String(60), index=True)
+    detail: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[str] = mapped_column(String(40), default=_now, index=True)

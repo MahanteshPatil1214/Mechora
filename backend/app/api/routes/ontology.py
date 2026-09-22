@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.database import repos
 from app.schemas.api import EvaluationOut, OntologyCategory, OntologyConcept
+from app.security.auth import require_auth
 from app.services.normalization.ontology import get_ontology
 
-router = APIRouter(tags=["ontology", "evaluation"])
+router = APIRouter(tags=["ontology", "evaluation"], dependencies=[Depends(require_auth)])
 
 CATEGORIES = [
     "activity", "energy", "barrier", "exposure", "consequence", "location",

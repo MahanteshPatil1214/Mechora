@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import datetime as _dt
 import json
+import logging
 import re
 import uuid
 from dataclasses import dataclass, field
@@ -19,6 +20,7 @@ from sqlalchemy.orm import Session
 
 from app.database.engine import get_session
 from app.database.tables import (
+    AuditEntryRow,
     CAPARow,
     EvaluationResultRow,
     ObservationRow,
@@ -28,6 +30,8 @@ from app.database.tables import (
 from app.models.capa import CAPA
 from app.models.safety_event import Observation, PrecursorFamily
 from app.services.precursor.engine import PrecursorEngine
+
+logger = logging.getLogger("mechora.repos")
 
 
 def new_observation_id(report_id: str | None = None) -> str:
@@ -762,6 +766,58 @@ def update_capa_effectiveness(
         s.commit()
         s.refresh(row)
     return _row_to_capa(row)
+
+
+# ------------------------------------------------------------------ Audit log
+
+
+def audit_log(action: str, actor: str = "system", detail: str = "") -> None:
+    """Append one lightweight entry to the internal audit trail.
+
+    ``actor`` is an identity (email or role), ``action`` is a short enum-like
+    token (e.g. ``auth.login_success``, ``observation.validation``) and
+    ``detail`` is a short human-readable description. Failures here must never
+    break the request that triggered the audit, so exceptions are logged.
+    """
+    try:
+        with get_session() as s:
+            s.add(
+                AuditEntryRow(
+                    actor=(actor or "system")[:120],
+                    action=(action or "")[:60],
+                    detail=(detail or "")[:2000],
+                )
+            )
+            s.commit()
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("audit_log failed for %s: %s", action, exc)
+
+
+def audit_entries(limit: int = 50, offset: int = 0) -> list[dict[str, Any]]:
+    with get_session() as s:
+        rows = s.execute(
+            select(AuditEntryRow)
+            .order_by(AuditEntryRow.id.desc())
+            .limit(max(1, min(limit, 500)))
+            .offset(max(0, offset))
+        ).scalars().all()
+        return [
+            {
+                "id": r.id,
+                "actor": r.actor,
+                "action": r.action,
+                "detail": r.detail,
+                "created_at": r.created_at,
+            }
+            for r in rows
+        ]
+
+
+def count_audit_entries() -> int:
+    with get_session() as s:
+        return int(
+            s.execute(select(func.count()).select_from(AuditEntryRow)).scalar_one()
+        )
 
 
 # keep backend_name importable for dashboard summary

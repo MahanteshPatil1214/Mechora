@@ -20,7 +20,7 @@ class AnalyzeRequest(BaseModel):
         min_length=8, max_length=3000,
         description="Untrusted HSE narrative text to analyze.",
     )
-    provider: str | None = Field(
+    provider: Literal["rules", "llm", "auto"] | None = Field(
         default=None, description="rules | llm | auto (default from settings)."
     )
     report_type: Literal["ua_uc", "near_miss", "incident", "unknown"] = Field(

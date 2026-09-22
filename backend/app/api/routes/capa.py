@@ -13,7 +13,7 @@ from typing import Any
 
 import datetime as _dt
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.database import repos
 from app.models.capa import BaselineSnapshot, CAPA
@@ -24,8 +24,9 @@ from app.schemas.api import (
     CapaOut,
     CapaStatusUpdate,
 )
+from app.security.auth import require_auth
 
-router = APIRouter(tags=["capas"])
+router = APIRouter(tags=["capas"], dependencies=[Depends(require_auth)])
 
 
 def _now_iso() -> str:
