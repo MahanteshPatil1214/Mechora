@@ -117,6 +117,67 @@ def test_recurrence_detected_after_close():
     assert "OBS-POST-30" in rec.evidence_observation_ids
 
 
+def test_post_closure_recurrence_surfaces_without_manual_recompute():
+    """Regression: CAPA-CD28E9D3C4 / OIL-OBS-8047.
+
+    A closed energy-isolation CAPA gains a barrier-failure observation shortly
+    after closure (CAPA closed 16:01:11, observation logged 16:02:44). The
+    observation is created through the normal analyzer path
+    (POST /analyze -> repos.create_observation); the CAPA detail read must then
+    show a post-closure recurrence without any manual recompute call.
+    """
+    capa = repos.create_capa(
+        CAPA(
+            id="CAPA-CD28E9D3C4",
+            report_id="CD28E9D3C4",
+            title="Mandatory energy-isolation verification checklist.",
+            linked_barrier_id="energy_isolation",
+            location="process_area",
+            site="EAST",
+            status="closed",
+            baseline=BaselineSnapshot(window_days=90),
+            created_at="2026-09-01T10:00:00Z",
+            closed_at="2026-09-22T16:01:11Z",
+        )
+    )
+
+    event = SafetyEvent(
+        activity="pipeline_maintenance",
+        task_phase="maintenance",
+        energy="pressurized_gas",
+        barrier="energy_isolation",
+        barrier_state="not_verified",
+        exposure="uncontrolled_gas_release",
+        location="process_area",
+        potential_consequence="serious_injury_or_fatality",
+        sif={"classification": "high", "confidence": 0.95, "reason": "fault"},
+    )
+    repos.create_observation(
+        Observation(
+            id="OIL-OBS-8047",
+            report_id="OBS-8047",
+            narrative="Pipeline joint opened without zero-energy verification.",
+            event=event,
+            created_at="2026-09-22T16:02:44Z",
+        )
+    )
+
+    rec = repos.get_capa(capa.id)
+    assert rec.effectiveness_status == "recurrence_detected"
+    assert rec.post_capa.recurrence_count == 1
+    assert rec.post_capa.observation_ids == ["OIL-OBS-8047"]
+    assert rec.post_capa.recurrence_observation_ids == ["OIL-OBS-8047"]
+    assert "OIL-OBS-8047" in rec.evidence_observation_ids
+
+    # CAPA detail API (GET /capas/{id}) serves the same persisted fields.
+    from app.api.routes import capa as capa_route
+
+    detail = capa_route.get_capa(capa.id)
+    assert detail.effectiveness_status == "recurrence_detected"
+    assert detail.post_capa["recurrence_count"] == 1
+    assert detail.post_capa["recurrence_observation_ids"] == ["OIL-OBS-8047"]
+
+
 def test_improvement_observed_with_verified_post_evidence():
     _barrier_obs("BASE-40", "not_verified", 20)
     capa = _make_capa(created_at=_iso(10))

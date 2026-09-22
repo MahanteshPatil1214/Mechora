@@ -218,6 +218,19 @@ def apply_observation_filters(stmt, filters: ObservationFilters):
 # ------------------------------------------------------------------ CRUD
 
 
+def _recompute_effectiveness_after_evidence_change() -> None:
+    """Re-derive every CAPA's effectiveness from persisted observations.
+
+    Effectiveness snapshots are precomputed and stored on the row, so any
+    observation write (create/delete) can otherwise leave a closed CAPA serving
+    stale recurrence evidence. Recomputed lazily here (import kept inline to
+    avoid a circular import: ``app.services.capa.effectiveness`` imports repos).
+    """
+    from app.services.capa.effectiveness import recompute_all_effectiveness
+
+    recompute_all_effectiveness()
+
+
 def create_observation(obs: Observation, recompute: bool = True) -> Observation:
     if not obs.id:
         obs.id = new_observation_id(obs.report_id)
@@ -238,6 +251,7 @@ def create_observation(obs: Observation, recompute: bool = True) -> Observation:
         s.commit()
     if recompute:
         recompute_families()
+        _recompute_effectiveness_after_evidence_change()
     with get_session() as s:
         row = s.get(ObservationRow, stored_id)
         return _row_to_obs(row) if row else obs
@@ -258,6 +272,7 @@ def bulk_create_observations(observations: list[Observation]) -> int:
             s.add(_obs_to_row(obs))
         s.commit()
     recompute_families()
+    _recompute_effectiveness_after_evidence_change()
     return len(observations)
 
 
@@ -275,7 +290,9 @@ def get_observation_by_report_id(report_id: str) -> Observation | None:
 
 def delete_observation(obs_id: str) -> bool:
     """Delete an observation and rebuild families so family membership and the
-    ``precursor_family_id`` back-reference stay consistent."""
+    ``precursor_family_id`` back-reference stay consistent. CAPA effectiveness
+    is recomputed too so a removed observation can never leave stale
+    recurrence evidence persisted on a closed CAPA."""
     with get_session() as s:
         row = s.get(ObservationRow, obs_id)
         if row is None:
@@ -283,6 +300,7 @@ def delete_observation(obs_id: str) -> bool:
         s.delete(row)
         s.commit()
     recompute_families()
+    _recompute_effectiveness_after_evidence_change()
     return True
 
 
