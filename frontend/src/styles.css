@@ -12,14 +12,30 @@ code {
  * Light theme.
  *
  * Tailwind v4 compiles color utilities to `var(--color-<name>)`, so redefining
- * the palette variables under `html.light` converts every slate-steel surface
- * (cards, borders, headings, muted text) to a light-slate scheme with dark text
- * in one place — no per-component `dark:` classes required.
+ * the palette variables under `html.light` converts every surface, border,
+ * heading and muted label to a light-slate scheme with dark text in one shared
+ * place — no per-component `dark:`/`light:` classes or page overrides.
  *
- * The pale accent text shades (amber-300/rose-300/…) are pulled down to darker
- * steps so highlights stay readable on light cards, and `--color-white` (used
- * for titles/headings) is remapped to dark slate so headings stay legible on
- * white cards. Colored badge backgrounds keep white text via their bg color.
+ * Four rules keep both themes legible:
+ *
+ * 1. Slate surfaces are inverted: slate-950 becomes the page background and
+ *    slate-900 the card surface (white), 700/800 become borders, and the
+ *    100–600 text steps become dark slate text, so every card/input/table and
+ *    their labels, secondary text and placeholders resolve correctly.
+ *
+ * 2. `--color-white` (used for headings/titles) flips to dark slate so titles
+ *    stay legible on white cards; buttons/badges that sit on *solid colored*
+ *    backgrounds re-scope `--color-white` back to real white (see below).
+ *
+ * 3. The pale accent-text shades (amber/rose/emerald/sky/indigo/orange/red
+ *    200/300/400) used for status labels, badges and stat highlights are
+ *    pulled down to dark steps (800/700/600) so semantic accents stay the same
+ *    hue family but reach WCAG-friendly contrast on light cards and on the
+ *    pale tint chips they sit on (`bg-<hue>-500/10`, `bg-<hue>-500/15`, …).
+ *
+ * 4. The dark status-chip backgrounds (`bg-<hue>-950/xx`) flip to soft pastel
+ *    tints so badges and evidence chips render as light pills whose darkened
+ *    text keeps strong contrast instead of muddy darkening against white.
  */
 html.light {
   color-scheme: light;
@@ -29,7 +45,7 @@ html.light {
   --color-slate-200: #1e293b;
   --color-slate-300: #334155;
   --color-slate-400: #475569;
-  --color-slate-500: #64748b;
+  --color-slate-500: #586475;
   --color-slate-600: #475569;
   --color-slate-700: #cbd5e1;
   --color-slate-800: #e2e8f0;
@@ -38,13 +54,34 @@ html.light {
 
   --color-white: #0f172a;
 
+  /* Accent text: 200 → 800, 300 → 700, 400 → 600 (WCAG-friendly on light
+   * surfaces while keeping each hue's semantic identity). */
+  --color-amber-200: #92400e;
   --color-amber-300: #b45309;
   --color-amber-400: #d97706;
+  --color-rose-200: #9f1239;
   --color-rose-300: #be123c;
   --color-rose-400: #e11d48;
+  --color-emerald-200: #065f46;
   --color-emerald-300: #047857;
-  --color-emerald-400: #10b981;
+  --color-emerald-400: #059669;
+  --color-sky-200: #075985;
+  --color-sky-300: #0369a1;
   --color-sky-400: #0284c7;
+  --color-indigo-200: #3730a3;
+  --color-indigo-300: #4338ca;
+  --color-indigo-400: #4f46e5;
+  --color-orange-300: #c2410c;
+  --color-orange-400: #ea580c;
+  --color-red-300: #b91c1c;
+  --color-red-400: #dc2626;
+
+  /* Dark status-chip backgrounds become pastel pills in light mode. */
+  --color-amber-950: #fef3c7;
+  --color-rose-950: #ffe4e6;
+  --color-emerald-950: #d1fae5;
+  --color-sky-950: #e0f2fe;
+  --color-indigo-950: #e0e7ff;
 }
 
 /* Dark on-slate-950 text (text-slate-950) is used for text sitting on solid
@@ -57,6 +94,19 @@ html.light .bg-amber-400,
 html.light .bg-amber-500,
 html.light .bg-amber-600 {
   --color-slate-950: #020617;
+}
+
+/* White labels on solid colored CTA buttons / notification badges must stay
+ * white — `--color-white` is flipped to dark elsewhere for headings on light
+ * cards. Scoping it back keeps "Mark verified", notification counts etc.
+ * legible inside their colored surfaces. */
+html.light .bg-sky-500,
+html.light .bg-sky-600,
+html.light .bg-emerald-500,
+html.light .bg-emerald-600,
+html.light .bg-rose-500,
+html.light .bg-rose-600 {
+  --color-white: #ffffff;
 }
 
 /* Smooth in-page section navigation for the public landing page. The sticky
