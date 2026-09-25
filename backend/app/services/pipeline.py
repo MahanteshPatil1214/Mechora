@@ -172,6 +172,20 @@ class AnalysisPipeline:
         event.unsafe_condition = (raw.unsafe_condition or "unknown").strip()[:500] \
             or "unknown"
 
+        # LLM-proposed barrier must be GROUNDED in narrative evidence of the
+        # control itself. A hazardous-energy term ("pressure") is energy
+        # evidence, NEVER barrier evidence: without an isolation/lockout/
+        # depressurization mention the required barrier stays unknown, so a
+        # pressure-only narrative can never manufacture energy_isolation.
+        # (The rules path derives its own barrier and is not subject to this
+        # vote: the model may propose a value; grounding is the pipeline's job.)
+        if output is None and event.barrier != UNKNOWN_CODE:
+            barrier_span = self.rule_extractor.verbatim_span_for_code(
+                narrative, "barrier", event.barrier
+            )
+            if not barrier_span:
+                event.barrier = UNKNOWN_CODE
+
         # Negation engine is authoritative for barrier state when a barrier is known.
         barrier_state_span = ""
         if event.barrier != UNKNOWN_CODE:
@@ -183,9 +197,12 @@ class AnalysisPipeline:
             barrier_state_span = sentence_containing(
                 narrative, state_result.evidence_span or ""
             ) or ""
-        elif raw.barrier_state != UNKNOWN_CODE:
-            event.barrier_state = raw.barrier_state
-            event.confidence = 0.3
+        else:
+            # No grounded barrier -> no attributable barrier state. A proposed
+            # state ("failed") without a grounded control has no narrative basis
+            # (e.g. a pressure release / valve rupture is an event, not proof
+            # the required barrier failed) and must never surface.
+            event.barrier_state = UNKNOWN_CODE
 
         # Exposure integrity guard (all providers): a RELEASE exposure is only
         # legitimate when the narrative literally states a release/escape (a

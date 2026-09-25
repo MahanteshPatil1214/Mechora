@@ -5,7 +5,7 @@
     {"code": "pipeline_section", "label": "Pipeline Section", "synonyms": ["pipeline corridor", "pipe rack", "pipeline section"]},
     {"code": "pump_station", "label": "Pump Station", "synonyms": ["pump house", "pump room", "pumping station", "pump deck"]},
     {"code": "tank_farm", "label": "Tank Farm", "synonyms": ["storage tank farm", "tank battery"]},
-    {"code": "well_site", "label": "Well Site", "synonyms": ["well pad", "wellhead"]},
+    {"code": "well_site", "label": "Well Site", "synonyms": ["well pad", "wellhead", "well plinth"]},
     {"code": "substation", "label": "Substation", "synonyms": ["electrical substation", "switch room", "switchgear room"]},
     {"code": "workshop", "label": "Workshop", "synonyms": ["mechanical workshop", "maintenance workshop", "repair workshop"]},
     {"code": "process_area", "label": "Process Area", "synonyms": ["process module", "production module", "production area", "production deck", "production platform"]},

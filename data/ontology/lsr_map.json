@@ -28,6 +28,7 @@
   },
   "energy_to_rule": {
     "pressurized_gas": ["energy_isolation"],
+    "pressurized_liquid": ["energy_isolation"],
     "electrical_energy": ["energy_isolation"],
     "flammable_atmosphere": ["gas_testing"],
     "chemical_exposure": ["safe_operation"],

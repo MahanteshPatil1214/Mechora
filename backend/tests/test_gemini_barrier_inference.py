@@ -47,6 +47,26 @@ OBSERVATION = (
     "inadequate, and the required entry controls had not been verified."
 )
 
+# EXACT target narrative: the barrier/energy/atmosphere are expressed only
+# through context ("made safe for entry", "atmosphere was not confirmed safe",
+# "ventilation had not been established", "without completing the required
+# entry checks") - no literal "flammable" or "confined space permit" wording.
+TARGET_NARRATIVE = (
+    "Before entering the storage vessel to inspect its interior, the "
+    "maintenance team did not verify that the vessel had been properly "
+    "isolated and made safe for entry. The atmosphere was not confirmed safe, "
+    "ventilation had not been established, and the worker entered the vessel "
+    "without completing the required entry checks."
+)
+
+# Semantic variation: different wording, SAME canonical codes.
+VARIATION_NARRATIVE = (
+    "The crew entered a vessel for inspection without first confirming "
+    "atmospheric conditions or completing the required confined-space entry "
+    "controls. Ventilation was unavailable and the space had not been verified "
+    "safe before entry."
+)
+
 # Fixed Gemini output after the instruction update: the described entry control
 # maps to the existing canonical barrier. potential_consequence/SIF must be
 # derived by the deterministic layer regardless.
@@ -180,12 +200,22 @@ def test_extraction_instructions_teach_contextual_barrier_mapping():
         "life_saving_rules" in "\n".join(instruction.splitlines())
     )
     assert "required entry controls had not been verified" in instruction
+    # The contextual confined-space inference rules (exact target narrative
+    # wording) must be taught in the instruction.
+    assert "entry checks" in instruction
+    assert "made safe for entry" in instruction
+    assert "atmosphere was not confirmed safe" in instruction
+    assert "ventilation had not been established" in instruction
+    assert "without completing the required entry checks" in instruction
 
     extractor = _stub_pipeline(GEMINI_PAYLOAD, {}).llm_extractor
     prompt = _build_prompt(extractor._vocab(get_ontology()))
     assert "confined_space_procedure" in prompt
     assert "required entry controls had not been verified" in prompt
     assert "Never derive the barrier from the Life-Saving Rules" in prompt
+    assert "entry checks" in prompt
+    assert "made safe for entry" in prompt
+    assert "atmosphere was not confirmed safe" in prompt
 
 
 def test_deterministic_layers_override_llm_barrier_state_and_consequence():
@@ -241,3 +271,122 @@ def test_unknown_kept_when_no_evidence_for_any_canonical_barrier():
     assert ev.needs_review is True
     # The canonical barrier vocabulary was not weakened by the fix.
     assert "confined_space_procedure" in BARRIER_VALUES
+
+
+def _contextual_payload(**overrides) -> dict:
+    payload = {
+        "activity": "confined_space_entry",
+        "task_phase": "inspection",
+        "hazard": "unverified atmosphere inside the storage vessel",
+        "energy": "flammable_atmosphere",
+        "unsafe_action": "entered the vessel without completing the required entry checks",
+        "unsafe_condition": "atmosphere not confirmed safe and ventilation not established",
+        "barrier": "confined_space_procedure",
+        "barrier_state": "not_verified",
+        "exposure": "confined_space_atmosphere",
+        "actual_consequence": "unknown",
+        "potential_consequence": "unknown",
+        "location": "unknown",
+        "life_saving_rules": ["confined_space_entry", "gas_testing"],
+        "confidence": 0.9,
+    }
+    payload.update(overrides)
+    payload["evidence"] = overrides.get(
+        "evidence",
+        ["made safe for entry", "The atmosphere was not confirmed safe"],
+    )
+    return payload
+
+
+def test_exact_target_narrative_confined_space_full_extraction():
+    """Regression: the exact target narrative must yield the full expected
+    canonical event through contextual inference (mocked Gemini, no API).
+
+    Asserted contract: provider == "llm"; no fallback; barrier ==
+    "confined_space_procedure"; barrier_state == "not_verified"; energy ==
+    "flammable_atmosphere"; exposure == "confined_space_atmosphere"; activity
+    == "confined_space_entry"; task_phase == "inspection"; potential
+    consequence and SIF deterministic; the two Life-Saving Rules present; and
+    every evidence span verbatim-grounded in the narrative."""
+    calls: dict = {}
+    result = _stub_pipeline(_contextual_payload(), calls).analyze(
+        "CONF-ENTRY-5", TARGET_NARRATIVE, provider="llm"
+    )
+    assert calls["contents"], "Gemini client must actually be invoked"
+    assert result.provider == "llm"
+    assert result.fallback_used is False
+    assert result.warnings == []
+
+    ev = result.event
+    assert ev.activity == "confined_space_entry"
+    assert ev.task_phase == "inspection"
+    assert ev.energy == "flammable_atmosphere"
+    assert ev.barrier == "confined_space_procedure"
+    assert ev.barrier_state == "not_verified"
+    assert ev.exposure == "confined_space_atmosphere"
+    assert ev.missing_fields == []
+    assert ev.needs_review is False
+
+    # Barrier grounded on the contextual control wording (not a keyword code).
+    barrier_evidence = ev.field_evidence.get("barrier", "")
+    assert barrier_evidence == "required entry checks"
+    assert ev.field_basis.get("barrier") == "explicit"
+    # Energy has no literal "flammable" phrasing in the narrative: the value is
+    # contextually inferred and honestly marked as such, with verbatim
+    # atmosphere/ventilation wording as grounded evidence instead.
+    assert ev.field_basis.get("energy") == "inferred"
+    assert all(
+        span in TARGET_NARRATIVE for span in ev.field_evidence.values()
+    ), f"field evidence not verbatim: {ev.field_evidence!r}"
+    assert any(
+        item.span == "The atmosphere was not confirmed safe" for item in ev.evidence
+    )
+    assert all(item.status == "grounded" for item in ev.evidence)
+
+    # Deterministic consequence / SIF are authoritative.
+    assert ev.potential_consequence == "serious_injury_or_fatality"
+    assert ev.potential_consequence not in EXPOSURE_VALUES
+    assert ev.sif.classification == "high"
+    assert ev.sif.basis == "rule_inference"
+
+    # Both Life-Saving Rules derived from the canonical barrier/energy.
+    assert {"confined_space_entry", "gas_testing"} <= set(ev.life_saving_rules)
+
+
+def test_semantic_variation_narrative_same_canonical_codes():
+    """A differently-worded narrative must map to the SAME canonical codes:
+    barrier = confined_space_procedure, barrier_state = not_verified, energy =
+    flammable_atmosphere, exposure = confined_space_atmosphere, activity =
+    confined_space_entry (mocked Gemini, no API)."""
+    result = _stub_pipeline(
+        _contextual_payload(
+            evidence=[
+                "without first confirming atmospheric conditions",
+                "Ventilation was unavailable",
+            ]
+        ),
+        {},
+    ).analyze("CONF-ENTRY-6", VARIATION_NARRATIVE, provider="llm")
+    assert result.provider == "llm"
+    assert result.fallback_used is False
+
+    ev = result.event
+    assert ev.activity == "confined_space_entry"
+    assert ev.task_phase == "inspection"
+    assert ev.energy == "flammable_atmosphere"
+    assert ev.barrier == "confined_space_procedure"
+    assert ev.barrier_state == "not_verified"
+    assert ev.exposure == "confined_space_atmosphere"
+    assert ev.missing_fields == []
+
+    barrier_evidence = ev.field_evidence.get("barrier", "")
+    assert barrier_evidence == "confined-space entry"
+    assert all(
+        span in VARIATION_NARRATIVE for span in ev.field_evidence.values()
+    ), f"field evidence not verbatim: {ev.field_evidence!r}"
+    assert all(item.status == "grounded" for item in ev.evidence)
+
+    assert ev.potential_consequence == "serious_injury_or_fatality"
+    assert ev.sif.classification == "high"
+    assert ev.sif.basis == "rule_inference"
+    assert {"confined_space_entry", "gas_testing"} <= set(ev.life_saving_rules)

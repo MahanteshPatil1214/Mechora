@@ -120,6 +120,26 @@ _WORD = re.compile(r"[A-Za-z0-9]+(?:['-][A-Za-z0-9]+)*")
 # therefore outrank the activity-implied maintenance phase, which merely says a
 # job was in progress. Cues are compared against normalize_text() output, so
 # hyphenated spellings ("pre-job") appear here in normalised "pre job" form.
+# BARE phase words that must remain subject to the pre/post-job heuristics
+# ("gas testing was not carried out before work" -> pre_job) instead of being
+# treated as authoritative phase evidence. Only explicit, compound ONTOLOGY
+# testing phrases (e.g. "hydrostatic testing", "pressure testing", "hydrotest",
+# "during testing", "test run") carry the authoritative "the job was a testing
+# job" meaning.
+_TESTING_BARE_WORDS = frozenset({"testing", "test", "testing of", "during"})
+# Person-CONTACT struck-by phrases (an object fell/struck onto a person).
+# When such a phrase is present, the event is an object-drop / struck-by,
+# NOT a fall-from-height, even though a fall verb ("fell") co-occurs: "A
+# loose component fell from the structure and struck a worker." The bear
+# "fell" of fall_from_height describes the WORKER'S own fall; an explicit
+# object-on-person contact must outrank it.
+_STRIKE_PERSON_PHRASES = (
+    "struck a worker", "struck the worker", "struck an employee",
+    "struck personnel", "struck an operator", "hit a worker",
+    "hit the worker", "hit an employee", "hit personnel",
+    "fell onto a worker", "fell onto an operator", "fell onto personnel",
+    "fell on a worker", "fell on a person",
+)
 _EXPLICIT_PRE_JOB_CUES = (
     "without prior",
     "prior to",
@@ -187,6 +207,17 @@ class RuleBasedExtractor:
             matched["task_phase"] = self._verbatim_first(
                 narrative, _EXPLICIT_PRE_JOB_CUES
             )
+        # A testing-specific on-ontology phrase ("hydrostatic testing",
+        # "pressure testing", "hydrotest", "during testing", "test run") is
+        # AUTHORITATIVE phase evidence: the incident happened DURING a
+        # concrete testing activity. It wins over a generic activity-implied
+        # "maintenance" phase AND over the verification/cue heuristics, which
+        # must only fire on the BARE phase word (the classic "Gas testing was
+        # not carried out before work" negation-sentence remains pre_job).
+        elif self._is_specific_testing_phase(task_phase, t_span):
+            matched["task_phase"] = self._extract_verbatim_span(
+                narrative, t_span
+            ) if t_span else ""
         elif activity and activity != UNKNOWN_CODE:
             task_phase = "maintenance"
             mc = self.ontology.concept("task_phase", "maintenance")
@@ -201,18 +232,30 @@ class RuleBasedExtractor:
                 "prior to the job", "before work commenced",
             )
             verification_words = (
-                "confirmed", "verified", "checked", "tested",
-                "lockout", "depressuriz", "permit", "isolated",
-                "issued", "proved", "confirm", "verify", "check",
-                "test", "verification", "checking", "carried out",
+                "confirmed", "confirming", "confirm",
+                "verified", "verifying", "verify",
+                "checked", "checks", "checking", "check",
+                "tested", "tests", "test",
+                "lockout", "isolated", "issued",
+                "proved", "approved",
+                "permit", "permits",
+                "verification", "carried out",
             )
+            # Word-boundary stems for morphological variants that are NOT
+            # matched by the verbatim boundary check above ("depressuriz"
+            # covers depressurization / depressurized / depressurised).
+            verification_stems = ("depressuriz", "depressuris")
             post_words = (
                 "after work", "after the job", "when the job was completed",
                 "when work was completed", "after completion",
             )
+            # Verification words match at WORD boundaries (so "hydrotest" does
+            # not read as the word "test", and "checklist" does not read as
+            # "check") while pre/post temporal phrases stay substring-matched.
+            norm_padded = f" {norm} "
             if any(t in norm for t in pre_words) or any(
-                t in norm for t in verification_words
-            ):
+                f" {w} " in norm_padded for w in verification_words
+            ) or any(s in norm for s in verification_stems):
                 task_phase = "pre_job"
                 matched["task_phase"] = self._verbatim_first(narrative, pre_words)
             elif any(t in norm for t in post_words):
@@ -454,6 +497,21 @@ class RuleBasedExtractor:
                 best = span
         return best
 
+    def _is_specific_testing_phase(self, task_phase: str, t_span: str) -> bool:
+        """True when the ontology matched a CONCRETE, compound testing phrase
+        (e.g. "hydrostatic testing", "pressure testing", "hydrotest",
+        "during testing", "test run"). Such a phrase is authoritative phase
+        evidence. The BARE word "testing" ("Gas testing was not carried out
+        before work") is NOT: it must remain subject to the pre/post-job cue
+        heuristics so the classic negation-sentence still resolves to pre_job.
+        """
+        if task_phase != "testing":
+            return False
+        if not t_span:
+            return False
+        norm_span = normalize_text(t_span).strip()
+        return bool(norm_span) and norm_span not in _TESTING_BARE_WORDS
+
     def _best_synonym_match(self, narrative: str, category: str,
                             code: str) -> tuple[str, str]:
         concept = self.ontology.concept(category, code)
@@ -549,6 +607,7 @@ class RuleBasedExtractor:
         best = UNKNOWN_CODE
         best_rank = 0
         best_span = ""
+        person_strike_span = ""
         for concept in self.ontology.concepts("exposure"):
             if concept.code == UNKNOWN_CODE:
                 continue
@@ -568,10 +627,32 @@ class RuleBasedExtractor:
                 continue
             c_span = max(non_negated, key=len)
             rank = self.ontology.exposure_rank(concept.code)
-            if rank > best_rank or (rank == best_rank and c_span):
+            # An explicit object-on-person contact phrase ("struck a worker",
+            # "fell onto a worker") makes this a STRUCK-BY, not a fall-from-
+            # height, even though a bare "fell" co-occurs (the "fell" belongs
+            # to the OBJECT). Remember the longest such span so it can outrank
+            # fall_from_height below, but never override a release exposure.
+            if concept.code == "object_drop_struck_by":
+                for sp in non_negated:
+                    nsp = normalize_text(sp)
+                    if any(p in nsp for p in _STRIKE_PERSON_PHRASES) and (
+                        len(sp) > len(person_strike_span)
+                    ):
+                        person_strike_span = sp
+            # On a severity-rank tie the LONGEST verbatim span wins. Without
+            # this, a generic event word shared across concepts ("ruptured" in
+            # both gas and liquid release) would silently flip the exposure to
+            # whichever concept is iterated last.
+            if rank > best_rank or (
+                rank == best_rank and len(c_span) > len(best_span)
+            ):
                 best = concept.code
                 best_rank = rank
                 best_span = c_span
+        # Priority override: object striking a person beats a worker's own
+        # fall-from-height when the fall verb is the only fall evidence.
+        if best == "fall_from_height" and person_strike_span:
+            return "object_drop_struck_by", person_strike_span
         return best, best_span
 
     @staticmethod
@@ -728,29 +809,61 @@ class RuleBasedExtractor:
             return scored[0][1], scored[0][2], False
 
         # Soft inference from negation context words (e.g. "isolated",
-        # "atmosphere", "vent") which can be the only barrier mention.
+        # "atmosphere", "vent").
+        # Some context words are HAZARD / EVENT evidence, not control evidence:
+        # energy_isolation's "pressure", "gas", "valve" name the contained
+        # hazard, so a bare "the valve was opened" or "the valve ruptured" is an
+        # EVENT ("a sudden pressure release occurred"), never proof that the
+        # required control was absent. A hazard-only match is only allowed to
+        # bootstrap the barrier when the narrative shows a determinate
+        # verification state (verified / not_verified) - i.e. the words sit in
+        # an isolation-control observation ("pressure was released and
+        # confirmed zero", "pressure was not released before opening"). In every
+        # other case the hazard-only context is ignored here.
+        hazard_terms = self.ontology.negation_cues().get(
+            "barrier_hazard_context_terms", {}
+        )
+        event_terms = self.ontology.negation_cues().get(
+            "barrier_event_mechanism_terms", {}
+        )
         ctx_best: tuple[str, str, int] = (UNKNOWN_CODE, "", 0)
         for concept in self.ontology.concepts("barrier"):
             terms = self.negation.context_terms.get(concept.code, [])
             if not terms:
                 continue
             matches = [t for t in terms if f" {t} " in norm_narr]
-            if matches:
-                span = max(matches, key=len)
-                state = self.negation.classify_barrier(concept.code,
-                                                       narrative).state
-                weight = 2 if state in BARRIER_FAILURE_STATES else (
-                    1 if state != "unknown" else 0
-                )
-                # Prefer the most relevant barrier; on a tie prefer a
-                # specific barrier over the energy_isolation catch-all.
-                if weight > ctx_best[2] or (
-                    weight == ctx_best[2] and len(span) > len(ctx_best[1])
-                ):
-                    ctx_best = (concept.code, span, weight)
-                elif weight == ctx_best[2] and ctx_best[0] == "energy_isolation" \
-                        and concept.code != "energy_isolation":
-                    ctx_best = (concept.code, span, weight)
+            if not matches:
+                continue
+            span = max(matches, key=len)
+            state = self.negation.classify_barrier(concept.code,
+                                                   narrative).state
+            hz = hazard_terms.get(concept.code, [])
+            hazard_only = bool(hz) and all(t in hz for t in matches)
+            if hazard_only and state not in ("verified", "not_verified"):
+                # Hazard-only context with a determinate FAILURE reading is
+                # only accepted when it is a genuine control-failure
+                # observation ("the pump discharge valve failed", "failed to
+                # hold pressure"). When the narrative ALSO states a
+                # rupture/release/blowout mechanism ("the valve ruptured", "a
+                # sudden pressure release occurred", "a blowout ... the well
+                # failed") the words describe the EVENT, not the isolation
+                # control, so the candidate is dropped.
+                ev = event_terms.get(concept.code, [])
+                event_present = any(t in norm for t in ev) if ev else True
+                if state not in BARRIER_FAILURE_STATES or event_present:
+                    continue
+            weight = 2 if state in BARRIER_FAILURE_STATES else (
+                1 if state != "unknown" else 0
+            )
+            # Prefer the most relevant barrier; on a tie prefer a
+            # specific barrier over the energy_isolation catch-all.
+            if weight > ctx_best[2] or (
+                weight == ctx_best[2] and len(span) > len(ctx_best[1])
+            ):
+                ctx_best = (concept.code, span, weight)
+            elif weight == ctx_best[2] and ctx_best[0] == "energy_isolation" \
+                    and concept.code != "energy_isolation":
+                ctx_best = (concept.code, span, weight)
         if ctx_best[0] != UNKNOWN_CODE and ctx_best[2] >= 2:
             # A determinate failure reading of an explicit barrier outweighs
             # the energy-default guess.
@@ -758,13 +871,31 @@ class RuleBasedExtractor:
             return ctx_best[0], ctx_best[1], True
 
         # Soft inference from the strongest energy present.
+        # The energy-default barrier (energy_isolation for any pressurized /
+        # stored energy) is ONLY emitted when the narrative itself shows
+        # isolation-control language or a determinate verification state;
+        # otherwise a bare hazard/event ("pressure release occurred and the
+        # valve ruptured") would silently invent an energy_isolation barrier
+        # from energy evidence alone.
         primary_energy = self._pick_primary(energy_codes, {
             c: "" for c in energy_codes
         }, "energy") if energy_codes else UNKNOWN_CODE
         if primary_energy in ENERGY_DEFAULT_BARRIER:
             barrier = ENERGY_DEFAULT_BARRIER[primary_energy]
-            self._barrier_map.append((barrier, ""))
-            return barrier, "", True
+            if barrier == "energy_isolation":
+                ei_terms = self.negation.context_terms.get(
+                    "energy_isolation", [])
+                ei_hazard = hazard_terms.get("energy_isolation", [])
+                ei_matches = [t for t in ei_terms if f" {t} " in norm_narr]
+                control_present = any(t not in ei_hazard for t in ei_matches)
+                st = self.negation.classify_barrier(
+                    "energy_isolation", narrative).state
+                if not control_present and st not in ("verified",
+                                                      "not_verified"):
+                    barrier = UNKNOWN_CODE
+            if barrier != UNKNOWN_CODE:
+                self._barrier_map.append((barrier, ""))
+                return barrier, "", True
 
         if ctx_best[0] != UNKNOWN_CODE:
             self._barrier_map.append((ctx_best[0], ctx_best[1]))

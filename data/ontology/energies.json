@@ -33,7 +33,10 @@
         "no pressure",
         "pressure was absent",
         "hydrocarbon",
-        "hydrocarbon release"
+        "hydrocarbon release",
+        "stored pressure",
+        "pressure buildup",
+        "pressure build up"
       ]
     },
     {
@@ -53,7 +56,15 @@
         "sour water",
         "hot liquid",
         "stored liquid",
-        "liquid under pressure"
+        "liquid under pressure",
+        "pressurized water",
+        "pressurised water",
+        "pressurized with water",
+        "pressurised with water",
+        "hydrotest water",
+        "hydro test water",
+        "water under pressure",
+        "condensate"
       ]
     },
     {

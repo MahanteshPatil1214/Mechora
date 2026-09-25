@@ -6,7 +6,7 @@
     {"code": "repair", "label": "Repair", "synonyms": ["repair", "corrective work", "fixing", "repair work", "during repair"]},
     {"code": "operation", "label": "Operation", "synonyms": ["operation", "during operation", "running", "operating the", "while running", "during normal operation", "operating", "operations"]},
     {"code": "installation", "label": "Installation", "synonyms": ["installation", "installing", "fitting", "commissioning work", "assembly"]},
-    {"code": "testing", "label": "Testing", "synonyms": ["testing", "test run", "pressure test", "functional test", "during testing", "start-up test", "trial run"]},
+    {"code": "testing", "label": "Testing", "synonyms": ["testing", "test run", "pressure test", "functional test", "during testing", "start-up test", "trial run", "pressure testing", "hydrotest", "hydro test", "hydro testing", "hydrostatic test", "hydrostatic testing"]},
     {"code": "commissioning", "label": "Commissioning", "synonyms": ["commissioning", "start-up", "startup", "initial start"]},
     {"code": "cleaning", "label": "Cleaning", "synonyms": ["cleaning", "flushing", "pigging", "desludging"]},
     {"code": "inspection", "label": "Inspection", "synonyms": ["inspection", "inspecting", "survey", "checking the", "examination"]},

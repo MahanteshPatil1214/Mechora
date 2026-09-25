@@ -36,7 +36,12 @@
         "pressure present",
         "residual pressure",
         "releasing gas",
-        "releasing gas to atmosphere"
+        "releasing gas to atmosphere",
+        "rupture",
+        "ruptured",
+        "rupturing",
+        "burst",
+        "bursting"
       ]
     },
     {
@@ -81,7 +86,26 @@
         "spurted",
         "spurting",
         "spewed",
-        "spewing"
+        "spewing",
+        "rupture",
+        "ruptured",
+        "rupturing",
+        "burst",
+        "bursting",
+        "spilled",
+        "spilling",
+        "spill",
+        "spilled onto",
+        "oil spill",
+        "crude spill",
+        "uncontrolled release of pressurized water",
+        "uncontrolled release of water",
+        "release of pressurized water",
+        "pressurized water release",
+        "pressurized water was released",
+        "released pressurized water",
+        "water was released",
+        "release of water"
       ]
     },
     {
@@ -177,7 +201,30 @@
         "object dropped",
         "tool dropped",
         "load dropped",
-        "suspended load"
+        "suspended load",
+        "dislodged",
+        "dislodgement",
+        "dislodgment",
+        "came loose",
+        "came off",
+        "broke off",
+        "broke loose",
+        "became detached",
+        "detached",
+        "struck a worker",
+        "struck the worker",
+        "struck an employee",
+        "struck personnel",
+        "struck an operator",
+        "hit a worker",
+        "hit the worker",
+        "hit an employee",
+        "hit personnel",
+        "fell onto a worker",
+        "fell onto an operator",
+        "fell onto personnel",
+        "fell on a worker",
+        "fell on a person"
       ]
     },
     {

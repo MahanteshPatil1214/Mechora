@@ -50,8 +50,15 @@ vocabulary whenever the narrative supports it:
    liquid-like substance (crude oil, oil, hydrocarbon liquid, hot liquid, hot
    fluid, slurry, acid, caustic) -> pressurized_liquid; a gas or vapour ->
    pressurized_gas; pressurized steam / steam line -> thermal_energy. "Hot
-   fluid" / "hot liquid" describe a hot liquid substance; they do NOT by
-   themselves mean thermal energy.
+fluid" / "hot liquid" describe a hot liquid substance; they do NOT by
+    themselves mean thermal energy.
+    In a CONFINED-SPACE entry (vessel/pit/tank/silo), an atmosphere that was
+    not confirmed safe, was not tested, or lacked ventilation/oxygen control is
+    the atmospheric hazard: energy = flammable_atmosphere, using the entry +
+    atmosphere/ventilation wording ("atmosphere was not confirmed safe",
+    "ventilation had not been established") as its evidence - no literal
+    "flammable" phrase is required when the confined-space entry context
+    supports it.
 
 2. EXPOSURE (uncontrolled release). Escape/release wording is exposure
    evidence: "fluid escaped", "fluid escaped from the connection",
@@ -77,9 +84,11 @@ vocabulary whenever the narrative supports it:
    PURPOSE or its FAILURE instead of the code. Map a described control to an
    EXISTING canonical barrier when the surrounding narrative supports it:
    - vessel/pit/tank/silo entry context: "entry controls", "entry permit",
-     "confined space controls", "atmosphere testing", "atmosphere was checked",
-     "gas monitoring", "oxygen checked", "space was safe for entry", "standby
-     attendant", ventilation FOR THE ENTRY -> confined_space_procedure.
+     "entry checks", "pre-entry checks", "required entry checks", "confined
+     space controls", "atmosphere testing", "atmosphere was checked", "gas
+     monitoring", "oxygen checked", "space was safe for entry",
+     "made safe for entry", "standby attendant", ventilation FOR THE ENTRY, or
+     failure to complete the required entry checks -> confined_space_procedure.
    - "isolation", "lockout/tagout", "zero energy", "depressurized" ->
      energy_isolation.
    - "permit to work", "authorization", "approval" -> work_permit.
@@ -93,6 +102,19 @@ vocabulary whenever the narrative supports it:
    barrier keeps the control that SHOULD have been in place. Do not return
    "unknown" for the barrier merely because the control failed.
 
+   A HAZARDOUS-ENERGY term is NOT a safety barrier. "pressure", "stored
+   pressure", "pressure release" and "rupture" describe the HAZARD or the
+   EVENT; they are ENERGY evidence (pressurized_gas, pressurized_liquid,
+   thermal_energy), never barrier evidence. "pressure" must NEVER become the
+   evidence for barrier = energy_isolation and must never by itself produce
+   that barrier. energy_isolation REQUIRES language about the ISOLATION
+   CONTROL: isolation, lockout / lock-out / tag-out (LOTO), zero energy,
+   depressurization, venting, blow down, or a statement that such a control
+   was not applied or not verified. "pressure", "valve" and "gas" by
+   themselves are hazard words, not control words. When the narrative only
+   describes the event (a sudden pressure release, a ruptured valve) and names
+   no control, barrier = "unknown" - never guess.
+
 7. Reason barrier from NARRATIVE evidence, not from the Life-Saving Rules - the
    LSR is the outcome, not the cause. Correct order: narrative evidence ->
    required control -> canonical barrier -> barrier state -> life_saving_rules.
@@ -105,14 +127,36 @@ vocabulary whenever the narrative supports it:
    the control (e.g. "required entry controls had not been verified", widened
    with the surrounding vessel-entry/atmosphere context when useful) and MUST
    be added to the "evidence" array (one verbatim span per filled field).
-   Never invent a span. When the narrative offers no evidence for any
-   canonical barrier, keep barrier "unknown" rather than guessing.
+   Never invent a span. Evidence spans must be SEMANTICALLY RELEVANT to the
+   FIELD they support: "pressure" can be the evidence span for energy =
+   pressurized_gas, but it can never be the evidence span for barrier =
+energy_isolation. When the narrative offers no evidence for any canonical
+    barrier, keep barrier "unknown" rather than guessing. For a contextually
+    inferred atmospheric hazard in a confined-space entry, the evidence span is
+    the atmosphere/ventilation/entry wording itself (e.g. "The atmosphere was
+    not confirmed safe", "ventilation had not been established", "made safe for
+    entry"), not a literal "flammable" phrase.
+
+9. barrier_state describes the REQUIRED control, so a failure state (failed,
+   absent, not_verified, partially_effective) requires narrative evidence about
+   that control: it was absent, bypassed, failed, not verified, removed, not
+   applied or ineffective. An unexpected pressure release or a component
+   rupture describes the EVENT, not the state of an isolation control: by
+   itself it NEVER makes barrier_state "failed". When barrier = "unknown"
+   (no control named), barrier_state = "unknown". A subordinate clause about
+   the entry control - "without completing the required entry checks" - is
+   evidence the control was NOT in force and MUST produce barrier_state =
+   not_verified, the same as "was not confirmed" or "had not been established".
 
 OTHER RULES:
 - Preserve safety-critical negation: "isolation was not verified" MUST produce
   barrier_state "not_verified"; "isolation was verified" MUST produce "verified".
 - barrier_state must be one of: verified, not_verified, failed,
   partially_effective, absent, unknown.
+- A barrier_state failure value is only justified when the narrative grounds it
+  in the control itself (absent, bypassed, failed, not verified, not applied).
+  A pressure release or a ruptured valve alone is NOT evidence that the
+  required barrier failed.
 - EXPOSURE and CONSEQUENCE are DIFFERENT fields with DIFFERENT vocabularies:
   exposure = what could reach people or equipment (uncontrolled_liquid_release,
   uncontrolled_gas_release, uncontrolled_steam_release, thermal_burn). It comes
@@ -163,13 +207,34 @@ Implicit-concept hints (contextual wording -> existing codes):
   the hazard, chosen from the BARRIER list. A described control that was
   MISSING, SKIPPED, UNVERIFIED, FAILED, ABSENT or INEFFECTIVE is still that
   canonical barrier; record its failure separately in barrier_state. Vessel/
-  pit/tank entry context ("entry controls", "entry permit", "atmosphere tested
-  or checked", "gas monitoring", "space was safe for entry", confined-space
-  ventilation) -> confined_space_procedure; isolation/lockout/depressurization
+  pit/tank entry context ("entry controls", "entry permit", "entry checks",
+  "pre-entry checks", "required entry checks", "made safe for entry", "atmosphere
+  tested or checked", "gas monitoring", "space was safe for entry",
+  confined-space ventilation, failure to complete the required entry checks) ->
+  confined_space_procedure; isolation/lockout/depressurization
   -> energy_isolation; permit/authorization -> work_permit; guardrails/harness/
   lifelines -> fall_protection; fire watch/gas testing -> hot_work_controls.
   Ground barrier in a verbatim evidence span such as
   "required entry controls had not been verified". Never derive the barrier from the Life-Saving Rules.
+- In a confined-space entry (vessel/pit/tank/silo), an atmosphere that was not
+  confirmed safe, not tested, or lacking ventilation is the atmospheric hazard:
+  energy = flammable_atmosphere when activity = confined_space_entry and the
+  narrative contains atmosphere/ventilation/entry wording (e.g. "atmosphere was not confirmed safe",
+  "ventilation had not been established"), using that
+  wording as its evidence and without requiring a literal "flammable" phrase.
+  Evidence must be verbatim, semantically relevant spans from the narrative.
+- A hazardous-energy term ("pressure", "stored pressure", "pressure release")
+  is ENERGY evidence, NEVER barrier evidence: it cannot be the evidence span or
+  the reason for barrier = energy_isolation, and pressure alone must never
+  produce that barrier. Choose barrier = energy_isolation only when the
+  narrative names the isolation control (isolation, lockout/tag-out, zero
+  energy, depressurization, venting, blow down) or its failure to be applied or
+  verified. "pressure", "valve" and "gas" by themselves are hazard words.
+- barrier_state failure codes (failed, absent, not_verified, partially_effective)
+  require evidence about the CONTROL (absent, bypassed, failed, not verified,
+  not applied, ineffective). A pressure release or a ruptured valve is an
+  event, not proof that the required barrier failed. When barrier = "unknown",
+  barrier_state = "unknown".
 - Map a phrase to a code only when the narrative supports it. If evidence is
   genuinely insufficient, return "unknown" rather than guessing.
 

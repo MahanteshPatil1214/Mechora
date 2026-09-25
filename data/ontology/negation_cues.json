@@ -318,5 +318,55 @@
       "lifting plan",
       "load swung"
     ]
+  },
+  "barrier_hazard_context_terms": {
+    "_comment": "Context words that are HAZARD / EVENT evidence for a barrier, not control evidence. When EVERY matched barrier_context_term of a barrier is a hazard term (pressure / valve / gas / rupture...), the barrier is only inferred when the narrative shows a determinate verification (verified / not_verified); otherwise the words describe the contained energy or the event ('the valve ruptured', 'a pressure release occurred'), never a required control, so barrier stays unknown.",
+    "energy_isolation": [
+      "pressure",
+      "gas",
+      "valve",
+      "valves",
+      "energized",
+      "energised",
+      "rupture",
+      "ruptured",
+      "rupturing",
+      "burst",
+      "bursting",
+      "release",
+      "released",
+      "releasing",
+      "leak",
+      "leaked",
+      "leaking",
+      "flange",
+      "pipe",
+      "piping",
+      "pipeline",
+      "bleed line",
+      "dislodged",
+      "blowout"
+    ]
+  },
+  "barrier_event_mechanism_terms": {
+    "_comment": "Event-MECHANISM words. When a hazard-only context would otherwise read as a control failure, the presence of one of these words means the narrative is describing the EVENT itself ('a sudden pressure release occurred and the valve ruptured', 'a massive blowout ... the well failed'), never a failing isolation control. They only gate the determinate-failure bootstrap; verified / not_verified control observations are never affected.",
+    "energy_isolation": [
+      "rupture",
+      "ruptured",
+      "rupturing",
+      "burst",
+      "bursting",
+      "release",
+      "released",
+      "releasing",
+      "blowout",
+      "blew",
+      "blown out",
+      "gave way",
+      "collapse",
+      "collapsed",
+      "broke",
+      "dislodged"
+    ]
   }
 }
