@@ -43,6 +43,26 @@ IMPLICIT-CONCEPT MAPPING. Safety reports often describe a hazard through
 contextual wording instead of naming a code. Map that wording to the existing
 vocabulary whenever the narrative supports it:
 
+TASK PHASE = the stage of the job at which the described work happened. Name
+the phase from the work the narrative itself performs: inspecting / surveying /
+examining -> inspection; testing / pressure testing / a test run -> testing;
+repairing -> repair; operating / running -> operation; installing / assembling
+-> installation; cleaning / flushing / pigging -> cleaning; a maintenance or
+servicing activity with no more specific phase -> maintenance. pre_job is for
+the PREPARATION/verification stage as the subject of the observation: an
+explicit "Pre-job", "prior to work", "before work started" or "preparation for
+work" framing, or a narrative whose subject IS the planning, briefing,
+permitting or pre-job check. post_job is for work reported after completion
+("after work was completed"). A leading "Before ..." clause that only sets the
+scene for the task ("Before entering the vessel to inspect its interior, ...")
+is a temporal connector, not a pre-job marker: report the phase the task itself
+names.
+
+LOCATION = only a place the narrative actually names. Equipment or process
+wording ("storage vessel", "process vessel", "tank", "pipeline", "compressor")
+describes WHAT was worked on, not WHERE it is: never turn it into a location
+code. If no site, area, unit or plant is stated, location = "unknown".
+
 1. ENERGY (stored/pressurized energy). Pressure and containment wording is
    energy evidence: "stored pressure", "pressure had been released", "residual
    pressure", "no pressure was confirmed", "flange/joint/line under pressure",
@@ -80,15 +100,22 @@ fluid" / "hot liquid" describe a hot liquid substance; they do NOT by
    canonical code over "unknown" when the underlying facts are present.
 
 6. BARRIER = the REQUIRED safety control/mechanism that should protect against
-   the hazard, taken from the BARRIER list. Reports usually name the control's
-   PURPOSE or its FAILURE instead of the code. Map a described control to an
-   EXISTING canonical barrier when the surrounding narrative supports it:
-   - vessel/pit/tank/silo entry context: "entry controls", "entry permit",
-     "entry checks", "pre-entry checks", "required entry checks", "confined
-     space controls", "atmosphere testing", "atmosphere was checked", "gas
-     monitoring", "oxygen checked", "space was safe for entry",
-     "made safe for entry", "standby attendant", ventilation FOR THE ENTRY, or
-     failure to complete the required entry checks -> confined_space_procedure.
+   the hazard, taken from the BARRIER list. Work the inference in this order:
+   NARRATIVE EVIDENCE -> REQUIRED SAFETY CONTROL -> CANONICAL BARRIER.
+   A report rarely prints the canonical code. It states the control's PURPOSE
+   ("made safe for entry", "safe to enter") or its FAILURE ("the required entry
+   checks were never completed", "entry controls had not been verified"), and
+   that is equally valid evidence. You must NOT require the canonical barrier
+   NAME to appear in the text: identify WHICH control the narrative says should
+   have been in force, then emit that control's existing canonical code.
+   - vessel/pit/tank/silo ENTRY context -> confined_space_procedure. Triggers
+     are the ENTRY control, however it is phrased: "entry controls", "entry
+     permit", "entry checks", "pre-entry checks", "required entry checks",
+     "confined space controls", "atmosphere testing", "atmosphere was checked",
+     "gas monitoring", "oxygen checked", "space was safe for entry",
+     "made safe for entry", "safe for entry", "certified safe", "standby
+     attendant", "purged", ventilation FOR THE ENTRY, or failure to complete
+     the required entry checks.
    - "isolation", "lockout/tagout", "zero energy", "depressurized" ->
      energy_isolation.
    - "permit to work", "authorization", "approval" -> work_permit.
@@ -101,6 +128,22 @@ fluid" / "hot liquid" describe a hot liquid substance; they do NOT by
    barrier_state (not_verified/failed/absent/partially_effective), while
    barrier keeps the control that SHOULD have been in place. Do not return
    "unknown" for the barrier merely because the control failed.
+
+   ENTRY-CONTROL PRECEDENCE. In a vessel/pit/tank/silo entry narrative, the
+   ENTRY control is the barrier. A preparatory isolation mention inside the
+   same entry clause ("the vessel had been properly isolated AND MADE SAFE FOR
+   ENTRY") is part of the entry-control obligation, not a competing
+   energy_isolation barrier; it must not displace confined_space_procedure, and
+   its presence is never a reason to answer "unknown".
+
+   The entry triggers above are SUFFICIENT on their own when the surrounding
+   narrative is an entry narrative - do not additionally demand an explicit
+   "confined space" label. Conversely, the bare words "confined space" or
+   "confined-space" are NOT sufficient: never infer confined_space_procedure
+   from that label alone or from the mere fact that someone entered a vessel.
+   The surrounding evidence must support it (an entry control named or failed,
+   atmosphere/ventilation/gas-testing verification, isolation, or the space
+   being made safe). Absent that support, barrier = "unknown".
 
    A HAZARDOUS-ENERGY term is NOT a safety barrier. "pressure", "stored
    pressure", "pressure release" and "rupture" describe the HAZARD or the
@@ -122,37 +165,51 @@ fluid" / "hot liquid" describe a hot liquid substance; they do NOT by
    the entry controls were not verified, "required entry controls had not been
    verified" is the entry-control evidence that makes barrier =
    confined_space_procedure (the confined_space_entry rule alone is not enough).
+   The full chain you must follow, in this order:
+   NARRATIVE EVIDENCE -> REQUIRED SAFETY CONTROL -> CANONICAL BARRIER ->
+   BARRIER STATE -> LSR MAPPING. "Required entry controls had not been
+   verified" names the required safety control, which maps to the canonical
+   barrier confined_space_procedure; the negation engine then derives the
+   barrier state and the LSR mapping follows from the canonical barrier.
 
 8. barrier evidence must be a verbatim narrative span that names or describes
-   the control (e.g. "required entry controls had not been verified", widened
-   with the surrounding vessel-entry/atmosphere context when useful) and MUST
-   be added to the "evidence" array (one verbatim span per filled field).
-   Never invent a span. Evidence spans must be SEMANTICALLY RELEVANT to the
-   FIELD they support: "pressure" can be the evidence span for energy =
-   pressurized_gas, but it can never be the evidence span for barrier =
-energy_isolation. When the narrative offers no evidence for any canonical
-    barrier, keep barrier "unknown" rather than guessing. For a contextually
-    inferred atmospheric hazard in a confined-space entry, the evidence span is
-    the atmosphere/ventilation/entry wording itself (e.g. "The atmosphere was
-    not confirmed safe", "ventilation had not been established", "made safe for
-    entry"), not a literal "flammable" phrase.
+    the control (e.g. "required entry controls had not been verified", "made
+    safe for entry", "without completing the required entry checks", widened
+    with the surrounding vessel-entry/atmosphere context when useful) and MUST
+    be added to the "evidence" array (one verbatim span per filled field).
+    Never invent a span. Evidence spans must be SEMANTICALLY RELEVANT to the
+    FIELD they support: "pressure" can be the evidence span for energy =
+    pressurized_gas, but it can never be the evidence span for barrier =
+ energy_isolation. When the narrative offers no evidence for any canonical
+     barrier, keep barrier "unknown" rather than guessing. For a contextually
+     inferred atmospheric hazard in a confined-space entry, the evidence span is
+     the atmosphere/ventilation/entry wording itself (e.g. "The atmosphere was
+     not confirmed safe", "ventilation had not been established", "made safe for
+     entry"), not a literal "flammable" phrase.
 
-9. barrier_state describes the REQUIRED control, so a failure state (failed,
-   absent, not_verified, partially_effective) requires narrative evidence about
-   that control: it was absent, bypassed, failed, not verified, removed, not
-   applied or ineffective. An unexpected pressure release or a component
-   rupture describes the EVENT, not the state of an isolation control: by
-   itself it NEVER makes barrier_state "failed". When barrier = "unknown"
-   (no control named), barrier_state = "unknown". A subordinate clause about
-   the entry control - "without completing the required entry checks" - is
-   evidence the control was NOT in force and MUST produce barrier_state =
-   not_verified, the same as "was not confirmed" or "had not been established".
+9. barrier_state is NOT your decision to make. A deterministic negation engine
+   re-derives it from the narrative AFTER you answer, so do not spend your
+   reasoning budget on it and do not hedge your barrier because the state looks
+   uncertain. Emit a barrier_state value from the list below as your reading of
+   the control; the engine is authoritative either way. Two invariants hold for
+   the final value no matter what you emit. An unexpected pressure release or a
+   component rupture describes the EVENT, not the state of an isolation control, so by itself it
+   NEVER makes barrier_state "failed". And when barrier = "unknown"
+   (no control named), barrier_state = "unknown".
 
 OTHER RULES:
-- Preserve safety-critical negation: "isolation was not verified" MUST produce
-  barrier_state "not_verified"; "isolation was verified" MUST produce "verified".
 - barrier_state must be one of: verified, not_verified, failed,
   partially_effective, absent, unknown.
+- Because the engine owns barrier_state, the burden on you is to get the
+  BARRIER and its EVIDENCE right. If you are confident which control should
+  have been in force, report that canonical barrier and quote the span that
+  proves it - do not withhold the barrier because the text describes the
+  control's failure rather than its name.
+- Safety-critical negation still drives WHICH spans you quote, so read it
+  carefully: "did not verify", "was not confirmed safe", "had not been
+  established" and "without completing the required entry checks" are the
+  evidence that the named control was not in force. They are evidence for the
+  barrier you report, and they belong in the "evidence" array.
 - A barrier_state failure value is only justified when the narrative grounds it
   in the control itself (absent, bypassed, failed, not verified, not applied).
   A pressure release or a ruptured valve alone is NOT evidence that the
@@ -192,6 +249,24 @@ LOCATION: {_join('location')}
 LIFE_SAVING_RULES: {_join('lsr')}
 
 Implicit-concept hints (contextual wording -> existing codes):
+- TASK PHASE = the stage of the job at which the described work happened. Name
+  it from the work the narrative itself performs: inspecting / surveying /
+  examining -> inspection; testing / a pressure test / a test run -> testing;
+  repairing -> repair; operating / running -> operation; installing /
+  assembling -> installation; cleaning / flushing / pigging -> cleaning; a
+  maintenance or servicing activity with no more specific phase -> maintenance.
+  pre_job is for the PREPARATION/verification stage as the SUBJECT of the
+  observation: an explicit "Pre-job", "prior to work", "before work started" or
+  "preparation for work" framing, or a narrative whose subject IS the planning,
+  briefing, permitting or pre-job check. post_job is for work reported after
+  completion ("after work was completed"). A leading "Before ..." clause that
+  only sets the scene for the task ("Before entering the vessel to inspect its
+  interior, ...") is a temporal connector, not a pre-job marker: report the
+  phase the task itself names.
+- LOCATION = only a place the narrative actually names. Equipment or process
+  wording ("storage vessel", "process vessel", "tank", "pipeline", "compressor")
+  describes WHAT was worked on, not WHERE it is: never turn it into a location
+  code. If no site, area, unit or plant is stated, location = "unknown".
 - "stored pressure", "pressure had been released", "flange/joint under pressure",
   "depressurized" indicate stored/pressurized energy; choose pressurized_liquid
   for a liquid substance (crude oil, hot liquid, hydrocarbon liquid) or
@@ -204,18 +279,43 @@ Implicit-concept hints (contextual wording -> existing codes):
 - A maintenance release of a hot/pressurized liquid should report energy =
   pressurized_liquid and exposure = uncontrolled_liquid_release.
 - BARRIER = the required safety control/mechanism that should protect against
-  the hazard, chosen from the BARRIER list. A described control that was
-  MISSING, SKIPPED, UNVERIFIED, FAILED, ABSENT or INEFFECTIVE is still that
+  the hazard, chosen from the BARRIER list. Infer it in this order: NARRATIVE
+  EVIDENCE -> REQUIRED SAFETY CONTROL -> CANONICAL BARRIER. A report rarely
+  prints the canonical code: it states the control's PURPOSE ("made safe for
+  entry") or its FAILURE ("the required entry checks were never completed").
+  That is equally valid evidence - you must NOT require the canonical barrier
+  NAME to appear in the text. Identify WHICH control should have been in force,
+  then emit that control's existing canonical code. The full inversion chain is
+  NARRATIVE EVIDENCE -> REQUIRED SAFETY CONTROL -> CANONICAL BARRIER ->
+  BARRIER STATE -> LSR MAPPING; you own the first three links, and the
+  deterministic negation engine and LSR mapper own the rest. A described control
+  that
+  was MISSING, SKIPPED, UNVERIFIED, FAILED, ABSENT or INEFFECTIVE is still that
   canonical barrier; record its failure separately in barrier_state. Vessel/
   pit/tank entry context ("entry controls", "entry permit", "entry checks",
-  "pre-entry checks", "required entry checks", "made safe for entry", "atmosphere
-  tested or checked", "gas monitoring", "space was safe for entry",
+  "pre-entry checks", "required entry checks", "made safe for entry", "safe
+  for entry", "certified safe", "atmosphere tested or checked", "gas
+  monitoring", "purged", "space was safe for entry",
   confined-space ventilation, failure to complete the required entry checks) ->
   confined_space_procedure; isolation/lockout/depressurization
   -> energy_isolation; permit/authorization -> work_permit; guardrails/harness/
   lifelines -> fall_protection; fire watch/gas testing -> hot_work_controls.
   Ground barrier in a verbatim evidence span such as
-  "required entry controls had not been verified". Never derive the barrier from the Life-Saving Rules.
+  "required entry controls had not been verified", "made safe for entry" or
+  "without completing the required entry checks". Never derive the barrier from the Life-Saving Rules.
+- ENTRY-CONTROL PRECEDENCE: in a vessel/pit/tank/silo entry narrative the ENTRY
+  control is the barrier. A preparatory isolation mention inside the same entry
+  clause ("the vessel had been properly isolated AND MADE SAFE FOR ENTRY") is
+  part of the entry-control obligation, not a competing energy_isolation
+  barrier; it must not displace confined_space_procedure, and it is never a
+  reason to answer "unknown". Those entry triggers are sufficient on their own
+  in an entry narrative - do not additionally demand an explicit "confined
+  space" label. The bare words "confined space" are NOT sufficient: never
+  infer confined_space_procedure from that label alone, nor from the bare fact
+  that someone entered a vessel. The surrounding evidence must support it (an
+  entry control named or failed, atmosphere/ventilation/gas-testing
+  verification, isolation, or the space being made safe); without that support
+  barrier = "unknown".
 - In a confined-space entry (vessel/pit/tank/silo), an atmosphere that was not
   confirmed safe, not tested, or lacking ventilation is the atmospheric hazard:
   energy = flammable_atmosphere when activity = confined_space_entry and the
@@ -230,11 +330,12 @@ Implicit-concept hints (contextual wording -> existing codes):
   narrative names the isolation control (isolation, lockout/tag-out, zero
   energy, depressurization, venting, blow down) or its failure to be applied or
   verified. "pressure", "valve" and "gas" by themselves are hazard words.
-- barrier_state failure codes (failed, absent, not_verified, partially_effective)
-  require evidence about the CONTROL (absent, bypassed, failed, not verified,
-  not applied, ineffective). A pressure release or a ruptured valve is an
-  event, not proof that the required barrier failed. When barrier = "unknown",
-  barrier_state = "unknown".
+- barrier_state is re-derived by a deterministic negation engine AFTER you
+  answer, so it is not yours to decide - put your reasoning into the barrier and
+  its evidence instead. Your value must still be one of: verified,
+  not_verified, failed, partially_effective, absent, unknown. A pressure release
+  or a ruptured valve is an event, not proof that the required barrier failed.
+  When barrier = "unknown", barrier_state = "unknown".
 - Map a phrase to a code only when the narrative supports it. If evidence is
   genuinely insufficient, return "unknown" rather than guessing.
 

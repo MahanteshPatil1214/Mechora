@@ -191,7 +191,6 @@ class AnalysisPipeline:
         if event.barrier != UNKNOWN_CODE:
             state_result = self.negation.classify_barrier(event.barrier, narrative)
             event.barrier_state = state_result.state
-            event.confidence = state_result.confidence
             # Barrier-state evidence = FULL causal sentence carrying the
             # verification phrase (same attribution rule as the rules path).
             barrier_state_span = sentence_containing(
@@ -308,7 +307,17 @@ class AnalysisPipeline:
                 fev["actual_consequence"] = fev.pop("consequence")
             event.field_evidence = fev
         else:
-            # LLM path: the model may only propose VALUES. Evidence
+            # LLM path: 'confidence' is the extractor's self-assessed confidence
+            # in the WHOLE extraction (the rules path computes it from field
+            # coverage; Gemini reports it). It must be carried through on this
+            # path too: previously it was read only on the rules path, so an LLM
+            # analysis leaked the SafetyEvent default of 0.0 whenever no barrier
+            # was grounded. The negation engine's barrier-STATE confidence is a
+            # different quantity and is deliberately NOT written here; how much
+            # of the extraction resolved is already reported honestly through
+            # missing_fields / needs_review below.
+            event.confidence = raw.confidence
+            # The model may only propose VALUES. Evidence
             # attribution is recomputed deterministically from the canonical
             # event via the ontology, so EXPLICIT vs INFERRED provenance never
             # depends on what the model emitted — language understanding is
