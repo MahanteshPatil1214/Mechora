@@ -150,6 +150,85 @@ _EXPLICIT_PRE_JOB_CUES = (
 )
 
 
+# ---------------------------------------------------------------------------
+# Confined-space context (generic, ontology-aligned)
+# ---------------------------------------------------------------------------
+# A confined-space narrative rarely uses the canonical code or an ontology
+# synonym verbatim: it says "entering the storage vessel", "the atmosphere was
+# not confirmed safe", "the required entry checks". The cue sets below are
+# morphological families, not sentences, so the same detector serves vessels,
+# tanks, pits, silos, reactors and any other enclosure.
+#
+# Nothing here mints a code: the codes it can select (confined_space_entry,
+# confined_space_procedure, flammable_atmosphere, confined_space_atmosphere)
+# already exist in the ontology. Detection only decides WHEN those existing
+# codes apply, and WHICH one wins a precedence contest.
+_CS_ENCLOSURE_NOUNS = (
+    "vessel", "tank", "pit", "silo", "reactor", "drum", "vat", "boiler",
+    "hopper", "bunker", "manway", "hatch", "confined space",
+)
+# Morphological variants are listed explicitly because span matching uses a
+# trailing word boundary: "enter" must not silently swallow "entering".
+_CS_ENTRY_WORDS = (
+    "enter", "entered", "entering", "entry", "inside", "interior", "internal",
+    "within", "climbed", "descended", "stepped", "crawled", "entered into",
+)
+_CS_INTERIOR_WORDS = ("interior", "inside", "internal", "within")
+# Atmospheric-hazard evidence. Separate from entry CONTROL evidence: an
+# unverified atmosphere is the HAZARD, the entry checks are the CONTROL, and
+# only the latter may justify naming a barrier.
+_CS_ATMOSPHERE_WORDS = (
+    "atmosphere", "atmospheric", "ventilation", "ventilated", "ventilating",
+    "oxygen", "purge", "purged", "flammable", "vapour", "vapor",
+)
+_CS_INSPECTION_WORDS = (
+    "inspect", "inspected", "inspection", "inspecting", "examined",
+    "examination", "survey", "visual check",
+)
+# Controls that must NOT win merely because the narrative happens to say
+# "ventilation" or "gas testing".
+#
+# Each entry lists the control's AMBIGUOUS matches - phrases that a confined-space
+# entry control also owns, so their presence alone cannot identify which control
+# the report is about - together with the terms that would independently prove
+# that control. "Ventilation" is only meaningful evidence for chemical handling
+# when no entry context is established; inside a vessel entry it is part of the
+# entry-control obligation (confined_space_procedure). "Gas testing" belongs to
+# hot_work_controls ONLY when hot work is actually in evidence.
+_CS_AMBIGUOUS_CONTROLS: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
+    "chemical_handling_controls": (
+        ("ventilation", "ventilated", "containment", "exhaust system"),
+        ("chemical handling", "chemical ppe", "chemical gloves",
+         "protective clothing", "spill kit", "scrubber", "respirator"),
+    ),
+    "hot_work_controls": (
+        ("gas test", "gas testing", "flammable gas test",
+         "combustible gas test", "gas testing for hot work"),
+        ("hot work", "fire watch", "hot work permit", "fire blanket",
+         "spark guard", "welding", "cutting", "ignition source"),
+    ),
+}
+
+
+@dataclass
+class ConfinedSpaceContext:
+    """Outcome of the generic enclosure-entry detection.
+
+    ``established`` means the narrative places a person INSIDE an enclosure.
+    The remaining flags record which supporting evidence was found, so each
+    downstream field can require the evidence that actually justifies it.
+    """
+
+    established: bool = False
+    atmosphere: bool = False
+    atmosphere_verified: bool = False
+    control: bool = False
+    activity_span: str = ""
+    atmosphere_clause: str = ""
+    atmosphere_window: str = ""
+    interior_inspection_span: str = ""
+
+
 class RuleBasedExtractor:
     """Extracts structured safety attributes with deterministic rules."""
 
@@ -174,6 +253,18 @@ class RuleBasedExtractor:
         activity, a_span = self.canonicalizer.map(narrative, "activity")
         matched["activity"] = self._extract_verbatim_span(narrative, a_span) if a_span else ""
 
+        # Generic confined-space context: does the narrative place someone INSIDE
+        # an enclosure? Computed once and reused by activity, task phase, energy,
+        # exposure and barrier so every field agrees on the same reading.
+        cs = self._confined_space_context(narrative)
+
+        # A verbatim ontology synonym ("tank entry") is authoritative and is left
+        # alone. This only FILLS a genuinely unresolved activity, and only from
+        # evidence that spans the entry itself.
+        if activity == UNKNOWN_CODE and cs.established and cs.activity_span:
+            activity = "confined_space_entry"
+            matched["activity"] = cs.activity_span
+
         task_phase, t_span = self.canonicalizer.map(narrative, "task_phase")
         matched["task_phase"] = self._extract_verbatim_span(narrative, t_span) if t_span else ""
 
@@ -189,6 +280,23 @@ class RuleBasedExtractor:
             ) if primary_energy in en_spans else "",
         )
         energy_codes = [e for e in energies]
+
+        # An UNVERIFIED ATMOSPHERE inside an enclosure is the atmospheric hazard,
+        # and flammable_atmosphere is the existing ontology code for it. Requires
+        # the atmosphere to be present AND not affirmatively verified: a space
+        # whose atmosphere "was tested safe" / "was tested and ventilation was
+        # running" carries no atmospheric hazard. This only FILLS an unresolved
+        # energy, so a narrative that literally names a substance (pressurized
+        # gas, hot liquid) keeps that substance's code.
+        if (primary_energy == UNKNOWN_CODE and cs.established and cs.atmosphere
+                and not cs.atmosphere_verified and cs.atmosphere_clause):
+            primary_energy = "flammable_atmosphere"
+            en_spans = dict(en_spans)
+            en_spans["flammable_atmosphere"] = cs.atmosphere_clause
+            energy_codes.insert(0, primary_energy)
+            matched["energy"] = self._expand_hazard_span(
+                narrative, cs.atmosphere_clause
+            )
 
         # Task-phase inference: a known activity always implies an active job
         # ("maintenance"); unknown activity uses pre/post job temporal cues
@@ -218,6 +326,16 @@ class RuleBasedExtractor:
             matched["task_phase"] = self._extract_verbatim_span(
                 narrative, t_span
             ) if t_span else ""
+        # An INTERNAL inspection is concrete phase evidence, exactly like a
+        # specific testing phrase above: an inspection word plus an interior word
+        # in the same sentence ("...to inspect its interior", "internal
+        # inspection") means the incident happened DURING that inspection. It
+        # outranks the activity-implied "maintenance" phase AND an incidental
+        # ontology match elsewhere in the narrative ("the maintenance team ..."),
+        # which names who was on site rather than what the job was.
+        elif cs.interior_inspection_span:
+            task_phase = "inspection"
+            matched["task_phase"] = cs.interior_inspection_span
         elif activity and activity != UNKNOWN_CODE:
             task_phase = "maintenance"
             mc = self.ontology.concept("task_phase", "maintenance")
@@ -266,8 +384,23 @@ class RuleBasedExtractor:
         ex_evidence = self._extract_verbatim_span(narrative, ex_span) if ex_span else ""
         matched["exposure"] = self._exposure_event_phrase(narrative, ex_evidence)
 
+        # The atmosphere INSIDE the enclosure is the exposure, and
+        # confined_space_atmosphere is the existing ontology code for it. Requires
+        # the same atmospheric evidence that justified the energy, so entry alone
+        # ("entered the vessel") never invents an exposure, and a verified
+        # atmosphere never becomes one either.
+        if (exposure == UNKNOWN_CODE and cs.established and cs.atmosphere
+                and not cs.atmosphere_verified):
+            exposure = "confined_space_atmosphere"
+            # Deliberately NOT widened by _exposure_event_phrase: that helper
+            # lifts a bare release verb to the whole describing sentence, which
+            # here would also absorb the causal clause. The span stays on the
+            # atmospheric observation itself.
+            ex_evidence = cs.atmosphere_window or cs.atmosphere_clause
+            matched["exposure"] = ex_evidence
+
         barrier, bar_span, inferred = self._detect_barrier(
-            narrative, norm, energy_codes
+            narrative, norm, energy_codes, cs
         )
         matched["barrier"] = self._extract_verbatim_span(narrative, bar_span) if bar_span else ""
 
@@ -496,6 +629,173 @@ class RuleBasedExtractor:
             if span and len(span) > len(best):
                 best = span
         return best
+
+    # -------------------------------------------------- confined-space context
+
+    @staticmethod
+    def _first_span(narrative: str, cues) -> tuple[int, int, str]:
+        """Earliest cue occurrence in the ORIGINAL narrative, with its exact
+        offsets and verbatim (case-preserving) text.
+
+        Offsets are taken from the raw narrative rather than normalize_text()
+        output so a span can be widened in original coordinates without an
+        offset mapping. Matching is case-insensitive with word boundaries.
+        """
+        best: tuple[int, int, str] | None = None
+        for cue in cues:
+            if not cue:
+                continue
+            m = re.search(
+                r"(?<!\w)" + re.escape(cue) + r"(?!\w)", narrative, re.IGNORECASE
+            )
+            if m and (best is None or m.start() < best[0]):
+                best = (m.start(), m.end(), m.group(0))
+        return best or (-1, -1, "")
+
+    @staticmethod
+    def _sentence_bounds(narrative: str, index: int) -> tuple[int, int]:
+        """Character range of the sentence containing ``index``."""
+        start = 0
+        for stop in (".", "!", "?"):
+            found = narrative.rfind(stop, 0, index)
+            if found != -1:
+                start = max(start, found + 1)
+        end = len(narrative)
+        for stop in (".", "!", "?"):
+            found = narrative.find(stop, index)
+            if found != -1:
+                end = min(end, found + 1)
+        return start, end
+
+    @staticmethod
+    def _clause_span(narrative: str, needle: str) -> str:
+        """The comma/semicolon/sentence-delimited clause containing ``needle``,
+        verbatim. Keeps an inferred value's evidence as short as the sentence
+        that actually grounds it, never the whole narrative."""
+        if not needle:
+            return ""
+        i = narrative.lower().find(needle.lower())
+        if i == -1:
+            return needle
+        left = 0
+        for stop in (",", ";", ":", ".", "!", "?"):
+            found = narrative.rfind(stop, 0, i)
+            if found != -1:
+                left = max(left, found + 1)
+        right = len(narrative)
+        for stop in (",", ";", ":", ".", "!", "?"):
+            found = narrative.find(stop, i)
+            if found != -1:
+                right = min(right, found)
+        return narrative[left:right].strip()
+
+    @staticmethod
+    def _atmosphere_observation_span(narrative: str) -> str:
+        """Verbatim span covering the CONTIGUOUS run of clauses that describe the
+        atmosphere.
+
+        Clauses, not the whole sentence: a run-on comma chain typically continues
+        into the CAUSE ("The atmosphere was not confirmed safe, ventilation had
+        not been established, and the worker entered the vessel without
+        completing the required entry checks"). The trailing clause is barrier
+        evidence, so widening to the sentence would blur two distinct fields.
+        """
+        atmo = RuleBasedExtractor._first_span(narrative, _CS_ATMOSPHERE_WORDS)
+        if atmo[0] == -1:
+            return ""
+        sent_start, sent_end = RuleBasedExtractor._sentence_bounds(narrative, atmo[0])
+        sentence = narrative[sent_start:sent_end]
+        hits: list[tuple[int, int]] = []
+        for m in re.finditer(r"[^,;:]+", sentence):
+            low = m.group(0).lower()
+            if any(
+                re.search(r"(?<!\w)" + re.escape(w) + r"(?!\w)", low)
+                for w in _CS_ATMOSPHERE_WORDS
+            ):
+                hits.append((m.start(), m.end()))
+        if not hits:
+            return atmo[2]
+        return sentence[hits[0][0]:hits[-1][1]].strip()
+
+    def _internal_inspection_span(self, narrative: str) -> str:
+        """Verbatim span when an inspection/examination happens INSIDE an
+        enclosure ("...to inspect its interior", "internal inspection").
+
+        Requires BOTH an inspection word and an interior word in the same
+        sentence: an inspection word alone must not imply an internal one.
+        """
+        for sentence in split_sentences(narrative):
+            low = sentence.lower()
+            if not any(w in low for w in _CS_INSPECTION_WORDS):
+                continue
+            if not any(w in low for w in _CS_INTERIOR_WORDS):
+                continue
+            insp = self._first_span(sentence, _CS_INSPECTION_WORDS)
+            interior = self._first_span(sentence, _CS_INTERIOR_WORDS)
+            if insp[0] == -1 or interior[0] == -1:
+                continue
+            start = min(insp[0], interior[0])
+            end = max(insp[1], interior[1])
+            return sentence[start:end].strip()
+        return ""
+
+    def _confined_space_context(self, narrative: str) -> ConfinedSpaceContext:
+        """Detect generic confined-space context and collect its evidence.
+
+        Established when the narrative places someone INSIDE an enclosure (an
+        enclosure noun plus an entry/interior cue) - the same shape for a
+        vessel, a tank, a pit or a silo. The atmosphere and entry-control flags
+        are recorded separately so that naming a BARRIER additionally requires
+        control evidence, not merely the word "ventilation".
+        """
+        ctx = ConfinedSpaceContext()
+        enc = self._first_span(narrative, _CS_ENCLOSURE_NOUNS)
+        ent = self._first_span(narrative, _CS_ENTRY_WORDS)
+        if enc[0] == -1 or ent[0] == -1:
+            return ctx
+        ctx.established = True
+
+        # Activity evidence spans the entry cue through the interior cue when
+        # both are present ("entering the storage vessel to inspect its
+        # interior"), so the span names the entry AND what was done inside.
+        interior = self._first_span(narrative, _CS_INTERIOR_WORDS)
+        if interior[0] != -1 and interior[0] >= ent[0]:
+            start, end = ent[0], max(ent[1], interior[1])
+        else:
+            start, end = min(ent[0], enc[0]), max(ent[1], enc[1])
+        ctx.activity_span = narrative[start:end].strip()
+
+        atmo = self._first_span(narrative, _CS_ATMOSPHERE_WORDS)
+        if atmo[0] != -1:
+            ctx.atmosphere = True
+            ctx.atmosphere_clause = self._clause_span(narrative, atmo[2])
+            ctx.atmosphere_window = self._atmosphere_observation_span(narrative)
+            # POLARITY, not vocabulary, decides whether the atmosphere is a
+            # hazard. "The vessel atmosphere was tested and ventilation was
+            # running" contains the same words as "the atmosphere was not
+            # confirmed safe" but describes a CONTROLLED space, so it must not
+            # yield an atmospheric hazard. The negation engine already reads
+            # these correctly, so ask it rather than tracking polarity twice.
+            ctx.atmosphere_verified = (
+                self.negation.classify_barrier(
+                    "confined_space_procedure", narrative
+                ).state == "verified"
+            )
+
+        # Entry-control evidence is read from the ONTOLOGY, not from a second
+        # hand-written cue list: the narrative is asked whether it names the
+        # confined-space entry control at all. This keeps barriers.json the single
+        # source of truth, and it means a ventilation-only narrative can never
+        # reach the entry-control precedence rule because it names no entry
+        # control in the first place.
+        _code, control_span = self._best_synonym_match(
+            narrative, "barrier", "confined_space_procedure"
+        )
+        if control_span:
+            ctx.control = True
+
+        ctx.interior_inspection_span = self._internal_inspection_span(narrative)
+        return ctx
 
     def _is_specific_testing_phase(self, task_phase: str, t_span: str) -> bool:
         """True when the ontology matched a CONCRETE, compound testing phrase
@@ -775,12 +1075,19 @@ class RuleBasedExtractor:
         return UNKNOWN_CODE, ""
 
     def _detect_barrier(self, narrative: str, norm: str,
-                        energy_codes: list[str]) -> tuple[str, str, bool]:
+                        energy_codes: list[str],
+                        cs: "ConfinedSpaceContext | None" = None,
+                        ) -> tuple[str, str, bool]:
         """Detect the primary barrier.
 
         Priority: explicit barrier mentions (`hard`), then energy inference
         (`soft`). Returns (code, evidence_span, inferred).
+
+        ``cs`` is the shared confined-space context from `extract()`; a generic
+        control (ventilation) must not outrank a named entry control once entry
+        into an enclosure is established.
         """
+        cs = cs or ConfinedSpaceContext()
         norm_narr = f" {norm} "
         self._barrier_map: list[tuple[str, str]] = []
         hard: list[tuple[str, str, str]] = []  # (code, span, matching_ctx)
@@ -805,6 +1112,23 @@ class RuleBasedExtractor:
             codes = {code for _w, code, _s in scored}
             if "hot_work_controls" in codes and "work_permit" in codes:
                 scored = [s for s in scored if s[1] != "work_permit"]
+            # Same reasoning for a confined-space entry: when the narrative puts
+            # someone inside an enclosure AND names an entry control ("the
+            # required entry checks", "an entry certificate"), that control
+            # outranks a broader control whose only match is an AMBIGUOUS term.
+            # Without this, "ventilation" (11 chars) beat "required entry checks"
+            # (21) on the longest-span tie-break below, purely because the
+            # mention was shorter - naming a broad, ambient control is weaker
+            # evidence than naming the control the entry actually required. A
+            # competing control is dropped ONLY when its match rests entirely on
+            # ambiguous terms and nothing independently proves it, so a narrative
+            # with real hot work still resolves to the hot-work control.
+            if cs.established and cs.control and "confined_space_procedure" in codes:
+                norm_padded = f" {norm} "
+                for code in codes & set(_CS_AMBIGUOUS_CONTROLS):
+                    ambiguous, independent = _CS_AMBIGUOUS_CONTROLS[code]
+                    if not any(f" {t} " in norm_padded for t in independent):
+                        scored = [s for s in scored if s[1] != code]
             scored.sort(key=lambda x: (x[0], -len(x[2])), reverse=True)
             return scored[0][1], scored[0][2], False
 
