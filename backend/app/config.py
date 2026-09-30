@@ -33,7 +33,13 @@ class Settings(BaseSettings):
 
     # --- AI ---
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-1.5-flash"
+    # Default model. Google retires model aliases, so this must be a model that
+    # is currently servable; previously-unavailable aliases (e.g.
+    # gemini-2.5-flash) make every Gemini call fail with HTTP 404 even though
+    # the pipeline still returns 200 via deterministic fallback. GEMINI_MODEL in
+    # .env always wins over this default, so deployments can pin a model
+    # without a code change.
+    gemini_model: str = "gemini-3.8-flash"
     extraction_provider: str = "auto"  # auto | llm | rules
     embedding_model: str = ""  # optional sentence-transformers model
 
