@@ -219,6 +219,10 @@ def test_extractor_uses_google_genai_client(monkeypatch):
         def __init__(self, **kwargs):
             self.kwargs = kwargs
 
+    class _FakeAFCConfig:
+        def __init__(self, **kwargs):
+            self.kwargs = kwargs
+
     class _FakeModels:
         def generate_content(self, model=None, contents=None, config=None):
             calls["call"] = SimpleNamespace(
@@ -239,6 +243,7 @@ def test_extractor_uses_google_genai_client(monkeypatch):
     fake_genai.Client = _FakeClient
     fake_types = ModuleType("google.genai.types")
     fake_types.GenerateContentConfig = _FakeConfig
+    fake_types.AutomaticFunctionCallingConfig = _FakeAFCConfig
     fake_genai.types = fake_types
     monkeypatch.setitem(sys.modules, "google.genai", fake_genai)
     monkeypatch.setitem(sys.modules, "google.genai.types", fake_types)

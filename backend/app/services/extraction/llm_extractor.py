@@ -483,6 +483,13 @@ class LLMExtractor:
                 system_instruction=_SYSTEM_INSTRUCTION,
                 response_mime_type="application/json",
                 temperature=0.0,
+                # Explicitly override the google-genai AFC default, which is ON
+                # whenever no tools are supplied. Extraction is a single-shot
+                # structured read, so remote function-calling rounds only add
+                # latency and a second billable generateContent call.
+                automatic_function_calling=self._genai_types.AutomaticFunctionCallingConfig(
+                    disable=True
+                ),
             ),
         )
         raw = resp.text
