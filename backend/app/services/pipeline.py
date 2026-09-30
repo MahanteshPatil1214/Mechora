@@ -121,13 +121,20 @@ class AnalysisPipeline:
             fallback_reason=fallback_reason,
         )
 
-    def to_observation(self, report_id: str, narrative: str,
-                       provider: str | None = None,
-                       document_id: str = "",
-                       report_segment_id: str = "",
-                       segment_index: int | None = None,
+    def observation_from_result(self, result: AnalysisResult,
+                                report_id: str, narrative: str,
+                                document_id: str = "",
+                                report_segment_id: str = "",
+                                segment_index: int | None = None,
     report_type: str | None = None) -> Observation:
-        result = self.analyze(report_id, narrative, provider=provider)
+        """Build an Observation from an ALREADY-COMPUTED analysis result.
+
+        Callers that need both the AnalysisResult (for the HTTP response) and a
+        persisted Observation must use this, so the event, provider metadata and
+        warnings all originate from ONE analysis invocation. Re-analysing here
+        would double the LLM cost of a request and could return provider
+        metadata from one run alongside an event from another.
+        """
         return Observation(
             report_id=report_id,
             narrative=narrative,
@@ -140,6 +147,23 @@ class AnalysisPipeline:
             report_segment_id=report_segment_id,
             segment_index=segment_index,
             report_type=report_type or "unknown",
+        )
+
+    def to_observation(self, report_id: str, narrative: str,
+                       provider: str | None = None,
+                       document_id: str = "",
+                       report_segment_id: str = "",
+                       segment_index: int | None = None,
+    report_type: str | None = None) -> Observation:
+        result = self.analyze(report_id, narrative, provider=provider)
+        return self.observation_from_result(
+            result,
+            report_id,
+            narrative,
+            document_id=document_id,
+            report_segment_id=report_segment_id,
+            segment_index=segment_index,
+            report_type=report_type,
         )
 
     # --------------------------------------------------------------- internal

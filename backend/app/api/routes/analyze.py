@@ -47,10 +47,15 @@ def run_analysis_and_save(
         logger.exception("analysis failed for report_id=%s", report_id)
         raise HTTPException(status_code=500, detail="analysis failed") from exc
 
-    obs = pipeline.to_observation(
+    # Reuse the single AnalysisResult for BOTH the persisted observation and the
+    # HTTP response. Calling to_observation() here would re-run
+    # pipeline.analyze(), costing a second Gemini call per request and allowing
+    # the response's warnings to come from one run while the event came from
+    # another.
+    obs = pipeline.observation_from_result(
+        result,
         report_id,
         narrative,
-        provider=provider,
         document_id=document_id,
         report_segment_id=report_segment_id,
         segment_index=segment_index,
